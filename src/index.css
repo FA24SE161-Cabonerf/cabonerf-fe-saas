@@ -177,5 +177,6 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		color: #2d333a;
 	}
 }
