@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { Eye, EyeClosed } from '@phosphor-icons/react';
+import { disableCopyPaste } from '@/utils/utils';
 export default function LoginPage() {
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
@@ -76,6 +77,8 @@ export default function LoginPage() {
 												type={isVisiblePassword ? 'text' : 'password'}
 												className="h-14 rounded-[6px] pr-10"
 												placeholder="Password*"
+												onCopy={disableCopyPaste}
+												onPaste={disableCopyPaste}
 												{...field}
 											/>
 											<button
@@ -87,7 +90,6 @@ export default function LoginPage() {
 											</button>
 										</div>
 									</FormControl>
-									{/* <div>123</div> */}
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.password?.message && (
 											<span className="text-xs text-red-600">

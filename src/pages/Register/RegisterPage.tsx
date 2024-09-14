@@ -1,31 +1,34 @@
 import GoogleIcon from '@/common/icons/google-icon';
 import { Button } from '@/components/ui/button';
-import { FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
-import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
+import { registerSchema, tRegisterSchema } from '@/schemas/validation/register.schema';
+import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeClosed } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Form, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function RegisterPage() {
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
-	const form = useForm<tLoginSchema>({
-		resolver: zodResolver(loginSchema),
+	const form = useForm<tRegisterSchema>({
+		resolver: zodResolver(registerSchema),
 		defaultValues: {
 			email: '',
 			password: '',
+			confirm_password: '',
+			full_name: '',
 		},
 	});
 
 	useEffect(() => {
-		document.title = TAB_TITLES.LOGIN;
+		document.title = TAB_TITLES.REGISTER;
 	}, []);
 
-	const onSubmit: SubmitHandler<tLoginSchema> = (data) => {
+	const onSubmit: SubmitHandler<tRegisterSchema> = (data) => {
 		console.log(data);
 	};
 
@@ -59,7 +62,30 @@ export default function RegisterPage() {
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.email?.message && (
 											<span className="text-xs text-red-600">
-												{form.formState.errors.email?.message}
+												{form.formState.errors.email.message}
+											</span>
+										)}
+									</div>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="full_name"
+							render={({ field }) => (
+								<FormItem className="space-y-0">
+									<FormControl>
+										<Input
+											className="h-14 rounded-[6px] placeholder:text-muted-foreground"
+											placeholder="Full name*"
+											{...field}
+										/>
+									</FormControl>
+
+									<div className="mt-[1px] min-h-[1.5rem]">
+										{form.formState.errors.full_name?.message && (
+											<span className="text-xs text-red-600">
+												{form.formState.errors.full_name.message}
 											</span>
 										)}
 									</div>
@@ -77,6 +103,8 @@ export default function RegisterPage() {
 												type={isVisiblePassword ? 'text' : 'password'}
 												className="h-14 rounded-[6px] pr-10"
 												placeholder="Password*"
+												onCopy={disableCopyPaste}
+												onPaste={disableCopyPaste}
 												{...field}
 											/>
 											<button
@@ -88,11 +116,37 @@ export default function RegisterPage() {
 											</button>
 										</div>
 									</FormControl>
-									{/* <div>123</div> */}
+
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.password?.message && (
 											<span className="text-xs text-red-600">
-												{form.formState.errors.password?.message}
+												{form.formState.errors.password.message}
+											</span>
+										)}
+									</div>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="confirm_password"
+							render={({ field }) => (
+								<FormItem className="space-y-0">
+									<FormControl>
+										<Input
+											type="password"
+											className="h-14 rounded-[6px] pr-10"
+											placeholder="Confirm password*"
+											onCopy={disableCopyPaste}
+											onPaste={disableCopyPaste}
+											{...field}
+										/>
+									</FormControl>
+
+									<div className="mt-[1px] min-h-[1.5rem]">
+										{form.formState.errors.confirm_password?.message && (
+											<span className="text-xs text-red-600">
+												{form.formState.errors.confirm_password.message}
 											</span>
 										)}
 									</div>
@@ -100,14 +154,14 @@ export default function RegisterPage() {
 							)}
 						/>
 						<Button className="mt-3 h-14 w-full rounded-[6px] text-base font-normal" type="submit">
-							Login
+							Register
 						</Button>
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">
-						Don't have an account ?
-						<Link className="text-primary-green ml-2" to="/register">
-							Create one
+						Already have an account ?
+						<Link className="text-primary-green ml-2" to="/login">
+							Login
 						</Link>
 					</div>
 
