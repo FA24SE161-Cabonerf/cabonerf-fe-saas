@@ -107,7 +107,7 @@ export default function LoginPage() {
 
 					<div className="my-4 text-center text-sm font-normal">
 						Don't have an account ?
-						<Link className="text-primary-green ml-2" to="/register">
+						<Link className="ml-2 text-primary-green" to="/register">
 							Create one
 						</Link>
 					</div>
