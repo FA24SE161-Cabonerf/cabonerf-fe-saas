@@ -1,15 +1,16 @@
 import GoogleIcon from '@/common/icons/google-icon';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeClosed } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import { Eye, EyeClosed } from '@phosphor-icons/react';
-export default function LoginPage() {
+import { Form, Link } from 'react-router-dom';
+
+export default function RegisterPage() {
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
 	const form = useForm<tLoginSchema>({
@@ -36,7 +37,7 @@ export default function LoginPage() {
 		<div className="">
 			{/* Title */}
 			<div className="pb-10 pt-24">
-				<h1 className="text-center text-4xl font-semibold">Let's Begin LCA</h1>
+				<h1 className="text-center text-4xl font-semibold">Create an account</h1>
 			</div>
 
 			<div className="mx-auto max-w-[60%]">
