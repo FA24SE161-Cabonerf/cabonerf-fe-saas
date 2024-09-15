@@ -9,18 +9,22 @@ type tProps = {
 
 export default function MainLayout({ children }: tProps) {
 	return (
-		<div className="flex h-screen">
+		<div className="bg-backgroundBehide flex h-screen">
 			{/* Header */}
-			<MainHeader />
+			<MainHeader /> {/*fixed left-0 right-0 top-0 p-3*/}
 			{/* Main */}
-			<div className="mt-[54px] flex-1 overflow-hidden">
-				<div className="flex">
+			<div className="mt-[54px] h-[calc(100vh-54px)] flex-1">
+				<div className="flex h-full overflow-hidden pb-2 pr-2">
+					{/* Sidebar */}
 					<Sidebar>
 						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" active />
-
 						<hr className="my-3" />
 					</Sidebar>
-					<div>{children}</div>
+
+					{/* Main content */}
+					<div className="h-full w-full overflow-scroll rounded-md border-[1px] border-gray-200 bg-white">
+						{children}
+					</div>
 				</div>
 			</div>
 		</div>
