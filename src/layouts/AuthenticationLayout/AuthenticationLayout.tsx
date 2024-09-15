@@ -1,5 +1,5 @@
-import AuthenticationFooter from '@/components/AuthenticationFooter';
-import AuthenticationHeader from '@/components/AuthenticationHeader';
+import AuthenticationFooter from '@/layouts/AuthenticationLayout/components/AuthenticationFooter/AuthenticationFooter';
+import AuthenticationHeader from '@/layouts/AuthenticationLayout/components/AuthenticationHeader/AuthenticationHeader';
 import React from 'react';
 
 type tProps = {
@@ -10,7 +10,7 @@ export default function AuthenticationLayout({ children }: tProps) {
 	return (
 		<main className="mx-auto max-w-[582px]">
 			<AuthenticationHeader />
-			<div className="my-20">{children}</div>
+			<div className="my-10">{children}</div>
 			<AuthenticationFooter />
 		</main>
 	);

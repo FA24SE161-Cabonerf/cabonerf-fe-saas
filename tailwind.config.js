@@ -12,6 +12,7 @@ export default {
 			colors: {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				backgroundBehide: 'var(--background-behide)',
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))',
@@ -52,9 +53,9 @@ export default {
 				},
 				'primary-green': '#00BF63',
 			},
-			fontFamily: {
-				sans: ['Sohne', 'sans-serif'],
-			},
+		},
+		fontFamily: {
+			sans: ['Sohne', 'sans-serif'],
 		},
 	},
 	plugins: [require('tailwindcss-animate')],

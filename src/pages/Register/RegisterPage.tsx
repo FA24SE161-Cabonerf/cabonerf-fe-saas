@@ -53,7 +53,7 @@ export default function RegisterPage() {
 								<FormItem className="space-y-0">
 									<FormControl>
 										<Input
-											className="h-14 rounded-[6px] placeholder:text-muted-foreground"
+											className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 											placeholder="Email address*"
 											{...field}
 										/>
@@ -76,7 +76,7 @@ export default function RegisterPage() {
 								<FormItem className="space-y-0">
 									<FormControl>
 										<Input
-											className="h-14 rounded-[6px] placeholder:text-muted-foreground"
+											className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 											placeholder="Full name*"
 											{...field}
 										/>
@@ -101,7 +101,7 @@ export default function RegisterPage() {
 										<div className="relative">
 											<Input
 												type={isVisiblePassword ? 'text' : 'password'}
-												className="h-14 rounded-[6px] pr-10"
+												className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 												placeholder="Password*"
 												onCopy={disableCopyPaste}
 												onPaste={disableCopyPaste}
@@ -135,7 +135,7 @@ export default function RegisterPage() {
 									<FormControl>
 										<Input
 											type="password"
-											className="h-14 rounded-[6px] pr-10"
+											className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 											placeholder="Confirm password*"
 											onCopy={disableCopyPaste}
 											onPaste={disableCopyPaste}
@@ -160,7 +160,7 @@ export default function RegisterPage() {
 
 					<div className="my-4 text-center text-sm font-normal">
 						Already have an account ?
-						<Link className="text-primary-green ml-2" to="/login">
+						<Link className="ml-2 text-primary-green" to="/login">
 							Login
 						</Link>
 					</div>

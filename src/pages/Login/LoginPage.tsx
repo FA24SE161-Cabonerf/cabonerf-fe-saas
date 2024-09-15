@@ -1,15 +1,16 @@
 import GoogleIcon from '@/common/icons/google-icon';
+import TooltipWrapper from '@/components/TooltipWrapper';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
+import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Eye, EyeClosed } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { Eye, EyeClosed } from '@phosphor-icons/react';
-import { disableCopyPaste } from '@/utils/utils';
 export default function LoginPage() {
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
@@ -29,7 +30,8 @@ export default function LoginPage() {
 		console.log(data);
 	};
 
-	const toggleShowPassword = () => {
+	const toggleShowPassword = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+		event.preventDefault();
 		setIsVisiblePassword((prev) => !prev);
 	};
 
@@ -50,7 +52,7 @@ export default function LoginPage() {
 								<FormItem className="space-y-0">
 									<FormControl>
 										<Input
-											className="h-14 rounded-[6px] placeholder:text-muted-foreground"
+											className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 											placeholder="Email address*"
 											{...field}
 										/>
@@ -75,19 +77,34 @@ export default function LoginPage() {
 										<div className="relative">
 											<Input
 												type={isVisiblePassword ? 'text' : 'password'}
-												className="h-14 rounded-[6px] pr-10"
+												className="h-14 rounded-[6px] text-base font-light placeholder:text-base placeholder:font-light placeholder:tracking-[0.015em]"
 												placeholder="Password*"
 												onCopy={disableCopyPaste}
 												onPaste={disableCopyPaste}
 												{...field}
 											/>
-											<button
+											<span
 												onClick={toggleShowPassword}
-												type="button"
-												className="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500"
+												className="absolute inset-y-0 right-2 m-0 flex items-center p-0 text-sm text-gray-500"
 											>
-												{isVisiblePassword ? <Eye size={20} /> : <EyeClosed size={20} />}
-											</button>
+												{isVisiblePassword ? (
+													<TooltipWrapper
+														delayDuration={200}
+														tooltipContent="Hide"
+														className="rounded-sm"
+													>
+														<Eye size={20} />
+													</TooltipWrapper>
+												) : (
+													<TooltipWrapper
+														tooltipContent="Show"
+														className="rounde-sm"
+														delayDuration={200}
+													>
+														<EyeClosed size={20} />
+													</TooltipWrapper>
+												)}
+											</span>
 										</div>
 									</FormControl>
 									<div className="mt-[1px] min-h-[1.5rem]">
