@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@/contexts/theme.context';
 import useRouteElements from '@/hooks/useRouteElements';
 import { RouterProvider } from 'react-router-dom';
 
@@ -6,7 +7,9 @@ function App() {
 
 	return (
 		<>
-			<RouterProvider router={routers} />
+			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+				<RouterProvider router={routers} />
+			</ThemeProvider>
 		</>
 	);
 }

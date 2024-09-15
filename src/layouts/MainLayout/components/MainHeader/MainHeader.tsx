@@ -1,28 +1,30 @@
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import UserProfile from '@/layouts/MainLayout/components/UserProfile';
+import { Briefcase, Buildings, Plus } from '@phosphor-icons/react';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
 import React from 'react';
 
 export default function MainHeader() {
 	return (
-		<header className="p-3">
+		<header className="bg-backgroundBehide fixed left-0 right-0 top-0 p-3">
 			<div className="flex items-center justify-between text-sm">
 				{/* Workspace & Project */}
 				<Breadcrumb>
-					<BreadcrumbList>
+					<BreadcrumbList className="space-x-0">
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
 									<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
-									<span className="ml-1 font-medium">Personal</span>
+									<span className="ml-1 font-medium text-foreground">Personal</span>
 								</React.Fragment>
 							}
 						>
 							{
 								<div className="w-[250px] rounded-sm p-[5px] text-sm">
 									{/* Title */}
-									<div className="mx-8 my-2 text-[11px] font-normal uppercase tracking-wider text-stone-700">
+									<div className="mx-8 my-2 text-[11px] font-medium uppercase tracking-widest">
 										Workspaces
 									</div>
 									{Array(3)
@@ -33,7 +35,7 @@ export default function MainHeader() {
 												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-medium transition-all duration-200 hover:bg-stone-200"
 											>
 												<MyAvatar
-													className="ml-3 h-7 w-7"
+													className="ml-3 h-6 w-6"
 													fallBackContent="CN"
 													urlAvatar="https://github.com/shadcn.png"
 												/>
@@ -42,6 +44,15 @@ export default function MainHeader() {
 												{index === 0 && <CheckIcon className="absolute left-1 h-5 w-5" />}
 											</div>
 										))}
+									<hr className="my-1" />
+									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
+										<span className="ml-3">Create organization</span>
+										<Plus weight="bold" className="absolute left-2" />
+									</div>
+									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
+										<span className="ml-3">Organization overview</span>
+										<Buildings weight="bold" className="absolute left-2" />
+									</div>
 								</div>
 							}
 						</BreadcrumbWithMenu>
@@ -51,14 +62,14 @@ export default function MainHeader() {
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<span className="ml-1 text-sm font-medium text-[#353740]">Default project</span>
+									<span className="ml-1 text-sm font-medium text-foreground">Default project</span>
 								</React.Fragment>
 							}
 						>
 							{
 								<div className="w-[250px] rounded-sm p-[5px] text-sm">
 									{/* Title */}
-									<div className="mx-7 my-2 text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+									<div className="mx-7 my-2 text-[11px] font-medium uppercase tracking-widest text-stone-500">
 										Projects
 									</div>
 									{Array(3)
@@ -66,19 +77,28 @@ export default function MainHeader() {
 										.map((_, index) => (
 											<div
 												key={index}
-												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-medium transition-all duration-200 hover:bg-stone-200"
+												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200"
 											>
-												<span className="ml-3">Personal</span>
+												<span className="ml-3">Project {index}</span>
 												{index === 0 && <CheckIcon className="absolute left-1 h-5 w-5" />}
 											</div>
 										))}
+									<hr className="my-1" />
+									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
+										<span className="ml-3">Create project</span>
+										<Plus weight="bold" className="absolute left-2" />
+									</div>
+									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
+										<span className="ml-3">Project overview</span>
+										<Briefcase weight="bold" className="absolute left-2" />
+									</div>
 								</div>
 							}
 						</BreadcrumbWithMenu>
 					</BreadcrumbList>
 				</Breadcrumb>
 				{/* Profile */}
-				<div>123</div>
+				<UserProfile />
 			</div>
 		</header>
 	);
