@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 export default function AuthenticationFooter() {
 	return (
-		<div className="w-full">
-			<div className="flex h-5 items-center justify-center space-x-4 text-sm">
+		<div className="my-20 w-full">
+			<div className="flex h-4 items-center justify-center space-x-4 text-sm">
 				<Link className="text-primary-green" to={''}>
 					Term of Use
 				</Link>

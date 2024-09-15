@@ -1,4 +1,4 @@
-import logo from '../../assets/logos/long-logo.png';
+import logo from '@/assets/logos/long-logo.png';
 
 export default function AuthenticationHeader() {
 	return (
