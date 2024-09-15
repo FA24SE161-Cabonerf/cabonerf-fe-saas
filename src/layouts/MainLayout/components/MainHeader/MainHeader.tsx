@@ -2,8 +2,8 @@ import MyAvatar from '@/components/Avatar/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import UserProfile from '@/layouts/MainLayout/components/UserProfile';
-import { Briefcase, Buildings, Plus } from '@phosphor-icons/react';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
+import { BriefcaseBusiness, Building2, Plus } from 'lucide-react';
 import React from 'react';
 
 export default function MainHeader() {
@@ -12,7 +12,7 @@ export default function MainHeader() {
 			<div className="flex items-center justify-between text-sm">
 				{/* Workspace & Project */}
 				<Breadcrumb>
-					<BreadcrumbList className="space-x-0">
+					<BreadcrumbList className="space-x-1">
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
@@ -46,12 +46,12 @@ export default function MainHeader() {
 										))}
 									<hr className="my-1" />
 									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-3">Create organization</span>
-										<Plus weight="bold" className="absolute left-2" />
+										<span className="ml-4">Create organization</span>
+										<Plus size={17} className="absolute left-1.5" />
 									</div>
 									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-3">Organization overview</span>
-										<Buildings weight="bold" className="absolute left-2" />
+										<span className="ml-4">Organization overview</span>
+										<Building2 size={17} className="absolute left-1.5" />
 									</div>
 								</div>
 							}
@@ -62,7 +62,9 @@ export default function MainHeader() {
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<span className="ml-1 text-sm font-medium text-foreground">Default project</span>
+									<span className="py-[2px] text-sm font-medium text-foreground">
+										Default project
+									</span>
 								</React.Fragment>
 							}
 						>
@@ -86,11 +88,11 @@ export default function MainHeader() {
 									<hr className="my-1" />
 									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
 										<span className="ml-3">Create project</span>
-										<Plus weight="bold" className="absolute left-2" />
+										<Plus size={17} className="absolute left-1.5" />
 									</div>
 									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
 										<span className="ml-3">Project overview</span>
-										<Briefcase weight="bold" className="absolute left-2" />
+										<BriefcaseBusiness size={17} className="absolute left-1.5" />
 									</div>
 								</div>
 							}

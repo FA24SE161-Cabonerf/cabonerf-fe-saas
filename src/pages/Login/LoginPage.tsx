@@ -7,7 +7,7 @@ import TAB_TITLES from '@/constants/tab.titles';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeClosed } from '@phosphor-icons/react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
@@ -93,7 +93,7 @@ export default function LoginPage() {
 														tooltipContent="Hide"
 														className="rounded-sm"
 													>
-														<Eye size={20} />
+														<Eye />
 													</TooltipWrapper>
 												) : (
 													<TooltipWrapper
@@ -101,7 +101,7 @@ export default function LoginPage() {
 														className="rounde-sm"
 														delayDuration={200}
 													>
-														<EyeClosed size={20} />
+														<EyeOff />
 													</TooltipWrapper>
 												)}
 											</span>

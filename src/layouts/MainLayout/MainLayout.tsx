@@ -1,7 +1,7 @@
-import DemoSidebarItem from '@/components/DemoSidebarItem/DemoSidebarItem';
+import Sidebar from '@/components/Sidebar';
+import SidebarItem from '@/components/SidebarItem';
 import MainHeader from '@/layouts/MainLayout/components/MainHeader';
-import DemoSideBar from '@/pages/DemoSidebar';
-import { HomeIcon } from '@radix-ui/react-icons';
+import { BriefcaseBusiness } from 'lucide-react';
 
 type tProps = {
 	children: React.ReactNode;
@@ -15,18 +15,12 @@ export default function MainLayout({ children }: tProps) {
 			{/* Main */}
 			<div className="mt-[54px] flex-1 overflow-hidden">
 				<div className="flex">
-					<DemoSideBar>
-						<DemoSidebarItem icon={<HomeIcon />} text="Home" alert />
-						<DemoSidebarItem icon={<HomeIcon />} text="Dashboard" active />
-						<DemoSidebarItem icon={<HomeIcon />} text="Projects" alert />
-						<DemoSidebarItem icon={<HomeIcon />} text="Calendar" />
-						<DemoSidebarItem icon={<HomeIcon />} text="Tasks" />
-						<DemoSidebarItem icon={<HomeIcon />} text="Reporting" />
+					<Sidebar>
+						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" active />
+
 						<hr className="my-3" />
-						<DemoSidebarItem icon={<HomeIcon />} text="Settings" />
-						<DemoSidebarItem icon={<HomeIcon />} text="Help" />
-					</DemoSideBar>
-					<div>123</div>
+					</Sidebar>
+					<div>{children}</div>
 				</div>
 			</div>
 		</div>
