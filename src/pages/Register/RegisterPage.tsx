@@ -6,10 +6,10 @@ import TAB_TITLES from '@/constants/tab.titles';
 import { registerSchema, tRegisterSchema } from '@/schemas/validation/register.schema';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeClosed } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
@@ -112,7 +112,7 @@ export default function RegisterPage() {
 												type="button"
 												className="absolute inset-y-0 right-2 flex items-center text-sm text-gray-500"
 											>
-												{isVisiblePassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+												{isVisiblePassword ? <Eye /> : <EyeOff />}
 											</button>
 										</div>
 									</FormControl>
