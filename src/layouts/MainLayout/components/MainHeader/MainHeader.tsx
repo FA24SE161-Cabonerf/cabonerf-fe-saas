@@ -12,7 +12,7 @@ export default function MainHeader() {
 			<div className="flex items-center justify-between text-sm">
 				{/* Workspace & Project */}
 				<Breadcrumb>
-					<BreadcrumbList className="space-x-1">
+					<BreadcrumbList>
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>

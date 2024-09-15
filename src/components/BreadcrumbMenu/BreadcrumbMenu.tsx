@@ -13,7 +13,7 @@ export default function BreadcrumbWithMenu({ children, dropDownTrigger }: tProps
 			<DropdownMenu>
 				<DropdownMenuTrigger
 					autoFocus={false}
-					className="flex items-center gap-1 px-1.5 font-semibold text-black"
+					className="flex items-center gap-1 px-1 font-semibold text-black"
 				>
 					{dropDownTrigger}
 					<CaretSortIcon width={18} height={18} className="font-bold text-foreground" />
