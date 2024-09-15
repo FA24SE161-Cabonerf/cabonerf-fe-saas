@@ -179,6 +179,5 @@
 	}
 	body {
 		@apply bg-background text-foreground;
-		color: #353740;
 	}
 }

@@ -11,9 +11,9 @@ export default function BreadcrumbWithMenu({ children, dropDownTrigger }: tProps
 	return (
 		<BreadcrumbItem className="rounded-sm px-1 py-[3px] transition-all duration-200 ease-in-out hover:bg-stone-200">
 			<DropdownMenu>
-				<DropdownMenuTrigger className="flex items-center gap-1 font-semibold text-black">
+				<DropdownMenuTrigger autoFocus={false} className="flex items-center gap-1 font-semibold text-black">
 					{dropDownTrigger}
-					<CaretSortIcon width={20} height={20} className="font-bold" />
+					<CaretSortIcon width={18} height={18} className="font-bold text-foreground" />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent asChild align="start">
 					{children}
