@@ -19,10 +19,15 @@ export default function MainLayout({ children }: tProps) {
 					<Sidebar>
 						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" active />
 						<hr className="my-3" />
+						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" />
+						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" />
+
+						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" />
+						<SidebarItem icon={<BriefcaseBusiness size={19} />} text="Projects" />
 					</Sidebar>
 
 					{/* Main content */}
-					<div className="h-full w-full overflow-scroll rounded-md border-[1px] border-gray-200 bg-white">
+					<div className="h-full w-full overflow-scroll rounded-[8px] border-[1px] border-gray-200 bg-white">
 						{children}
 					</div>
 				</div>

@@ -27,7 +27,7 @@ export default function SidebarItem({ icon, active, text }: tProps) {
 
 			{!expanded && (
 				<div
-					className={`invisible absolute left-full ml-6 -translate-x-3 rounded-[6px] bg-gray-100 px-2 py-1 text-sm text-black opacity-20 transition-all group-hover:visible group-hover:translate-x-0 group-hover:opacity-100`}
+					className={`invisible absolute left-full ml-6 -translate-x-3 rounded-md bg-black px-2 py-1 text-sm font-normal text-white opacity-20 transition-all group-hover:visible group-hover:translate-x-0 group-hover:opacity-100`}
 				>
 					{text}
 				</div>

@@ -5,6 +5,8 @@ export default function HomePage() {
 	useEffect(() => {
 		document.title = TAB_TITLES.HOME;
 	}, []);
+
+	console.log(123);
 	return (
 		<div className="p-2">
 			Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iusto eligendi veritatis praesentium tenetur aut,

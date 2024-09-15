@@ -3,7 +3,7 @@ import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import UserProfile from '@/layouts/MainLayout/components/UserProfile';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
-import { BriefcaseBusiness, Building2, Plus } from 'lucide-react';
+import { BriefcaseBusiness, Building2, Plus, Settings } from 'lucide-react';
 import React from 'react';
 
 export default function MainHeader() {
@@ -100,7 +100,10 @@ export default function MainHeader() {
 					</BreadcrumbList>
 				</Breadcrumb>
 				{/* Profile */}
-				<UserProfile />
+				<div className="flex items-center justify-end">
+					<Settings className="mr-4" size={19} />
+					<UserProfile />
+				</div>
 			</div>
 		</header>
 	);
