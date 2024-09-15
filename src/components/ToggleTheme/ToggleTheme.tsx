@@ -1,5 +1,5 @@
 import { useTheme } from '@/hooks/useTheme';
-import { Laptop, Moon, Sun } from '@phosphor-icons/react';
+import { Laptop, Moon, Sun } from 'lucide-react';
 
 export default function ToggleTheme() {
 	const { theme, setTheme } = useTheme();
@@ -15,7 +15,7 @@ export default function ToggleTheme() {
 							: 'bg-transparent text-gray-500 dark:bg-transparent dark:text-white'
 					}`}
 				>
-					<Sun size={14} weight="bold" />
+					<Sun size={14} />
 				</button>
 
 				{/* Dark mode button */}
@@ -27,7 +27,7 @@ export default function ToggleTheme() {
 							: 'bg-transparent text-gray-500 dark:bg-transparent dark:text-white'
 					}`}
 				>
-					<Moon size={14} weight="bold" />
+					<Moon size={14} />
 				</button>
 
 				{/* System theme button */}
@@ -39,7 +39,7 @@ export default function ToggleTheme() {
 							: 'bg-transparent text-gray-500 dark:bg-transparent dark:text-white'
 					}`}
 				>
-					<Laptop size={14} weight="bold" />
+					<Laptop size={14} />
 				</button>
 			</div>
 		</div>

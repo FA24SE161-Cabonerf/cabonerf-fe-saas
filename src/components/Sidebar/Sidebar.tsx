@@ -13,7 +13,7 @@ export default function Sidebar({ children }: tProps) {
 		<div className="flex">
 			<aside className="h-screen">
 				<nav className="bg-backgroundBehide flex h-full flex-col">
-					<div className="flex items-center justify-start p-3 pb-4">
+					<div className="flex items-center justify-start p-3 pb-3">
 						<button
 							onClick={() => setExpanded((curr) => !curr)}
 							className="flex w-full items-center justify-start rounded-sm px-3 py-1.5 transition-all duration-200 hover:bg-gray-200"
