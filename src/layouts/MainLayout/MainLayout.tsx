@@ -9,7 +9,7 @@ type tProps = {
 
 export default function MainLayout({ children }: tProps) {
 	return (
-		<div className="bg-backgroundBehide flex h-screen">
+		<div className="flex h-screen bg-backgroundBehide">
 			{/* Header */}
 			<MainHeader /> {/*fixed left-0 right-0 top-0 p-3*/}
 			{/* Main */}

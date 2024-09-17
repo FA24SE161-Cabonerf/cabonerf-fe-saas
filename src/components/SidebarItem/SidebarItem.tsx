@@ -12,7 +12,7 @@ export default function SidebarItem({ icon, active, text }: tProps) {
 
 	return (
 		<li
-			className={`group relative my-1 flex cursor-pointer items-center rounded-sm px-3 py-1.5 font-medium transition-colors ${
+			className={`group relative my-1 flex cursor-pointer items-center rounded-sm px-3 py-[7px] font-medium transition-colors ${
 				active ? 'bg-zinc-200 text-black' : 'text-gray-600 hover:bg-gray-200'
 			}`}
 		>

@@ -27,7 +27,7 @@ export default function LoginPage() {
 	}, []);
 
 	const onSubmit: SubmitHandler<tLoginSchema> = (data) => {
-		console.log(data);
+		console.log(import.meta.env.VITE_BASE_URL);
 	};
 
 	const toggleShowPassword = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
