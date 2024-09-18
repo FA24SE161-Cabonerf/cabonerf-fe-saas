@@ -1,5 +1,6 @@
+import { tDispatchType } from '@/@types/dispatch.type';
 import { tUser } from '@/@types/user.type';
-import { getTokenFromLocalStorage, getUserProfileFromLocalStorage } from '@/utils/local_storage';
+import { getTokenFromLocalStorage, getUserProfileFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
 import React, { createContext, Dispatch, useReducer } from 'react';
 
 type tProps = {
@@ -12,7 +13,7 @@ type tState = {
 };
 
 type tLoginAction = {
-	type: 'LOGIN';
+	type: tDispatchType.LOGIN;
 	payload: {
 		isAuthenticated: boolean;
 		userProfile: Omit<tUser, 'phone' | 'bio' | 'address'> | null;
@@ -20,7 +21,7 @@ type tLoginAction = {
 };
 
 type tRegisterAction = {
-	type: 'REGISTER';
+	type: tDispatchType.REGISTER;
 	payload: {
 		isAuthenticated: boolean;
 		userProfile: Omit<tUser, 'phone' | 'bio' | 'address'> | null;
@@ -28,7 +29,7 @@ type tRegisterAction = {
 };
 
 type tLogoutAction = {
-	type: 'LOGOUT';
+	type: tDispatchType.LOGOUT;
 };
 
 type tAction = tLoginAction | tRegisterAction | tLogoutAction;
@@ -40,7 +41,7 @@ type tAppContext = {
 
 const initialAppStateContext: tAppContext = {
 	app: {
-		isAuthenticated: Boolean(getTokenFromLocalStorage('access_token')),
+		isAuthenticated: Boolean(getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN)),
 		userProfile: getUserProfileFromLocalStorage(),
 	},
 	dispatch: () => {},
@@ -52,19 +53,19 @@ const reducer = (state: tState, action: tAction) => {
 	const { type } = action;
 
 	switch (type) {
-		case 'LOGIN':
+		case tDispatchType.LOGIN:
 			return {
 				...state,
 				isAuthenticated: action.payload.isAuthenticated,
 				userProfile: action.payload.userProfile,
 			};
-		case 'REGISTER':
+		case tDispatchType.REGISTER:
 			return {
 				...state,
 				isAuthenticated: action.payload.isAuthenticated,
 				userProfile: action.payload.userProfile,
 			};
-		case 'LOGOUT':
+		case tDispatchType.LOGOUT:
 			return {
 				...state,
 				isAuthenticated: false,

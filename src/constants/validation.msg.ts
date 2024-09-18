@@ -1,15 +1,15 @@
-const authenticationMsg = {
+const AuthenticationMessages = {
 	LOGIN: {
-		REQUIRED: 'Do not leave this field blank',
-		EMAIL: 'Invalid email address',
+		REQUIRED: 'This field cannot be empty.',
+		EMAIL: 'Please enter a valid email address.',
 	},
 	REGISTER: {
-		REQUIRED: 'Do not leave this field blank',
-		EMAIL: 'Invalid email address',
-		FULL_NAME: 'Full name must be at least 3 characters',
-		PASSWORD: 'Password must be at least 6 characters',
-		PASSWORD_CONFIRM: 'Passwords do not match',
+		REQUIRED: 'This field cannot be empty.',
+		EMAIL: 'Please enter a valid email address.',
+		FULL_NAME: 'Full name must contain at least 3 characters.',
+		PASSWORD: 'Password must contain at least 6 characters.',
+		PASSWORD_CONFIRM: 'The passwords do not match. Please try again.',
 	},
 };
 
-export default authenticationMsg;
+export default AuthenticationMessages;

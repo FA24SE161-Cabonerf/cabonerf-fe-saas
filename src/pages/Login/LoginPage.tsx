@@ -5,15 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
+import { AppContext } from '@/contexts/app.context';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { tDispatchType } from '@/@types/dispatch.type';
+import ButtonSubmitForm from '@/components/ButtonSubmitForm';
+
 export default function LoginPage() {
+	const { dispatch } = useContext(AppContext);
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
 	const form = useForm<tLoginSchema>({
@@ -22,6 +28,7 @@ export default function LoginPage() {
 			email: '',
 			password: '',
 		},
+		mode: 'onSubmit',
 	});
 
 	useEffect(() => {
@@ -33,14 +40,37 @@ export default function LoginPage() {
 	});
 
 	const onSubmit: SubmitHandler<tLoginSchema> = (data) => {
-		loginMutation.mutate(data, {
-			onSuccess: (result) => {
-				alert('Oke');
+		toast.promise(
+			new Promise((resolve, reject) => {
+				loginMutation.mutate(data, {
+					onSuccess: (success) => {
+						const { user } = success.data.data;
+						dispatch({
+							type: tDispatchType.LOGIN,
+							payload: {
+								isAuthenticated: true,
+								userProfile: user,
+							},
+						});
+						resolve(true);
+					},
+					onError: (error) => {
+						console.log(error);
+						reject(error);
+					},
+				});
+			}),
+			{
+				loading: 'Establishing a secure connection...',
+				success: (
+					<p>
+						Welcome to <b>Cabonerf</b>.
+					</p>
+				),
+				error: <p>Unable to complete the login process. Please try again.</p>,
 			},
-			onError: () => {
-				alert('Loi roi');
-			},
-		});
+			{ position: 'top-center' }
+		);
 	};
 
 	const toggleShowPassword = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
@@ -130,9 +160,11 @@ export default function LoginPage() {
 								</FormItem>
 							)}
 						/>
-						<Button className="mt-3 h-14 w-full rounded-[6px] text-base font-normal" type="submit">
-							Login
-						</Button>
+						<ButtonSubmitForm
+							isPending={loginMutation.isPending}
+							title="Login"
+							pendingTitle="Logging in..."
+						/>
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">

@@ -1,12 +1,17 @@
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { AppContext } from '@/contexts/app.context';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
 import { BriefcaseBusiness, Building2, Plus, Settings } from 'lucide-react';
-import React from 'react';
+import React, { useContext } from 'react';
 
 export default function MainHeader() {
+	const {
+		app: { userProfile },
+	} = useContext(AppContext);
+
 	return (
 		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-3">
 			<div className="flex items-center justify-between text-sm">
