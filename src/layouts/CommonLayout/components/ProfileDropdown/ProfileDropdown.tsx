@@ -14,7 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export default function UserProfile() {
+export default function ProfileDropdown() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger className="mr-2">
