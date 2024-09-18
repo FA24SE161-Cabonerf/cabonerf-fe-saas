@@ -5,6 +5,7 @@ import useRouteElements from '@/hooks/useRouteElements';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -26,6 +27,7 @@ function App() {
 			<AppProvider>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<RouterProvider router={routers} />
+					<Toaster />
 				</ThemeProvider>
 			</AppProvider>
 			<ReactQueryDevtools initialIsOpen={false} />

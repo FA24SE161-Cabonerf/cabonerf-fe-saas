@@ -1,6 +1,22 @@
 import { tUser } from '@/@types/user.type';
 
-export const getTokenFromLocalStorage = (tokenType: 'refresh_token' | 'access_token'): string | null => {
+export enum TOKEN_KEY_NAME {
+	ACCESS_TOKEN = 'access_token',
+	REFRESH_TOKEN = 'refresh_token',
+}
+
+export const USER_PROFILE_KEY_NAME = 'user_profile';
+
+export const insertUserToLocalStorage = (user: Omit<tUser, 'phone' | 'bio' | 'address'>) => {
+	const user_profile_converted = JSON.stringify(user);
+	return localStorage.setItem(USER_PROFILE_KEY_NAME, user_profile_converted);
+};
+
+export const insertTokenToLocalStorage = (tokenType: TOKEN_KEY_NAME, token: string) => {
+	return localStorage.setItem(tokenType, token);
+};
+
+export const getTokenFromLocalStorage = (tokenType: TOKEN_KEY_NAME): string | null => {
 	try {
 		return localStorage.getItem(tokenType);
 	} catch (error) {
@@ -11,7 +27,7 @@ export const getTokenFromLocalStorage = (tokenType: 'refresh_token' | 'access_to
 
 export const getUserProfileFromLocalStorage = (): Omit<tUser, 'phone' | 'bio' | 'address'> | null => {
 	try {
-		const userProfile = localStorage.getItem('user_profile');
+		const userProfile = localStorage.getItem(USER_PROFILE_KEY_NAME);
 		if (!userProfile) {
 			return null;
 		}
@@ -23,14 +39,8 @@ export const getUserProfileFromLocalStorage = (): Omit<tUser, 'phone' | 'bio' | 
 };
 
 // Utility function to clear specific tokens or the entire localStorage
-export const clearTokenInLocalStorage = (tokenType?: 'refresh_token' | 'access_token'): void => {
-	try {
-		if (tokenType) {
-			localStorage.removeItem(tokenType);
-		} else {
-			localStorage.clear();
-		}
-	} catch (error) {
-		console.error('Error clearing localStorage:', error);
-	}
+export const clearResouceInLocalStorage = (): void => {
+	localStorage.removeItem(TOKEN_KEY_NAME.ACCESS_TOKEN);
+	localStorage.removeItem(TOKEN_KEY_NAME.REFRESH_TOKEN);
+	localStorage.removeItem(USER_PROFILE_KEY_NAME);
 };

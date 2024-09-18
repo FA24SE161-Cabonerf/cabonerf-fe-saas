@@ -1,9 +1,9 @@
 import { tAuthenicationResponse } from '@/@types/authentication.type';
-import { tCommonResponse } from '@/@types/common.type';
+import ApiPaths from '@/constants/api.paths';
 import httpService from '@/services/http';
 
 export const authenticationApis = {
 	login: (payload: { email: string; password: string }) => {
-		return httpService.post<tCommonResponse<tAuthenicationResponse>>('/api/v1/login', payload);
+		return httpService.post<tAuthenicationResponse>(ApiPaths.LOGIN, payload);
 	},
 };
