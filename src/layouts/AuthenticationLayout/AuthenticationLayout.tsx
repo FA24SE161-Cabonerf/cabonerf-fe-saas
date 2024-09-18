@@ -1,16 +1,14 @@
 import AuthenticationFooter from '@/layouts/AuthenticationLayout/components/AuthenticationFooter/AuthenticationFooter';
 import AuthenticationHeader from '@/layouts/AuthenticationLayout/components/AuthenticationHeader/AuthenticationHeader';
-import React from 'react';
+import { Outlet } from 'react-router-dom';
 
-type tProps = {
-	children: React.ReactNode;
-};
-
-export default function AuthenticationLayout({ children }: tProps) {
+export default function AuthenticationLayout() {
 	return (
 		<main className="mx-auto max-w-[582px]">
 			<AuthenticationHeader />
-			<div className="my-10">{children}</div>
+			<div className="my-10">
+				<Outlet />
+			</div>
 			<AuthenticationFooter />
 		</main>
 	);

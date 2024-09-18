@@ -2,12 +2,9 @@ import Sidebar from '@/components/Sidebar';
 import SidebarItem from '@/components/SidebarItem';
 import MainHeader from '@/layouts/MainLayout/components/MainHeader';
 import { BriefcaseBusiness } from 'lucide-react';
+import { Outlet } from 'react-router-dom';
 
-type tProps = {
-	children: React.ReactNode;
-};
-
-export default function MainLayout({ children }: tProps) {
+export default function MainLayout() {
 	return (
 		<div className="flex h-screen bg-backgroundBehide">
 			{/* Header */}
@@ -28,7 +25,7 @@ export default function MainLayout({ children }: tProps) {
 
 					{/* Main content */}
 					<div className="h-full w-full overflow-scroll rounded-[8px] border-[1px] border-gray-200 bg-white">
-						{children}
+						<Outlet />
 					</div>
 				</div>
 			</div>

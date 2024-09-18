@@ -1,7 +1,7 @@
 import TAB_TITLES from '@/constants/tab.titles';
 import { useEffect } from 'react';
 
-export default function HomePage() {
+export default function DashboardPage() {
 	useEffect(() => {
 		document.title = TAB_TITLES.HOME;
 	}, []);
