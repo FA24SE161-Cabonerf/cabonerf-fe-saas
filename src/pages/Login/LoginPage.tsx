@@ -1,3 +1,4 @@
+import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/google-icon';
 import TooltipWrapper from '@/components/TooltipWrapper';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import TAB_TITLES from '@/constants/tab.titles';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -26,8 +28,19 @@ export default function LoginPage() {
 		document.title = TAB_TITLES.LOGIN;
 	}, []);
 
+	const loginMutation = useMutation({
+		mutationFn: authenticationApis.login,
+	});
+
 	const onSubmit: SubmitHandler<tLoginSchema> = (data) => {
-		console.log(import.meta.env.VITE_BASE_URL);
+		loginMutation.mutate(data, {
+			onSuccess: (result) => {
+				alert('Oke');
+			},
+			onError: () => {
+				alert('Loi roi');
+			},
+		});
 	};
 
 	const toggleShowPassword = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {

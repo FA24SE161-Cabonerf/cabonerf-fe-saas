@@ -1,14 +1,14 @@
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import UserProfile from '@/layouts/MainLayout/components/UserProfile';
+import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
 import { BriefcaseBusiness, Building2, Plus, Settings } from 'lucide-react';
 import React from 'react';
 
 export default function MainHeader() {
 	return (
-		<header className="bg-backgroundBehide fixed left-0 right-0 top-0 p-3">
+		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-3">
 			<div className="flex items-center justify-between text-sm">
 				{/* Workspace & Project */}
 				<Breadcrumb>
@@ -102,7 +102,7 @@ export default function MainHeader() {
 				{/* Profile */}
 				<div className="flex items-center justify-end">
 					<Settings className="mr-4" size={19} />
-					<UserProfile />
+					<ProfileDropdown />
 				</div>
 			</div>
 		</header>

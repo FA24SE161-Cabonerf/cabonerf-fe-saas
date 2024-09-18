@@ -1,7 +1,9 @@
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
-import MainLayout from '@/layouts/MainLayout';
-import DashboardPage from '@/pages/Home';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import SettingLayout from '@/layouts/SettingLayout';
+import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
+import Profile from '@/pages/Profile';
 import RegisterPage from '@/pages/Register/RegisterPage';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import RejectedRoute from '@/routes/RejectedRoute';
@@ -15,16 +17,32 @@ export default function useRouteElements() {
 			children: [
 				{
 					path: '',
-					element: <MainLayout />,
+					element: <DashboardLayout />,
 					children: [
 						{
 							path: '',
 							element: <Navigate to="/dashboard" />,
 						},
 						{
-							index: true,
 							path: '/dashboard',
 							element: <DashboardPage />,
+						},
+						{
+							path: '/user',
+						},
+					],
+				},
+				{
+					path: 'settings',
+					element: <SettingLayout />,
+					children: [
+						{
+							path: '',
+							element: <Navigate to="profile" />,
+						},
+						{
+							path: 'profile',
+							element: <Profile />,
 						},
 					],
 				},
