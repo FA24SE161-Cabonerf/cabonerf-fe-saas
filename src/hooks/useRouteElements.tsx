@@ -5,6 +5,7 @@ import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import Profile from '@/pages/Profile';
 import RegisterPage from '@/pages/Register';
+import VerifyEmailPage from '@/pages/VerifyEmail';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import RejectedRoute from '@/routes/RejectedRoute';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
@@ -64,6 +65,10 @@ export default function useRouteElements() {
 					],
 				},
 			],
+		},
+		{
+			path: '/verify-email-token',
+			element: <VerifyEmailPage />,
 		},
 	]);
 
