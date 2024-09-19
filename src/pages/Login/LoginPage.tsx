@@ -1,7 +1,7 @@
 import { tCommonResponse } from '@/@types/common.type';
 import { tDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
-import GoogleIcon from '@/common/icons/google-icon';
+import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import TooltipWrapper from '@/components/TooltipWrapper';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,8 @@ export default function LoginPage() {
 	const form = useForm<tLoginSchema>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			email: '',
-			password: '',
+			email: 'dmthang.longan@gmail.com',
+			password: 'Ndln@0404',
 		},
 		mode: 'onSubmit',
 	});
@@ -47,6 +47,7 @@ export default function LoginPage() {
 				loginMutation.mutate(data, {
 					onSuccess: (success) => {
 						const { user } = success.data.data;
+
 						dispatch({
 							type: tDispatchType.LOGIN,
 							payload: {

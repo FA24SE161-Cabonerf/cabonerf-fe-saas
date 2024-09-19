@@ -1,7 +1,7 @@
 import { tCommonResponse } from '@/@types/common.type';
 import { tDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
-import GoogleIcon from '@/common/icons/google-icon';
+import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
