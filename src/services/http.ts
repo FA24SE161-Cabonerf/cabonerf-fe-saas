@@ -9,7 +9,7 @@ import {
 } from '@/utils/local_storage';
 import axios, { AxiosInstance } from 'axios';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_LOCAL_URL;
 const TEN_SECONDS = 1000 * 10;
 
 class HttpService {

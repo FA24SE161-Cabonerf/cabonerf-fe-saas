@@ -1,6 +1,7 @@
+import Sidebar from '@/components/Sidebar';
 import SidebarItem from '@/components/SidebarItem';
 import CommonLayout from '@/layouts/CommonLayout';
-import { BriefcaseBusiness, Sidebar } from 'lucide-react';
+import { BriefcaseBusiness } from 'lucide-react';
 import { Outlet } from 'react-router-dom';
 
 export default function SettingLayout() {

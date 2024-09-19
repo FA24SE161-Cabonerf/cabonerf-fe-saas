@@ -1,17 +1,25 @@
+import { tCommonResponse } from '@/@types/common.type';
+import { tDispatchType } from '@/@types/dispatch.type';
+import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/google-icon';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
+import { AppContext } from '@/contexts/app.context';
 import { registerSchema, tRegisterSchema } from '@/schemas/validation/register.schema';
+import { isUnprocessableEntity } from '@/utils/error';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 export default function RegisterPage() {
+	const { dispatch } = useContext(AppContext);
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
 	const form = useForm<tRegisterSchema>({
@@ -19,8 +27,8 @@ export default function RegisterPage() {
 		defaultValues: {
 			email: '',
 			password: '',
-			confirm_password: '',
-			full_name: '',
+			confirmPassword: '',
+			fullName: '',
 		},
 	});
 
@@ -28,8 +36,47 @@ export default function RegisterPage() {
 		document.title = TAB_TITLES.REGISTER;
 	}, []);
 
+	const registerMutation = useMutation({
+		mutationFn: authenticationApis.register,
+	});
+
 	const onSubmit: SubmitHandler<tRegisterSchema> = (data) => {
-		console.log(data);
+		toast.promise(
+			new Promise((resolve, reject) => {
+				registerMutation.mutate(data, {
+					onSuccess: (success) => {
+						const { user } = success.data.data;
+
+						dispatch({
+							type: tDispatchType.REGISTER,
+							payload: {
+								isAuthenticated: true,
+								userProfile: user,
+							},
+						});
+						resolve(true);
+					},
+					onError: (error) => {
+						if (isUnprocessableEntity<tCommonResponse<tRegisterSchema>>(error)) {
+							const formError = error.response?.data.data.email;
+							reject(formError);
+						} else {
+							reject(error.message);
+						}
+					},
+				});
+			}),
+			{
+				loading: 'Creating your account, please wait...',
+				success: (
+					<p>
+						Welcome to <b>Cabonerf</b>.
+					</p>
+				),
+				error: (msg) => <p>{msg}</p>,
+			},
+			{ position: 'top-center' }
+		);
 	};
 
 	const toggleShowPassword = () => {
@@ -71,7 +118,7 @@ export default function RegisterPage() {
 						/>
 						<FormField
 							control={form.control}
-							name="full_name"
+							name="fullName"
 							render={({ field }) => (
 								<FormItem className="space-y-0">
 									<FormControl>
@@ -83,9 +130,9 @@ export default function RegisterPage() {
 									</FormControl>
 
 									<div className="mt-[1px] min-h-[1.5rem]">
-										{form.formState.errors.full_name?.message && (
+										{form.formState.errors.fullName?.message && (
 											<span className="text-xs text-red-600">
-												{form.formState.errors.full_name.message}
+												{form.formState.errors.fullName.message}
 											</span>
 										)}
 									</div>
@@ -129,7 +176,7 @@ export default function RegisterPage() {
 						/>
 						<FormField
 							control={form.control}
-							name="confirm_password"
+							name="confirmPassword"
 							render={({ field }) => (
 								<FormItem className="space-y-0">
 									<FormControl>
@@ -144,9 +191,9 @@ export default function RegisterPage() {
 									</FormControl>
 
 									<div className="mt-[1px] min-h-[1.5rem]">
-										{form.formState.errors.confirm_password?.message && (
+										{form.formState.errors.confirmPassword?.message && (
 											<span className="text-xs text-red-600">
-												{form.formState.errors.confirm_password.message}
+												{form.formState.errors.confirmPassword.message}
 											</span>
 										)}
 									</div>

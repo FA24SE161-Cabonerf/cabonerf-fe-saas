@@ -1,19 +1,15 @@
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { AppContext } from '@/contexts/app.context';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
 import { BriefcaseBusiness, Building2, Plus, Settings } from 'lucide-react';
-import React, { useContext } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function MainHeader() {
-	const {
-		app: { userProfile },
-	} = useContext(AppContext);
-
 	return (
-		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-3">
+		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-2.5">
 			<div className="flex items-center justify-between text-sm">
 				{/* Workspace & Project */}
 				<Breadcrumb>
@@ -105,8 +101,18 @@ export default function MainHeader() {
 					</BreadcrumbList>
 				</Breadcrumb>
 				{/* Profile */}
-				<div className="flex items-center justify-end">
-					<Settings className="mr-4" size={19} />
+				<div className="mr-1 flex items-center space-x-4">
+					<div className="flex items-center space-x-2">
+						<Link className="px-2 py-1" to="/">
+							Playground
+						</Link>
+						<Link className="px-2 py-1" to="/">
+							Dashboard
+						</Link>
+					</div>
+					<Link to="/settings">
+						<Settings size={19} />
+					</Link>
 					<ProfileDropdown />
 				</div>
 			</div>

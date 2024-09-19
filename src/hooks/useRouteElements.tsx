@@ -4,7 +4,7 @@ import SettingLayout from '@/layouts/SettingLayout';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import Profile from '@/pages/Profile';
-import RegisterPage from '@/pages/Register/RegisterPage';
+import RegisterPage from '@/pages/Register';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import RejectedRoute from '@/routes/RejectedRoute';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 export default function useRouteElements() {
 	const routers = createBrowserRouter([
 		{
-			path: '',
+			path: '/',
 			element: <ProtectedRoute />,
 			children: [
 				{
@@ -21,14 +21,11 @@ export default function useRouteElements() {
 					children: [
 						{
 							path: '',
-							element: <Navigate to="/dashboard" />,
+							element: <Navigate to="dashboard" />,
 						},
 						{
-							path: '/dashboard',
+							path: 'dashboard',
 							element: <DashboardPage />,
-						},
-						{
-							path: '/user',
 						},
 					],
 				},
@@ -49,7 +46,7 @@ export default function useRouteElements() {
 			],
 		},
 		{
-			path: '',
+			path: '/',
 			element: <RejectedRoute />,
 			children: [
 				{
@@ -57,11 +54,11 @@ export default function useRouteElements() {
 					element: <AuthenticationLayout />,
 					children: [
 						{
-							path: '/login',
+							path: 'login',
 							element: <LoginPage />,
 						},
 						{
-							path: '/register',
+							path: 'register',
 							element: <RegisterPage />,
 						},
 					],
