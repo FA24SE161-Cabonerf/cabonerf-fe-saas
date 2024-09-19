@@ -2,6 +2,7 @@ import { tCommonResponse } from '@/@types/common.type';
 import { tDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/google-icon';
+import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -58,8 +59,17 @@ export default function RegisterPage() {
 					},
 					onError: (error) => {
 						if (isUnprocessableEntity<tCommonResponse<tRegisterSchema>>(error)) {
-							const formError = error.response?.data.data.email;
-							reject(formError);
+							const formError = error.response?.data.data;
+
+							if (formError) {
+								Object.keys(formError).forEach((key) => {
+									form.setError(key as keyof tRegisterSchema, {
+										message: formError[key as keyof tRegisterSchema],
+										type: 'Server',
+									});
+									reject(formError[key as keyof tRegisterSchema] as string);
+								});
+							}
 						} else {
 							reject(error.message);
 						}
@@ -73,7 +83,9 @@ export default function RegisterPage() {
 						Welcome to <b>Cabonerf</b>.
 					</p>
 				),
-				error: (msg) => <p>{msg}</p>,
+				error: (msg) => {
+					return <p>{msg}</p>;
+				},
 			},
 			{ position: 'top-center' }
 		);
@@ -200,9 +212,12 @@ export default function RegisterPage() {
 								</FormItem>
 							)}
 						/>
-						<Button className="mt-3 h-14 w-full rounded-[6px] text-base font-normal" type="submit">
-							Register
-						</Button>
+
+						<ButtonSubmitForm
+							isPending={registerMutation.isPending}
+							title="Register"
+							pendingTitle="Registering..."
+						/>
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">
