@@ -11,7 +11,7 @@ const AuthenticationMessages = {
 		FULL_NAME_CAPITAL: 'Full name must start with a capital letter.',
 		FULL_NAME_SPECIAL_CHAR: 'Full name must not contain special characters or numbers.',
 		PASSWORD: 'Password must be at least 6 characters.',
-		PASSWORD_REGEX: 'Password must contain a lowercase, uppercase, number, and symbol.',
+		PASSWORD_REGEX: 'Password must contain a lowercase, uppercase, number symbol.',
 		PASSWORD_CONFIRM: 'Passwords do not match.',
 	},
 };

@@ -1,5 +1,8 @@
+import { tCommonResponse } from '@/@types/common.type';
+import { tDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/google-icon';
+import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import TooltipWrapper from '@/components/TooltipWrapper';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
@@ -7,18 +10,15 @@ import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
 import { AppContext } from '@/contexts/app.context';
 import { loginSchema, tLoginSchema } from '@/schemas/validation/login.schema';
+import { isUnauthorization } from '@/utils/error';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { tDispatchType } from '@/@types/dispatch.type';
-import ButtonSubmitForm from '@/components/ButtonSubmitForm';
-import { isUnauthorization } from '@/utils/error';
-import { tCommonResponse } from '@/@types/common.type';
+import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
 	const { dispatch } = useContext(AppContext);
@@ -58,8 +58,13 @@ export default function LoginPage() {
 					},
 					onError: (error) => {
 						if (isUnauthorization<tCommonResponse<tLoginSchema>>(error)) {
-							const formError = error.response?.data.data.password;
-							reject(formError);
+							const formError = error.response?.data.data;
+
+							if (formError) {
+								Object.keys(formError).forEach((key) => {
+									reject(formError[key as keyof tLoginSchema] as string);
+								});
+							}
 						} else {
 							reject(error.message);
 						}
