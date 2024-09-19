@@ -17,6 +17,8 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { tDispatchType } from '@/@types/dispatch.type';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
+import { isUnauthorization } from '@/utils/error';
+import { tCommonResponse } from '@/@types/common.type';
 
 export default function LoginPage() {
 	const { dispatch } = useContext(AppContext);
@@ -55,8 +57,12 @@ export default function LoginPage() {
 						resolve(true);
 					},
 					onError: (error) => {
-						console.log(error);
-						reject(error);
+						if (isUnauthorization<tCommonResponse<tLoginSchema>>(error)) {
+							const formError = error.response?.data.data.password;
+							reject(formError);
+						} else {
+							reject(error.message);
+						}
 					},
 				});
 			}),
@@ -67,7 +73,7 @@ export default function LoginPage() {
 						Welcome to <b>Cabonerf</b>.
 					</p>
 				),
-				error: <p>Unable to complete the login process. Please try again.</p>,
+				error: (msg) => <p>{msg}</p>,
 			},
 			{ position: 'top-center' }
 		);

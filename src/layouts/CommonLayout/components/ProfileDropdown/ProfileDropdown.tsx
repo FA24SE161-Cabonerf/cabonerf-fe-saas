@@ -13,19 +13,24 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AppContext } from '@/contexts/app.context';
+import { useContext } from 'react';
 
 export default function ProfileDropdown() {
+	const {
+		app: { userProfile },
+	} = useContext(AppContext);
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger className="mr-2">
+			<DropdownMenuTrigger className="rounded-full p-[2px] transition duration-200 ease-in-out hover:bg-stone-300">
 				<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="mr-1 w-56">
 				<div className="flex flex-col px-2 py-[6px] text-sm">
 					{/* Username */}
-					<span className="font-medium tracking-wide">minhtqse161122</span>
+					<span className="font-medium tracking-wide">{userProfile?.fullName}</span>
 					{/* Email */}
-					<span className="text-[13px] font-light">minhtqse161122@fpt.edu.vn</span>
+					<span className="text-[13px] font-light">{userProfile?.email}</span>
 					{/* Change mode */}
 					<ToggleTheme />
 				</div>
