@@ -1,3 +1,5 @@
+import { tJWTPayload } from '@/@types/common.type';
+
 export const logoSymbol = `                                                                                                                                                                                          
      ......                .+++-.                                                             .=***-
   .+#@@@@@@*-.             :@@@=.                                                           .+@@@@@=
@@ -12,4 +14,10 @@ export const logoSymbol = `
 
 export const disableCopyPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
 	event.preventDefault();
+};
+
+export const getPayload = (token: string): tJWTPayload => {
+	const myPayload = token.split('.')[1];
+
+	return JSON.parse(atob(myPayload));
 };
