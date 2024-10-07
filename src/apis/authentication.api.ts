@@ -15,4 +15,9 @@ export const authenticationApis = {
 			refreshToken: `Bearer ${payload.refreshToken}`,
 		});
 	},
+	verifyEmail: (payload: { token: string }) => {
+		return httpService.post<tAuthenicationResponse>(ApiPaths.VERIFY_EMAIL, {
+			token: `Bearer ${payload.token}`,
+		});
+	},
 };
