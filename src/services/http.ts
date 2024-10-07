@@ -51,6 +51,7 @@ class HttpService {
 			switch (url) {
 				case ApiPaths.LOGIN:
 				case ApiPaths.REGISTER:
+				case ApiPaths.VERIFY_EMAIL:
 					this.accessToken = access_token;
 					this.refreshToken = refresh_token;
 					insertTokenToLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN, access_token);
