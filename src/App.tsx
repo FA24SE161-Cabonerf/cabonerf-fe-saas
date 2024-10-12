@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { ReactFlowProvider } from '@xyflow/react';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -26,8 +27,10 @@ function App() {
 		<QueryClientProvider client={queryClient}>
 			<AppProvider>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-					<RouterProvider router={routers} />
-					<Toaster />
+					<ReactFlowProvider>
+						<RouterProvider router={routers} />
+						<Toaster />
+					</ReactFlowProvider>
 				</ThemeProvider>
 			</AppProvider>
 			<ReactQueryDevtools initialIsOpen={false} />

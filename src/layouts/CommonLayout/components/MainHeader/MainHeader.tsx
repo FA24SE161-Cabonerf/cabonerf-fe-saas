@@ -25,9 +25,7 @@ export default function MainHeader() {
 							{
 								<div className="w-[250px] rounded-sm p-[5px] text-sm">
 									{/* Title */}
-									<div className="mx-8 my-2 text-[11px] font-medium uppercase tracking-widest">
-										Workspaces
-									</div>
+									<div className="mx-8 my-2 text-[11px] font-medium uppercase tracking-widest">Workspaces</div>
 									{Array(3)
 										.fill(0)
 										.map((_, index) => (
@@ -63,9 +61,7 @@ export default function MainHeader() {
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<span className="py-[2px] text-sm font-medium text-foreground">
-										Default project
-									</span>
+									<span className="py-[2px] text-sm font-medium text-foreground">Default project</span>
 								</React.Fragment>
 							}
 						>
@@ -103,11 +99,14 @@ export default function MainHeader() {
 				{/* Profile */}
 				<div className="mr-1 flex items-center space-x-4">
 					<div className="flex items-center space-x-2">
-						<Link className="px-2 py-1" to="/">
+						<Link className="px-2 py-1" to="/playground">
 							Playground
 						</Link>
 						<Link className="px-2 py-1" to="/">
 							Dashboard
+						</Link>
+						<Link className="px-2 py-1" to="chat">
+							Chat
 						</Link>
 					</div>
 					<Link to="/settings">
