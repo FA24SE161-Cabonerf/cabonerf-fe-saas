@@ -1,9 +1,11 @@
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import SettingLayout from '@/layouts/SettingLayout';
+import Chat from '@/pages/Chat';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import Profile from '@/pages/Profile';
+import Playground from '@/pages/Playground';
 import RegisterPage from '@/pages/Register';
 import VerifyEmailPage from '@/pages/VerifyEmail';
 import ProtectedRoute from '@/routes/ProtectedRoute';
@@ -43,6 +45,14 @@ export default function useRouteElements() {
 							element: <Profile />,
 						},
 					],
+				},
+				{
+					path: 'chat',
+					element: <Chat />,
+				},
+				{
+					path: 'playground',
+					element: <Playground />,
 				},
 			],
 		},

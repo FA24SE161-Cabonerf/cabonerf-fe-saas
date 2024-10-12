@@ -27,8 +27,8 @@ export default function LoginPage() {
 	const form = useForm<tLoginSchema>({
 		resolver: zodResolver(loginSchema),
 		defaultValues: {
-			email: 'dmthang.longan@gmail.com',
-			password: 'Ndln@0404',
+			email: 'qminh.workmode@gmail.com',
+			password: '0886751110@Minh',
 		},
 		mode: 'onSubmit',
 	});
@@ -115,9 +115,7 @@ export default function LoginPage() {
 
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.email?.message && (
-											<span className="text-xs text-red-600">
-												{form.formState.errors.email?.message}
-											</span>
+											<span className="text-xs text-red-600">{form.formState.errors.email?.message}</span>
 										)}
 									</div>
 								</FormItem>
@@ -143,19 +141,11 @@ export default function LoginPage() {
 												className="absolute inset-y-0 right-2 m-0 flex items-center p-0 text-sm text-gray-500"
 											>
 												{isVisiblePassword ? (
-													<TooltipWrapper
-														delayDuration={200}
-														tooltipContent="Hide"
-														className="rounded-sm"
-													>
+													<TooltipWrapper delayDuration={200} tooltipContent="Hide" className="rounded-sm">
 														<Eye />
 													</TooltipWrapper>
 												) : (
-													<TooltipWrapper
-														tooltipContent="Show"
-														className="rounde-sm"
-														delayDuration={200}
-													>
+													<TooltipWrapper tooltipContent="Show" className="rounde-sm" delayDuration={200}>
 														<EyeOff />
 													</TooltipWrapper>
 												)}
@@ -164,19 +154,13 @@ export default function LoginPage() {
 									</FormControl>
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.password?.message && (
-											<span className="text-xs text-red-600">
-												{form.formState.errors.password?.message}
-											</span>
+											<span className="text-xs text-red-600">{form.formState.errors.password?.message}</span>
 										)}
 									</div>
 								</FormItem>
 							)}
 						/>
-						<ButtonSubmitForm
-							isPending={loginMutation.isPending}
-							title="Login"
-							pendingTitle="Logging in..."
-						/>
+						<ButtonSubmitForm isPending={loginMutation.isPending} title="Login" pendingTitle="Logging in..." />
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">
@@ -192,10 +176,7 @@ export default function LoginPage() {
 						<div className="flex-grow border-t border-gray-300"></div>
 					</div>
 
-					<Button
-						variant="outline"
-						className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]"
-					>
+					<Button variant="outline" className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]">
 						<GoogleIcon className="h-6 w-6" />
 						<span className="text-base font-normal">Continue with google</span>
 					</Button>
