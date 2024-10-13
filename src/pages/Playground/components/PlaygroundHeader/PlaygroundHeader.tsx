@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, History, Play, Share } from 'lucide-react';
+import { ArrowLeft, History, Share } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PlaygroundHeader() {
@@ -19,7 +18,7 @@ export default function PlaygroundHeader() {
 					</button>
 				</div>
 
-				<div className="flex items-center space-x-7 py-2 pr-4">
+				<div className="flex items-center space-x-7 py-4 pr-4">
 					<button className="">
 						<History size={17} />
 					</button>
@@ -28,9 +27,6 @@ export default function PlaygroundHeader() {
 					</button>
 
 					{/* Caculate Button */}
-					<Button className="space-x-3 rounded-sm px-3.5 py-0.5 text-[13px] font-normal">
-						<Play size={14} fill="white" color="white" /> <span>Calculate LCA</span>
-					</Button>
 				</div>
 			</div>
 		</div>
