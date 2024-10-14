@@ -13,30 +13,28 @@ function PlaygroundControls() {
 	const [isShareMenu, setIsShareMenu] = useState<boolean>(false);
 
 	const reactflow = useReactFlow();
-	console.log('Ren');
+
+	const toggleShareMenu = () => setIsShareMenu((prevState) => !prevState);
+
 	return (
-		<div className="relative w-auto transform rounded-2xl border-t border-gray-50 bg-white shadow-lg duration-300">
+		<div className="relative w-auto transform rounded-md border border-gray-100 bg-white shadow-lg duration-300">
 			<MenuExport isShareMenu={isShareMenu} />
 			<div className="flex items-center space-x-2 p-[8px]">
 				<div className="flex items-center space-x-2 rounded-sm bg-green-200 p-2">
-					<Pencil size={17} color="green" />
+					<Pencil size={17} strokeWidth={1.5} color="green" />
 					<span className="text-[13px] font-medium text-green-700">Editing</span>
 				</div>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomIn}>
-					<ZoomIn size={19} />
+					<ZoomIn size={19} strokeWidth={1.5} />
 				</ControlItem>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomOut}>
-					<ZoomOut size={19} />
+					<ZoomOut size={19} strokeWidth={1.5} />
 				</ControlItem>
 				<ControlItem duration={FIT_VIEW} onAction={reactflow.fitView}>
-					<Scan size={19} />
+					<Scan size={19} strokeWidth={1.5} />
 				</ControlItem>
-				<ControlItem
-					isActive={!!isShareMenu}
-					duration={18}
-					onAction={() => setIsShareMenu((prevState) => !prevState)}
-				>
-					{isShareMenu ? <ArrowDownFromLine size={19} /> : <Share size={19} />}
+				<ControlItem isActive={!!isShareMenu} duration={18} onAction={toggleShareMenu}>
+					{isShareMenu ? <ArrowDownFromLine strokeWidth={1.5} size={19} /> : <Share strokeWidth={1.5} size={19} />}
 				</ControlItem>
 				<Separator orientation="vertical" className="h-6" color="black" />
 

@@ -8,7 +8,7 @@ export default function MenuExport({ isShareMenu }: Props) {
 	return (
 		<div
 			className={`w-full transform overflow-hidden border-gray-100 px-3 duration-300 ${
-				isShareMenu ? 'h-[230px] rounded-t-2xl border-b-[0.5px] bg-zinc-100 py-4' : 'h-0'
+				isShareMenu ? 'h-[230px] rounded-t-md border-b-[0.5px] bg-zinc-100 py-4' : 'h-0'
 			}`}
 		>
 			<div className="flex h-full gap-4">

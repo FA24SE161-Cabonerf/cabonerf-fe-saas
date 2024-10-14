@@ -177,9 +177,7 @@
 	* {
 		@apply border-border;
 	}
-	html {
-		@apply box-border;
-	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
