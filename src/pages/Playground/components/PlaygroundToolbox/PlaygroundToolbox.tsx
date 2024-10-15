@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import ComponentProcess from '@/pages/Playground/components/ComponentProcess ';
+import ComponentProcess from '@/pages/Playground/components/ComponentProcess';
 import { Node as ReactNode, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import {
