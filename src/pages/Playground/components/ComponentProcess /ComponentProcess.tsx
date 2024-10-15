@@ -6,9 +6,10 @@ type Props = {
 	description: string;
 	logo: React.ReactNode;
 	color: string;
+	onAction: (name: string) => void;
 };
 
-export default function ComponentProcess({ description, logo, name, color }: Props) {
+export default function ComponentProcess({ description, logo, name, color, onAction }: Props) {
 	return (
 		<div
 			draggable
@@ -27,7 +28,12 @@ export default function ComponentProcess({ description, logo, name, color }: Pro
 						<p className="text-xs text-gray-500">{description}</p>
 					</div>
 				</div>
-				<ChevronRight className="mr-1" strokeWidth={1.5} size={20} />
+				<ChevronRight
+					onClick={() => onAction(name)}
+					className="mr-1 hover:cursor-pointer"
+					strokeWidth={1.5}
+					size={20}
+				/>
 			</div>
 		</div>
 	);

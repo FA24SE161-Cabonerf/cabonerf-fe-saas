@@ -1,5 +1,5 @@
 import { tAuthenicationResponse } from '@/@types/authentication.type';
-import ApiPaths from '@/constants/api.paths';
+import { AUTH_ENDPOINT } from '@/constants/api.endpoint';
 import {
 	clearResouceInLocalStorage,
 	getTokenFromLocalStorage,
@@ -49,16 +49,16 @@ class HttpService {
 			const { access_token, refresh_token, user } = data.data;
 
 			switch (url) {
-				case ApiPaths.LOGIN:
-				case ApiPaths.REGISTER:
-				case ApiPaths.VERIFY_EMAIL:
+				case AUTH_ENDPOINT.LOGIN:
+				case AUTH_ENDPOINT.REGISTER:
+				case AUTH_ENDPOINT.VERIFY_EMAIL:
 					this.accessToken = access_token;
 					this.refreshToken = refresh_token;
 					insertTokenToLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN, access_token);
 					insertTokenToLocalStorage(TOKEN_KEY_NAME.REFRESH_TOKEN, refresh_token);
 					insertUserToLocalStorage(user);
 					break;
-				case ApiPaths.LOGOUT:
+				case AUTH_ENDPOINT.LOGOUT:
 					this.accessToken = '';
 					this.refreshToken = '';
 					clearResouceInLocalStorage();
