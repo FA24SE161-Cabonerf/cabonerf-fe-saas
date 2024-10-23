@@ -2,6 +2,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import ComponentProcess from '@/pages/Playground/components/ComponentProcess';
+import { getColor } from '@/utils/color';
 import { Node as ReactNode, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import {
@@ -30,7 +31,7 @@ const dataLifeStage = [
 	},
 	{
 		id: '1',
-		name: 'Raw Materials',
+		name: 'Raw Material',
 		description: 'Resource extractions & transport to production facility gate',
 		logo: <Pickaxe strokeWidth={1.5} color="white" />,
 		color: '#16a34a',
@@ -114,22 +115,21 @@ function PlaygroundToolBox() {
 		setIsPinToolBox((prevState) => !prevState);
 	};
 
-	const addNewProps = (name: string) => {
+	const addNewProps = (name: string, id: string) => {
 		const newNode: ReactNode = {
 			id: Date.now().toString(),
 			data: {
 				name: name,
+				color: getColor(id),
 			},
-			type: 'custom',
+			type: 'sticky-node',
 			position: {
-				x: 300,
-				y: 400,
+				x: 600,
+				y: 600,
 			},
 		};
 		reactFlow.addNodes(newNode);
 	};
-
-	console.log(123);
 
 	return (
 		<div className="relative">
@@ -179,6 +179,7 @@ function PlaygroundToolBox() {
 							<AccordionContent className="bg-[#fafafa] px-2 py-3">
 								{dataLifeStage.map((data) => (
 									<ComponentProcess
+										id={data.id}
 										onAction={addNewProps}
 										color={data.color}
 										key={data.id}
@@ -198,6 +199,7 @@ function PlaygroundToolBox() {
 							<AccordionContent className="bg-[#fbfbfb] px-2 py-4">
 								{dataAnnotation.map((data) => (
 									<ComponentProcess
+										id={data.id}
 										onAction={addNewProps}
 										color={data.color}
 										key={data.id}

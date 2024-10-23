@@ -1,8 +1,8 @@
-import CustomNodeProcess from '@/pages/Playground/components/CustomNodeProcess';
+import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBox from '@/pages/Playground/components/PlaygroundToolbox';
-import { debounce } from 'lodash';
+import StickyNode from '@/pages/Playground/customs/StickyNode';
 import {
 	applyNodeChanges,
 	Background,
@@ -15,11 +15,11 @@ import {
 	ReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
-import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 
 const customNode: NodeTypes = {
-	custom: CustomNodeProcess,
+	'sticky-node': StickyNode,
 };
 
 const nds: Node[] = [];
