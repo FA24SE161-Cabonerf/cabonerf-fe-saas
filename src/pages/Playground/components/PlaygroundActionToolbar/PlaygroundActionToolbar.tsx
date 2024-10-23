@@ -1,15 +1,15 @@
 import ImpactAssessmentMethodApi from '@/apis/impact.api';
 import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from '@/components/ui/command';
+import { Command, CommandEmpty, CommandInput, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { CaretSortIcon } from '@radix-ui/react-icons';
 import { useQuery } from '@tanstack/react-query';
-import { CommandItem, CommandLoading } from 'cmdk';
+import { CommandItem } from 'cmdk';
 import { CheckIcon } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-export default function PlaygroundActionToolbar() {
+function PlaygroundActionToolbar() {
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
 
@@ -18,10 +18,10 @@ export default function PlaygroundActionToolbar() {
 		queryFn: ImpactAssessmentMethodApi.prototype.getListImpactAssessmentMethod,
 	});
 
-	console.log(value);
-
 	const impactMethodData = data.data?.data.data;
 	if (!impactMethodData) return null;
+
+	console.log('PlaygroundActionToolbar');
 
 	return (
 		<div className="bg-white">
@@ -83,3 +83,5 @@ export default function PlaygroundActionToolbar() {
 		</div>
 	);
 }
+
+export default React.memo(PlaygroundActionToolbar);

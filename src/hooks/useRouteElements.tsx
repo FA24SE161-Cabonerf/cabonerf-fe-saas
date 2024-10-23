@@ -50,10 +50,6 @@ export default function useRouteElements() {
 					path: 'chat',
 					element: <Chat />,
 				},
-				{
-					path: 'playground',
-					element: <Playground />,
-				},
 			],
 		},
 		{
@@ -79,6 +75,10 @@ export default function useRouteElements() {
 		{
 			path: '/verify-email-token',
 			element: <VerifyEmailPage />,
+		},
+		{
+			path: 'playground',
+			element: <Playground />,
 		},
 	]);
 

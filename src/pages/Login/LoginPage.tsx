@@ -176,7 +176,10 @@ export default function LoginPage() {
 						<div className="flex-grow border-t border-gray-300"></div>
 					</div>
 
-					<Button variant="outline" className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]">
+					<Button
+						variant="outline"
+						className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]"
+					>
 						<GoogleIcon className="h-6 w-6" />
 						<span className="text-base font-normal">Continue with google</span>
 					</Button>
