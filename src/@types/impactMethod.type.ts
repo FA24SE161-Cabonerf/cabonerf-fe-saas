@@ -1,15 +1,16 @@
-export type tPerspective = {
+interface Perspective {
 	id: number;
 	name: string;
-	description: string;
 	abbr: string;
-};
+}
 
-export type tImpactMethod = {
-	id: number;
+interface ImpactMethod {
+	id: string;
 	name: string;
 	description: string;
 	version: string;
 	reference: string;
-	perspective: tPerspective;
-};
+	perspective: Perspective;
+}
+
+export type { Perspective, ImpactMethod };

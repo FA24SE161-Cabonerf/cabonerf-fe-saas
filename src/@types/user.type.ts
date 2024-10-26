@@ -1,10 +1,10 @@
-type tRole = {
-	id: number;
+type Role = {
+	id: string;
 	name: string;
 };
 
-type tSubscription = {
-	id: number;
+type Subscription = {
+	id: string;
 	subsciptionName: string;
 	description: string;
 	canCreateOrganize: boolean;
@@ -15,28 +15,28 @@ type tSubscription = {
 	canImportExcel: boolean;
 };
 
-type tUserVerifyStatus = {
-	id: number;
-	statusName: string;
-	description: string;
-};
-
-type tUserStatus = {
+type UserVerifyStatus = {
 	id: string;
 	statusName: string;
 	description: string;
 };
 
-export type tUser = {
-	id: number;
+type UserStatus = {
+	id: string;
+	statusName: string;
+	description: string;
+};
+
+export type User = {
+	id: string;
 	fullName: string;
 	email: string;
 	phone: string;
 	address: string;
-	subcription: tSubscription;
-	userVerifyStatus: tUserVerifyStatus;
+	subcription: Subscription;
+	userVerifyStatus: UserVerifyStatus;
 	profilePictureUrl: string;
-	userStatus: tUserStatus;
+	userStatus: UserStatus;
 	bio: string;
-	role: tRole;
+	role: Role;
 };

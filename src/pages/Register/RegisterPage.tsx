@@ -1,5 +1,5 @@
-import { tCommonResponse } from '@/@types/common.type';
-import { tDispatchType } from '@/@types/dispatch.type';
+import { CommonResponse } from '@/@types/common.type';
+import { eDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
@@ -49,7 +49,7 @@ export default function RegisterPage() {
 						const { user } = success.data.data;
 
 						dispatch({
-							type: tDispatchType.REGISTER,
+							type: eDispatchType.REGISTER,
 							payload: {
 								isAuthenticated: true,
 								userProfile: user,
@@ -58,7 +58,7 @@ export default function RegisterPage() {
 						resolve(true);
 					},
 					onError: (error) => {
-						if (isUnprocessableEntity<tCommonResponse<tRegisterSchema>>(error)) {
+						if (isUnprocessableEntity<CommonResponse<tRegisterSchema>>(error)) {
 							const formError = error.response?.data.data;
 
 							if (formError) {
@@ -198,14 +198,20 @@ export default function RegisterPage() {
 
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.confirmPassword?.message && (
-											<span className="text-xs text-red-600">{form.formState.errors.confirmPassword.message}</span>
+											<span className="text-xs text-red-600">
+												{form.formState.errors.confirmPassword.message}
+											</span>
 										)}
 									</div>
 								</FormItem>
 							)}
 						/>
 
-						<ButtonSubmitForm isPending={registerMutation.isPending} title="Register" pendingTitle="Registering..." />
+						<ButtonSubmitForm
+							isPending={registerMutation.isPending}
+							title="Register"
+							pendingTitle="Registering..."
+						/>
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">
@@ -221,7 +227,10 @@ export default function RegisterPage() {
 						<div className="flex-grow border-t border-gray-300"></div>
 					</div>
 
-					<Button variant="outline" className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]">
+					<Button
+						variant="outline"
+						className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]"
+					>
 						<GoogleIcon className="h-6 w-6" />
 						<span className="text-base font-normal">Continue with google</span>
 					</Button>

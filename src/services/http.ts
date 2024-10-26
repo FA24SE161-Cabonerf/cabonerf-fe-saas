@@ -1,4 +1,4 @@
-import { tAuthenicationResponse } from '@/@types/authentication.type';
+import { AuthenicationResponse } from '@/@types/authentication.type';
 import { AUTH_ENDPOINT } from '@/constants/api.endpoint';
 import {
 	clearResouceInLocalStorage,
@@ -45,7 +45,7 @@ class HttpService {
 		this.axiosInstance.interceptors.response.use((response) => {
 			const { url } = response.config;
 
-			const data = response.data as tAuthenicationResponse;
+			const data = response.data as AuthenicationResponse;
 			const { access_token, refresh_token, user } = data.data;
 
 			switch (url) {

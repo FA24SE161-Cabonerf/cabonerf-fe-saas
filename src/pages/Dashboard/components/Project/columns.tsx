@@ -1,4 +1,4 @@
-import { tDispatchType } from '@/@types/dispatch.type';
+import { eDispatchType } from '@/@types/dispatch.type';
 import { tMethod, tOwnerProject, tProject } from '@/@types/project.type';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import TheadTable from '@/components/THeadTable';
@@ -104,7 +104,7 @@ export const columns: ColumnDef<tProject>[] = [
 
 			const onPreview = () => {
 				if (project.impacts.length > 0) {
-					dispatch({ type: tDispatchType.ADD_PROJECT_PREVIEW, payload: project });
+					dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
 				} else {
 					alert('No');
 				}

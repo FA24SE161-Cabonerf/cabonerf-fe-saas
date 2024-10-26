@@ -1,4 +1,4 @@
-import { tDispatchType } from '@/@types/dispatch.type';
+import { eDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import ToggleTheme from '@/components/ToggleTheme';
@@ -41,7 +41,7 @@ export default function ProfileDropdown() {
 					},
 					{
 						onSuccess: () => {
-							dispatch({ type: tDispatchType.LOGOUT });
+							dispatch({ type: eDispatchType.LOGOUT });
 							resolve('Logout success');
 						},
 						onError: (error) => {

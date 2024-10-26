@@ -1,6 +1,6 @@
-import { tDispatchType } from '@/@types/dispatch.type';
-import { tImpactCategory, tMidPointImpactCategory, tProject } from '@/@types/project.type';
-import { tUser } from '@/@types/user.type';
+import { eDispatchType } from '@/@types/dispatch.type';
+import { Project } from '@/@types/project.type';
+import { User } from '@/@types/user.type';
 import { getTokenFromLocalStorage, getUserProfileFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
 import React, { createContext, Dispatch, useReducer } from 'react';
 
@@ -10,43 +10,37 @@ type tProps = {
 
 type tState = {
 	isAuthenticated: boolean;
-	userProfile: Omit<tUser, 'phone' | 'bio' | 'address'> | null;
-	previewProject: tProject | undefined;
-	currentImpactCategoryFilter:
-		| Omit<
-				tImpactCategory<Omit<tMidPointImpactCategory, 'description'>>,
-				'indicator' | 'indicatorDescription' | 'unit'
-		  >
-		| undefined;
+	userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
+	previewProject: Project | undefined;
 };
 
 type tLoginAction = {
-	type: tDispatchType.LOGIN;
+	type: eDispatchType.LOGIN;
 	payload: {
 		isAuthenticated: boolean;
-		userProfile: Omit<tUser, 'phone' | 'bio' | 'address'> | null;
+		userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
 	};
 };
 
 type tRegisterAction = {
-	type: tDispatchType.REGISTER;
+	type: eDispatchType.REGISTER;
 	payload: {
 		isAuthenticated: boolean;
-		userProfile: Omit<tUser, 'phone' | 'bio' | 'address'> | null;
+		userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
 	};
 };
 
 type tLogoutAction = {
-	type: tDispatchType.LOGOUT;
+	type: eDispatchType.LOGOUT;
 };
 
 type tAddProjectPreview = {
-	type: tDispatchType.ADD_PROJECT_PREVIEW;
-	payload: tProject;
+	type: eDispatchType.ADD_PROJECT_PREVIEW;
+	payload: Project;
 };
 
 type tClearProjectPreview = {
-	type: tDispatchType.CLEAR_PROJECT_PREVIEW;
+	type: eDispatchType.CLEAR_PROJECT_PREVIEW;
 	payload: undefined;
 };
 
@@ -62,7 +56,6 @@ const initialAppStateContext: tAppContext = {
 		isAuthenticated: Boolean(getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN)),
 		userProfile: getUserProfileFromLocalStorage(),
 		previewProject: undefined,
-		currentImpactCategoryFilter: undefined,
 	},
 	dispatch: () => {},
 };
@@ -73,30 +66,30 @@ const reducer = (state: tState, action: tAction) => {
 	const { type } = action;
 
 	switch (type) {
-		case tDispatchType.LOGIN:
+		case eDispatchType.LOGIN:
 			return {
 				...state,
 				isAuthenticated: action.payload.isAuthenticated,
 				userProfile: action.payload.userProfile,
 			};
-		case tDispatchType.REGISTER:
+		case eDispatchType.REGISTER:
 			return {
 				...state,
 				isAuthenticated: action.payload.isAuthenticated,
 				userProfile: action.payload.userProfile,
 			};
-		case tDispatchType.LOGOUT:
+		case eDispatchType.LOGOUT:
 			return {
 				...state,
 				isAuthenticated: false,
 				userProfile: null,
 			};
-		case tDispatchType.ADD_PROJECT_PREVIEW:
+		case eDispatchType.ADD_PROJECT_PREVIEW:
 			return {
 				...state,
 				previewProject: action.payload,
 			};
-		case tDispatchType.CLEAR_PROJECT_PREVIEW:
+		case eDispatchType.CLEAR_PROJECT_PREVIEW:
 			return {
 				...state,
 				previewProject: undefined,
@@ -111,7 +104,6 @@ export default function AppProvider({ children }: tProps) {
 		isAuthenticated: initialAppStateContext.app.isAuthenticated,
 		userProfile: initialAppStateContext.app.userProfile,
 		previewProject: initialAppStateContext.app.previewProject,
-		currentImpactCategoryFilter: initialAppStateContext.app.currentImpactCategoryFilter,
 	});
 
 	return <AppContext.Provider value={{ app, dispatch }}>{children}</AppContext.Provider>;

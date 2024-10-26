@@ -141,7 +141,7 @@ function PlaygroundToolBox() {
 			<div
 				ref={toolboxRef}
 				className={clsx(
-					`absolute left-0 top-0 h-screen min-w-[315px] transform rounded-br-md border-b border-r bg-white shadow-md transition duration-300`,
+					`absolute left-0 top-0 h-screen min-w-[310px] transform rounded-br-md border-r border-gray-100 bg-white shadow-md transition duration-300`,
 					{
 						'-translate-x-[calc(100%+15px)]': isShowToolbox !== true,
 					}
@@ -173,7 +173,7 @@ function PlaygroundToolBox() {
 				<div className="h-[calc(100vh-200px)] overflow-scroll">
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 font-normal shadow-sm">
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
 								LIFE CYCLE STAGES
 							</AccordionTrigger>
 							<AccordionContent className="bg-[#fafafa] px-2 py-3">
@@ -193,7 +193,7 @@ function PlaygroundToolBox() {
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 font-normal shadow-sm">
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
 								ANNOTATIONS
 							</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-2 py-4">
@@ -213,7 +213,7 @@ function PlaygroundToolBox() {
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 font-normal shadow-sm">
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
 								DATABASE ONLINE
 							</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-3 py-4">Updating</AccordionContent>
@@ -221,7 +221,7 @@ function PlaygroundToolBox() {
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 font-normal shadow-sm">
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
 								OBJECT LIBRARY
 							</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-3 py-4">Updating</AccordionContent>

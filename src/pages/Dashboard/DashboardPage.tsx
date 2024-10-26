@@ -1,44 +1,25 @@
-import { tProject } from '@/@types/project.type';
-import ImpactAssessmentMethodApi from '@/apis/impactMethod.api';
-import { CustomComboBox } from '@/components/CustomComboBox/CustomComboBox';
+import { Project } from '@/@types/project.type';
 import { DataTable } from '@/components/DataTable/data-table';
 import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
 import TAB_TITLES from '@/constants/tab.titles';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
+import FilterProject from '@/pages/Dashboard/components/FilterProject';
 import { columns } from '@/pages/Dashboard/components/Project/columns';
 import { mockData } from '@/utils/data';
-import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { Download, Filter, LayoutGrid, LayoutList } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { LayoutGrid, LayoutList } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
-const getData = async (): Promise<tProject[]> => {
+const getData = async (): Promise<Project[]> => {
 	return mockData;
 };
 
 export default function DashboardPage() {
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
-	const [data, setData] = useState<tProject[]>([]);
-	const [selectedMethod, setSelectedMethod] = useState<number>();
-
-	const { data: impactAssessmentMethods, isSuccess } = useQuery({
-		queryKey: ['impact_assessment_method'],
-		queryFn: ImpactAssessmentMethodApi.prototype.getListImpactMethod,
-		staleTime: 60_000,
-	});
-
-	const _impactAssessmentMethodQuery = useMemo(() => {
-		if (isSuccess) {
-			return impactAssessmentMethods.data.data.map((item) => ({
-				id: item.id,
-				value: `${item.name}, ${item.version} (${item.perspective.abbr})`,
-				label: `${item.name}, ${item.version} (${item.perspective.abbr})`,
-			}));
-		}
-	}, [impactAssessmentMethods, isSuccess]);
+	const [data, setData] = useState<Project[]>([]);
 
 	useEffect(() => {
 		document.title = TAB_TITLES.HOME;
@@ -55,10 +36,6 @@ export default function DashboardPage() {
 
 	const toggleLayout = (value: string) => {
 		setLayoutView(value as LayoutView);
-	};
-
-	const updateSelectedMethod = (id: number) => {
-		setSelectedMethod(id);
 	};
 
 	return (
@@ -87,24 +64,7 @@ export default function DashboardPage() {
 							<LayoutGrid size={17} />
 						</Button>
 					</div>
-
-					<div className="flex space-x-2">
-						<CustomComboBox
-							title="Select impact method"
-							onSelected={updateSelectedMethod}
-							data={_impactAssessmentMethodQuery ?? []}
-							className="w-auto px-2 font-normal"
-							placeHolder="Search method ..."
-						/>
-						<Button className="flex items-center space-x-2 px-3 font-normal" variant={'outline'}>
-							<Filter size={16} />
-							<span>Filter</span>
-						</Button>
-						<Button className="flex items-center space-x-1 px-3 font-normal" variant={'outline'}>
-							<Download size={16} />
-							<span>Export</span>
-						</Button>
-					</div>
+					<FilterProject />
 				</div>
 			</div>
 

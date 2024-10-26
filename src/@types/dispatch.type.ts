@@ -1,4 +1,4 @@
-export enum tDispatchType {
+export enum eDispatchType {
 	LOGIN = 'LOGIN',
 	REGISTER = 'REGISTER',
 	LOGOUT = 'LOGOUT',

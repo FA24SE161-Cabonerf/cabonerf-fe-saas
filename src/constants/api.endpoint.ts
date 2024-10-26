@@ -5,16 +5,21 @@ class AUTH_ENDPOINT {
 	public static VERIFY_EMAIL = 'users/email-verify';
 }
 
-class IMPACT {
+class IMPACT_ENDPOINT {
 	public static IMPACT = '/impacts';
 }
 
-class IMPACT_ENDPOINT {
-	public static GET_LIST_IMPACT_METHOD = IMPACT.IMPACT + '/impact-methods';
+class IMPACT_METHOD_ENDPOINT {
+	public static IMPACT_METHODS = '/impact-methods';
+	public static GET_IMPACT_METHODS = IMPACT_ENDPOINT.IMPACT + this.IMPACT_METHODS;
+}
+
+class IMPACT_METHOD_CATEGORIES_ENDPOINT {
+	public static IMPACT_CATEGORIES = '/impact-categories';
 
 	public static GET_IMPACT_CATEGORIES_BY_METHOD_ID(id: string) {
-		return IMPACT.IMPACT + `/impact-methods/:${id}/categories`;
+		return IMPACT_ENDPOINT.IMPACT + IMPACT_METHOD_ENDPOINT.IMPACT_METHODS + `/${id}` + this.IMPACT_CATEGORIES;
 	}
 }
 
-export { AUTH_ENDPOINT, IMPACT_ENDPOINT, IMPACT };
+export { AUTH_ENDPOINT, IMPACT_METHOD_ENDPOINT, IMPACT_ENDPOINT, IMPACT_METHOD_CATEGORIES_ENDPOINT };
