@@ -1,4 +1,4 @@
-import { tUser } from '@/@types/user.type';
+import { User } from '@/@types/user.type';
 
 export enum TOKEN_KEY_NAME {
 	ACCESS_TOKEN = 'access_token',
@@ -7,7 +7,7 @@ export enum TOKEN_KEY_NAME {
 
 export const USER_PROFILE_KEY_NAME = 'user_profile';
 
-export const insertUserToLocalStorage = (user: Omit<tUser, 'phone' | 'bio' | 'address'>) => {
+export const insertUserToLocalStorage = (user: Omit<User, 'phone' | 'bio' | 'address'>) => {
 	const user_profile_converted = JSON.stringify(user);
 	return localStorage.setItem(USER_PROFILE_KEY_NAME, user_profile_converted);
 };
@@ -25,7 +25,7 @@ export const getTokenFromLocalStorage = (tokenType: TOKEN_KEY_NAME): string | nu
 	}
 };
 
-export const getUserProfileFromLocalStorage = (): Omit<tUser, 'phone' | 'bio' | 'address'> | null => {
+export const getUserProfileFromLocalStorage = (): Omit<User, 'phone' | 'bio' | 'address'> | null => {
 	try {
 		const userProfile = localStorage.getItem(USER_PROFILE_KEY_NAME);
 		if (!userProfile) {

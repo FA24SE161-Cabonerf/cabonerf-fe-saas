@@ -1,5 +1,5 @@
-import { tCommonResponse } from '@/@types/common.type';
-import { tDispatchType } from '@/@types/dispatch.type';
+import { CommonResponse } from '@/@types/common.type';
+import { eDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.api';
 import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
@@ -49,7 +49,7 @@ export default function LoginPage() {
 						const { user } = success.data.data;
 
 						dispatch({
-							type: tDispatchType.LOGIN,
+							type: eDispatchType.LOGIN,
 							payload: {
 								isAuthenticated: true,
 								userProfile: user,
@@ -58,7 +58,7 @@ export default function LoginPage() {
 						resolve(true);
 					},
 					onError: (error) => {
-						if (isUnauthorization<tCommonResponse<tLoginSchema>>(error)) {
+						if (isUnauthorization<CommonResponse<tLoginSchema>>(error)) {
 							const formError = error.response?.data.data;
 
 							if (formError) {

@@ -1,8 +1,8 @@
-import { tCommonResponse } from '@/@types/common.type';
-import { tUser } from '@/@types/user.type';
+import { CommonResponse } from '@/@types/common.type';
+import { User } from '@/@types/user.type';
 
-export type tAuthenicationResponse = tCommonResponse<{
+export type AuthenicationResponse = CommonResponse<{
 	access_token: string;
 	refresh_token: string;
-	user: Omit<tUser, 'phone' | 'bio' | 'address'>;
+	user: Omit<User, 'phone' | 'bio' | 'address'>;
 }>;

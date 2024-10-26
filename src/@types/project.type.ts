@@ -1,61 +1,40 @@
-import { tImpactCategory, tMidPointImpactCategory } from '@/@types/impact.type';
-import { tPerspective } from '@/@types/impactMethod.type';
+import { ImpactMethod } from '@/@types/impactMethod.type';
 
-type tMethod = {
-	id: number;
+interface Workspace {
+	id: string;
 	name: string;
-	version: string;
-	perspective: Omit<tPerspective, 'description'>;
-};
+}
 
-type tWorkSpace = {
-	id: number;
-	name: string;
-};
-
-type tOwnerProject = {
-	id: number;
+interface Owner {
+	id: string;
 	name: string;
 	email: string;
 	profilePictureUrl: string;
-};
+}
 
-type tProjectUnit = {
-	id: number;
-	name: string;
-};
-
-type tProjectImpact = {
-	id: number;
-	value: number;
-	method: tMethod;
-	impactCategory: Omit<
-		tImpactCategory<Omit<tMidPointImpactCategory, 'description'>>,
-		'indicator' | 'indicatorDescription' | 'unit'
-	>;
-	unit: tProjectUnit;
-};
-
-type tProject = {
-	id: number;
+interface Project {
+	id: string;
 	name: string;
 	description: string;
 	location: string;
-	method: tMethod;
-	modifiedAt: string;
-	owner: tOwnerProject;
-	workspace: tWorkSpace;
-	impacts: tProjectImpact[];
+	method: Omit<ImpactMethod, 'reference'>;
+	impacts: unknown[];
+	processes: unknown[];
+	connectors: unknown[];
+}
+
+type CreateProjectResponse = {
+	projectId: string;
 };
 
-export type {
-	tImpactCategory,
-	tMethod,
-	tMidPointImpactCategory,
-	tOwnerProject,
-	tPerspective,
-	tProject,
-	tProjectImpact,
-	tProjectUnit,
-	tWorkSpace,
+type UpdateProjectResponse = Omit<Project, 'processes' | 'connectors' | 'impacts'> & {
+	modifiedAt: string;
 };
+
+type GetProjectListResponse = Omit<Project, 'processes' | 'connectors'> & {
+	modifiedAt: string;
+	owner: Owner;
+	workspace: Workspace;
+};
+
+export type { Project, CreateProjectResponse, GetProjectListResponse, UpdateProjectResponse };

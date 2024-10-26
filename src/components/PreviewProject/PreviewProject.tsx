@@ -1,6 +1,5 @@
-import { tDispatchType } from '@/@types/dispatch.type';
+import { eDispatchType } from '@/@types/dispatch.type';
 import { AppContext } from '@/contexts/app.context';
-import { SVGIcon } from '@/utils/SVGIcon';
 import clsx from 'clsx';
 import { ListCollapse } from 'lucide-react';
 import { useContext } from 'react';
@@ -9,7 +8,7 @@ export default function PreviewProject() {
 	const { app, dispatch } = useContext(AppContext);
 
 	const clearPreview = () => {
-		dispatch({ type: tDispatchType.CLEAR_PROJECT_PREVIEW, payload: undefined });
+		dispatch({ type: eDispatchType.CLEAR_PROJECT_PREVIEW, payload: undefined });
 	};
 
 	return (
@@ -32,9 +31,7 @@ export default function PreviewProject() {
 					<div className="h-[200px] rounded-3xl bg-primary-green">
 						<div className="flex flex-col p-4">
 							<span className="text-3xl font-semibold text-white">{app.previewProject?.name}</span>
-							<div style={{ color: 'white' }}>
-								<SVGIcon url={app.previewProject?.impacts[0].impactCategory.iconUrl as string} />
-							</div>
+							<div style={{ color: 'white' }}></div>
 						</div>
 					</div>
 				</div>

@@ -1,13 +1,13 @@
 //data
 //message
 //status
-export type tCommonResponse<T> = {
+export type CommonResponse<T> = {
 	status: string;
 	message: string;
 	data: T;
 };
 
-export type tJWTPayload = {
+export type JWTPayload = {
 	user_verify_status: number;
 	token_type: number;
 	sub: string;
