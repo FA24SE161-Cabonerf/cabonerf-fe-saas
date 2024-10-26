@@ -12,6 +12,7 @@ import {
 	NodeChange,
 	NodeTypes,
 	Panel,
+	Position,
 	ReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -22,7 +23,23 @@ const customNode: NodeTypes = {
 	'sticky-node': StickyNode,
 };
 
-const nds: Node[] = [];
+const nds: Node[] = [
+	{
+		id: '123',
+		data: {
+			name: '123',
+			color: 'blue',
+		},
+		position: {
+			x: 700,
+			y: 450,
+		},
+		type: 'sticky-node',
+		sourcePosition: Position.Right,
+		selectable: true,
+		draggable: true,
+	},
+];
 
 const debouncedLog = debounce((id: string, x, y) => {
 	alert(`id:${id}, x: ${x}, y: ${y}`);

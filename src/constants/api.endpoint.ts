@@ -5,8 +5,16 @@ class AUTH_ENDPOINT {
 	public static VERIFY_EMAIL = 'users/email-verify';
 }
 
-class IMPACT_ENDPOINT {
-	public static GET_ALL_IMPACT_ASSESSMENT_METHOD = '/impacts/impact-methods';
+class IMPACT {
+	public static IMPACT = '/impacts';
 }
 
-export { AUTH_ENDPOINT, IMPACT_ENDPOINT };
+class IMPACT_ENDPOINT {
+	public static GET_LIST_IMPACT_METHOD = IMPACT.IMPACT + '/impact-methods';
+
+	public static GET_IMPACT_CATEGORIES_BY_METHOD_ID(id: string) {
+		return IMPACT.IMPACT + `/impact-methods/:${id}/categories`;
+	}
+}
+
+export { AUTH_ENDPOINT, IMPACT_ENDPOINT, IMPACT };

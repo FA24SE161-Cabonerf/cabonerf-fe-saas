@@ -17,7 +17,7 @@ export default function MainHeader() {
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
+									<MyAvatar fallBackContent="CN" urlAvatar="" />
 									<span className="ml-1 font-medium text-foreground">Personal</span>
 								</React.Fragment>
 							}
@@ -33,11 +33,7 @@ export default function MainHeader() {
 												key={index}
 												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-medium transition-all duration-200 hover:bg-stone-200"
 											>
-												<MyAvatar
-													className="ml-3 h-6 w-6"
-													fallBackContent="CN"
-													urlAvatar="https://github.com/shadcn.png"
-												/>
+												<MyAvatar className="ml-3 h-6 w-6" fallBackContent="CN" urlAvatar="" />
 												<span className="ml-3">Personal</span>
 
 												{index === 0 && <CheckIcon className="absolute left-1 h-5 w-5" />}

@@ -21,3 +21,9 @@ export const getPayload = (token: string): tJWTPayload => {
 
 	return JSON.parse(atob(myPayload));
 };
+
+export const formatDate = (inputDate: string): string => {
+	const date = new Date(inputDate);
+	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: '2-digit' };
+	return date.toLocaleDateString('en-US', options);
+};
