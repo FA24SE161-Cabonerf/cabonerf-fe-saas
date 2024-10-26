@@ -66,7 +66,7 @@ export default function ProfileDropdown() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger className="rounded-full p-[2px] transition duration-200 ease-in-out hover:bg-stone-300">
-				<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
+				<MyAvatar fallBackContent="CN" urlAvatar="" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="mr-1 w-56">
 				<div className="flex flex-col px-2 py-[6px] text-sm">
