@@ -1,5 +1,5 @@
 import { eDispatchType } from '@/@types/dispatch.type';
-import { authenticationApis } from '@/apis/authentication.api';
+import { authenticationApis } from '@/apis/authentication.apis';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import ToggleTheme from '@/components/ToggleTheme';
 import {

@@ -8,7 +8,7 @@ export const createProjectSchema = z.object({
 	location: z.string().trim().min(1, {
 		message: 'Please specify the project location.',
 	}),
-	methodId: z.string().uuid({ message: 'Ensure the method ID is correct.' }),
+	methodId: z.string().uuid({ message: 'Please choose one method above.' }),
 	workspaceId: z.string().uuid({
 		message: 'Ensure the workspace ID is correct.',
 	}),

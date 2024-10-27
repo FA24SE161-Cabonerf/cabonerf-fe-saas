@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ReactFlowProvider } from '@xyflow/react';
+import { Toaster as ToastShadcnUI } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -30,6 +31,7 @@ function App() {
 					<ReactFlowProvider>
 						<RouterProvider router={routers} />
 						<Toaster />
+						<ToastShadcnUI />
 					</ReactFlowProvider>
 				</ThemeProvider>
 			</AppProvider>

@@ -1,6 +1,6 @@
 import { CommonResponse } from '@/@types/common.type';
 import { eDispatchType } from '@/@types/dispatch.type';
-import { authenticationApis } from '@/apis/authentication.api';
+import { authenticationApis } from '@/apis/authentication.apis';
 import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Button } from '@/components/ui/button';
@@ -210,6 +210,7 @@ export default function RegisterPage() {
 						<ButtonSubmitForm
 							isPending={registerMutation.isPending}
 							title="Register"
+							className="h-12 w-full rounded-[6px] text-base font-normal"
 							pendingTitle="Registering..."
 						/>
 					</form>

@@ -1,31 +1,27 @@
-import ImpactMethodApis from '@/apis/impactMethod.api';
-import ImpactMethodComboBox from '@/components/ImpactMethodComboBox';
+import ImpactMethodApis from '@/apis/impactMethod.apis';
+import ProjectApis from '@/apis/project.apis';
+import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { CreateProjectSchema, createProjectSchema } from '@/schemas/validation/project.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
-import { FileUp, Plus, Telescope, Workflow } from 'lucide-react';
+import { DialogTitle } from '@radix-ui/react-dialog';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Check, ChevronsUpDown, Plus, Telescope, Workflow } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function DashboardHeader() {
-	const [selectedImpactMethodId, setSelectedImpactMethodId] = useState<string>('');
+	const [openDialogCreateProject, setOpenDialogCreateProject] = useState<boolean>(false);
+	const [openMethodDropdown, setOpenMethodDropdown] = useState<boolean>(false);
+	const [value, setValue] = useState('');
 
 	const form = useForm<CreateProjectSchema>({
 		resolver: zodResolver(createProjectSchema),
@@ -38,10 +34,14 @@ export default function DashboardHeader() {
 		},
 	});
 
-	const { data: impactMethods, isLoading: impact_methods_loading } = useQuery({
+	const { data: impactMethods } = useQuery({
 		queryKey: ['impact_methods'],
 		queryFn: ImpactMethodApis.prototype.getImpactMethods,
 		staleTime: 60_000,
+	});
+
+	const createProjectMutate = useMutation({
+		mutationFn: (payload: CreateProjectSchema) => ProjectApis.prototype.createProject(payload),
 	});
 
 	const _impactMethods = useMemo(() => {
@@ -54,12 +54,19 @@ export default function DashboardHeader() {
 		);
 	}, [impactMethods?.data.data]);
 
-	const updateSelectedImpactMethod = (id: string) => {
-		setSelectedImpactMethodId(id);
-	};
-
 	const onSubmit: SubmitHandler<CreateProjectSchema> = (data) => {
-		console.log(data);
+		createProjectMutate.mutate(data, {
+			onSuccess: (data) => {
+				setOpenDialogCreateProject(false);
+				toast(`Project has been created: ${data.data.data.projectId}`, {
+					description: 'Sunday, December 03, 2023 at 9:00 AM',
+					action: {
+						label: 'Undo',
+						onClick: () => alert('Processing'),
+					},
+				});
+			},
+		});
 	};
 
 	return (
@@ -77,47 +84,44 @@ export default function DashboardHeader() {
 						<Telescope size={17} strokeWidth={2} />
 					</Button>
 					{/* Dialog Create Project */}
-					<Dialog>
-						<DropdownMenu>
-							<DropdownMenuTrigger className="flex items-center space-x-1 rounded-sm bg-primary px-3 py-1.5 text-sm text-white outline-none">
-								<span>Create LCA</span>
-								<Plus size={17} strokeWidth={2} />
-							</DropdownMenuTrigger>
-							<DropdownMenuContent className="rounded-sm">
-								<DialogTrigger>
-									<DropdownMenuItem
-										onSelect={(e) => e.preventDefault()}
-										className="space-x-1.5 rounded-[3.5px]"
-									>
-										<Workflow size={17} strokeWidth={2} />
-										<span>Blank Project</span>
-									</DropdownMenuItem>
-								</DialogTrigger>
+					<DropdownMenu>
+						<DropdownMenuTrigger className="flex items-center space-x-1 rounded-sm bg-primary px-3 py-1.5 text-sm text-white outline-none">
+							<span>Create LCA</span>
+							<Plus size={17} strokeWidth={2} />
+						</DropdownMenuTrigger>
 
-								<DialogContent className="outline-none">
+						<DropdownMenuContent className="rounded-sm">
+							<Dialog open={openDialogCreateProject} onOpenChange={setOpenDialogCreateProject}>
+								<DialogTrigger
+									onClick={() => setOpenDialogCreateProject(true)}
+									className="w-full rounded-[3px] text-left duration-150 hover:bg-[#f4f4f5]"
+								>
+									<div className="flex items-center space-x-2 p-1">
+										<Workflow size={16} />
+										<span className="text-sm">Blank project</span>
+									</div>
+								</DialogTrigger>
+								<DialogContent>
 									<DialogHeader>
-										<DialogTitle className="text-xl font-semibold">Create your new LCA project</DialogTitle>
-										<DialogDescription className="">
+										<DialogTitle className="text-2xl font-semibold">Creat your new project</DialogTitle>
+										<DialogDescription>
 											This action will initiate a new Life Cycle Assessment project, allowing you to analyze
-											environmental impacts across the lifecycle of products, processes, or systems.
+											environmental impacts across the lifecycle of products, processes, or systems
 										</DialogDescription>
 									</DialogHeader>
+
 									<Form {...form}>
-										<form onSubmit={form.handleSubmit(onSubmit)} className="mt-2 space-y-4">
+										<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" autoComplete="off">
 											<FormField
 												control={form.control}
 												name="name"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>Project name</FormLabel>
+														<FormLabel htmlFor="name">Project name</FormLabel>
 														<FormControl>
-															<Input
-																className="rounded-sm"
-																placeholder="Enter your project name"
-																{...field}
-															/>
+															<Input id="name" placeholder="This is your project name" {...field} />
 														</FormControl>
-														<FormDescription>This is your public project name.</FormDescription>
+														<FormMessage className="font-normal" />
 													</FormItem>
 												)}
 											/>
@@ -126,37 +130,103 @@ export default function DashboardHeader() {
 												name="description"
 												render={({ field }) => (
 													<FormItem>
-														<FormLabel>Description</FormLabel>
+														<FormLabel htmlFor="description">Desription</FormLabel>
 														<FormControl>
-															<Input
-																className="rounded-sm"
-																placeholder="Enter your description name"
+															<Textarea
+																id="description"
+																placeholder="Describe your project"
 																{...field}
 															/>
 														</FormControl>
-														<FormDescription>This is your description of project.</FormDescription>
+														<FormMessage className="font-normal" />
 													</FormItem>
 												)}
 											/>
+											<FormField
+												control={form.control}
+												name="methodId"
+												render={() => (
+													<FormItem className="relative items-start">
+														<FormLabel htmlFor="methodId">Method</FormLabel>
+														<FormControl>
+															<div className="w-full">
+																<Button
+																	id="methodId"
+																	variant="outline"
+																	role="combobox"
+																	type="button"
+																	aria-expanded={openMethodDropdown}
+																	onClick={() => setOpenMethodDropdown(!openMethodDropdown)}
+																	className="w-full justify-between font-normal"
+																>
+																	{value
+																		? _impactMethods.find((framework) => framework.value === value)
+																				?.label
+																		: 'Choose impact method...'}
+																	<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+																</Button>
 
-											<ImpactMethodComboBox
-												isLoading={impact_methods_loading}
-												title="Select impact method"
-												onSelected={updateSelectedImpactMethod}
-												data={_impactMethods}
+																{openMethodDropdown && (
+																	<div className="mt-2 w-full rounded-lg border shadow-md">
+																		<Command>
+																			<CommandInput placeholder="Search method..." />
+																			<CommandList>
+																				<CommandEmpty>No framework found.</CommandEmpty>
+																				<CommandGroup>
+																					{_impactMethods.map((framework) => (
+																						<CommandItem
+																							key={framework.value}
+																							value={framework.value}
+																							onSelect={(currentValue) => {
+																								form.setValue(
+																									'methodId',
+																									form.getValues('methodId') === framework.id
+																										? ''
+																										: framework.id
+																								);
+																								setValue(
+																									currentValue === value ? '' : currentValue
+																								);
+																								setOpenMethodDropdown(false); // Close dropdown after selection
+																							}}
+																						>
+																							<Check
+																								className={cn(
+																									'mr-2 h-4 w-4',
+																									value === framework.value
+																										? 'opacity-100'
+																										: 'opacity-0'
+																								)}
+																							/>
+																							{framework.label}
+																						</CommandItem>
+																					))}
+																				</CommandGroup>
+																			</CommandList>
+																		</Command>
+																	</div>
+																)}
+															</div>
+														</FormControl>
+
+														<span className="text-[12.8px] text-red-500">
+															{form.formState.errors.methodId?.message}
+														</span>
+													</FormItem>
+												)}
 											/>
-											<Button type="submit">Submit</Button>
+											<ButtonSubmitForm
+												className="h-10 w-full rounded-[6px] text-base font-normal"
+												isPending={createProjectMutate.isPending}
+												title="Create project"
+												pendingTitle="Setting up project..."
+											/>
 										</form>
 									</Form>
 								</DialogContent>
-
-								<DropdownMenuItem className="space-x-1.5 rounded-[3.5px]">
-									<FileUp size={17} strokeWidth={2} />
-									<span>Import</span>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</Dialog>
+							</Dialog>
+						</DropdownMenuContent>
+					</DropdownMenu>
 					{/* Dialog Create Project */}
 				</div>
 			</div>
