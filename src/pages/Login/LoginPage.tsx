@@ -1,6 +1,6 @@
 import { CommonResponse } from '@/@types/common.type';
 import { eDispatchType } from '@/@types/dispatch.type';
-import { authenticationApis } from '@/apis/authentication.api';
+import { authenticationApis } from '@/apis/authentication.apis';
 import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import TooltipWrapper from '@/components/TooltipWrapper';
@@ -160,7 +160,12 @@ export default function LoginPage() {
 								</FormItem>
 							)}
 						/>
-						<ButtonSubmitForm isPending={loginMutation.isPending} title="Login" pendingTitle="Logging in..." />
+						<ButtonSubmitForm
+							className="h-12 w-full rounded-[6px] text-base font-normal"
+							isPending={loginMutation.isPending}
+							title="Login"
+							pendingTitle="Logging in..."
+						/>
 					</form>
 
 					<div className="my-4 text-center text-sm font-normal">

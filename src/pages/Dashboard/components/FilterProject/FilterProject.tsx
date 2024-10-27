@@ -1,5 +1,5 @@
-import ImpactCategoryApis from '@/apis/impactCategories.api';
-import ImpactMethodApis from '@/apis/impactMethod.api';
+import ImpactCategoryApis from '@/apis/impactCategories.apis';
+import ImpactMethodApis from '@/apis/impactMethod.apis';
 import { ImpactCategoriesComboBox } from '@/components/ImpactCategoriesComboBox/ImpactCategoriesComboBox';
 import { ImpactMethodComboBox } from '@/components/ImpactMethodComboBox/ImpactMethodComboBox';
 import { Button } from '@/components/ui/button';

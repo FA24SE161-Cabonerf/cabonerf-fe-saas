@@ -1,4 +1,4 @@
-import { authenticationApis } from '@/apis/authentication.api';
+import { authenticationApis } from '@/apis/authentication.apis';
 import useQueryParams from '@/hooks/useQueryParams';
 import { useMutation } from '@tanstack/react-query';
 import { useEffect } from 'react';

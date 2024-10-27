@@ -1,4 +1,4 @@
-import { Project } from '@/@types/project.type';
+import ProjectApis from '@/apis/project.apis';
 import { DataTable } from '@/components/DataTable/data-table';
 import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
@@ -6,32 +6,24 @@ import TAB_TITLES from '@/constants/tab.titles';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
 import FilterProject from '@/pages/Dashboard/components/FilterProject';
 import { columns } from '@/pages/Dashboard/components/Project/columns';
-import { mockData } from '@/utils/data';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { LayoutGrid, LayoutList } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
-const getData = async (): Promise<Project[]> => {
-	return mockData;
-};
-
 export default function DashboardPage() {
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
-	const [data, setData] = useState<Project[]>([]);
+
+	const projectsQuery = useQuery({
+		queryKey: ['projects'],
+		queryFn: ProjectApis.prototype.getAllProjects,
+		staleTime: 60_000,
+	});
 
 	useEffect(() => {
 		document.title = TAB_TITLES.HOME;
-	}, []);
-
-	useEffect(() => {
-		const fetch = async () => {
-			const data = await getData();
-			setData(data);
-		};
-
-		fetch();
 	}, []);
 
 	const toggleLayout = (value: string) => {
@@ -71,8 +63,13 @@ export default function DashboardPage() {
 			{/* Table */}
 			<div className="mx-6 flex h-full space-x-3">
 				<div className="my-2 w-full">
-					<DataTable data={data} columns={columns} />
+					<DataTable
+						isLoading={projectsQuery.isLoading}
+						data={projectsQuery.data?.data.data.projects ?? []}
+						columns={columns}
+					/>
 				</div>
+
 				<PreviewProject />
 			</div>
 			{/* End Table */}

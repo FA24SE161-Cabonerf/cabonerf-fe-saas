@@ -1,5 +1,6 @@
 import { eDispatchType } from '@/@types/dispatch.type';
-import { tMethod, tOwnerProject, tProject } from '@/@types/project.type';
+import { ImpactMethod } from '@/@types/impactMethod.type';
+import { Owner, Project } from '@/@types/project.type';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import TheadTable from '@/components/THeadTable';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ import {
 } from 'lucide-react';
 import { useContext } from 'react';
 
-export const columns: ColumnDef<tProject>[] = [
+export const columns: ColumnDef<Project>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) => (
@@ -61,7 +62,7 @@ export const columns: ColumnDef<tProject>[] = [
 			</TheadTable>
 		),
 		cell: ({ row }) => {
-			const data = row.getValue<tMethod>('method');
+			const data = row.getValue<Omit<ImpactMethod, 'reference'>>('method');
 			return <div>{`${data.name}, ${data.version} (${data.perspective.abbr})`}</div>;
 		},
 	},
@@ -75,7 +76,7 @@ export const columns: ColumnDef<tProject>[] = [
 			</TheadTable>
 		),
 		cell: ({ row }) => {
-			const data = row.getValue<tOwnerProject>('owner');
+			const data = row.getValue<Owner>('owner');
 			return (
 				<div className="flex items-center space-x-1">
 					<MyAvatar fallBackContent="CN" urlAvatar="" />
@@ -103,11 +104,7 @@ export const columns: ColumnDef<tProject>[] = [
 			const { dispatch } = useContext(AppContext);
 
 			const onPreview = () => {
-				if (project.impacts.length > 0) {
-					dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
-				} else {
-					alert('No');
-				}
+				dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
 			};
 
 			return (
