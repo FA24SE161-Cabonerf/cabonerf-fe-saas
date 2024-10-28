@@ -1,30 +1,47 @@
+import { eDispatchType } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
 import { DataTable } from '@/components/DataTable/data-table';
 import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
 import TAB_TITLES from '@/constants/tab.titles';
+import { AppContext } from '@/contexts/app.context';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
 import FilterProject from '@/pages/Dashboard/components/FilterProject';
 import { columns } from '@/pages/Dashboard/components/Project/columns';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { LayoutGrid, LayoutList } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
 export default function DashboardPage() {
+	const {
+		app: { deleteIds },
+		dispatch,
+	} = useContext(AppContext);
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
 
-	const projectsQuery = useQuery({
+	const { data: projects, isFetching: projectsFetching } = useQuery({
 		queryKey: ['projects'],
 		queryFn: ProjectApis.prototype.getAllProjects,
 		staleTime: 60_000,
 	});
 
+	const _impactMethods = useMemo(() => {
+		if (deleteIds.length > 0) {
+			return projects?.data.data.projects.filter((item) => !deleteIds.includes(item.id));
+		}
+		return projects?.data.data.projects;
+	}, [deleteIds, projects?.data.data.projects]);
+
 	useEffect(() => {
 		document.title = TAB_TITLES.HOME;
-	}, []);
+
+		return () => {
+			dispatch({ type: eDispatchType.CLEAR_DELETE_IDS });
+		};
+	}, [dispatch]);
 
 	const toggleLayout = (value: string) => {
 		setLayoutView(value as LayoutView);
@@ -63,11 +80,7 @@ export default function DashboardPage() {
 			{/* Table */}
 			<div className="mx-6 flex h-full space-x-3">
 				<div className="my-2 w-full">
-					<DataTable
-						isLoading={projectsQuery.isLoading}
-						data={projectsQuery.data?.data.data.projects ?? []}
-						columns={columns}
-					/>
+					<DataTable isLoading={projectsFetching} data={_impactMethods ?? []} columns={columns} />
 				</div>
 
 				<PreviewProject />

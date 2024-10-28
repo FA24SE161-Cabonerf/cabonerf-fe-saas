@@ -1,20 +1,23 @@
 import { eDispatchType } from '@/@types/dispatch.type';
-import { Project } from '@/@types/project.type';
+import { ImpactCategory } from '@/@types/impactCategory.type';
+import { GetProjectListResponse } from '@/@types/project.type';
 import { User } from '@/@types/user.type';
 import { getTokenFromLocalStorage, getUserProfileFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
 import React, { createContext, Dispatch, useReducer } from 'react';
 
-type tProps = {
+type Props = {
 	children: React.ReactNode;
 };
 
-type tState = {
+type State = {
 	isAuthenticated: boolean;
 	userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
-	previewProject: Project | undefined;
+	previewProject: GetProjectListResponse | undefined;
+	deleteIds: string[];
+	impactCategory: ImpactCategory | undefined;
 };
 
-type tLoginAction = {
+type LoginAction = {
 	type: eDispatchType.LOGIN;
 	payload: {
 		isAuthenticated: boolean;
@@ -22,7 +25,7 @@ type tLoginAction = {
 	};
 };
 
-type tRegisterAction = {
+type RegisterAction = {
 	type: eDispatchType.REGISTER;
 	payload: {
 		isAuthenticated: boolean;
@@ -30,39 +33,63 @@ type tRegisterAction = {
 	};
 };
 
-type tLogoutAction = {
+type LogoutAction = {
 	type: eDispatchType.LOGOUT;
 };
 
-type tAddProjectPreview = {
+type AddProjectPreview = {
 	type: eDispatchType.ADD_PROJECT_PREVIEW;
-	payload: Project;
+	payload: GetProjectListResponse;
 };
 
-type tClearProjectPreview = {
+type ClearProjectPreview = {
 	type: eDispatchType.CLEAR_PROJECT_PREVIEW;
 	payload: undefined;
 };
 
-type tAction = tLoginAction | tRegisterAction | tLogoutAction | tAddProjectPreview | tClearProjectPreview;
-
-type tAppContext = {
-	app: tState;
-	dispatch: Dispatch<tAction>;
+type AddDeleteIds = {
+	type: eDispatchType.ADD_DELETE_IDS;
+	payload: string;
 };
 
-const initialAppStateContext: tAppContext = {
+type ClearDeleteIds = {
+	type: eDispatchType.CLEAR_DELETE_IDS;
+};
+
+type SetImpactCategory = {
+	type: eDispatchType.SET_IMPACT_CATEGORY;
+	payload: ImpactCategory;
+};
+
+type Action =
+	| LoginAction
+	| RegisterAction
+	| LogoutAction
+	| AddProjectPreview
+	| ClearProjectPreview
+	| AddDeleteIds
+	| ClearDeleteIds
+	| SetImpactCategory;
+
+type AppContext = {
+	app: State;
+	dispatch: Dispatch<Action>;
+};
+
+const initialAppStateContext: AppContext = {
 	app: {
 		isAuthenticated: Boolean(getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN)),
 		userProfile: getUserProfileFromLocalStorage(),
 		previewProject: undefined,
+		deleteIds: [],
+		impactCategory: undefined,
 	},
 	dispatch: () => {},
 };
 
-export const AppContext = createContext<tAppContext>(initialAppStateContext);
+export const AppContext = createContext<AppContext>(initialAppStateContext);
 
-const reducer = (state: tState, action: tAction) => {
+const reducer = (state: State, action: Action) => {
 	const { type } = action;
 
 	switch (type) {
@@ -94,16 +121,34 @@ const reducer = (state: tState, action: tAction) => {
 				...state,
 				previewProject: undefined,
 			};
+		case eDispatchType.ADD_DELETE_IDS:
+			return {
+				...state,
+				deleteIds: [...state.deleteIds, action.payload],
+			};
+		case eDispatchType.CLEAR_DELETE_IDS:
+			return {
+				...state,
+				deleteIds: [],
+			};
+
+		case eDispatchType.SET_IMPACT_CATEGORY:
+			return {
+				...state,
+				impactCategory: action.payload,
+			};
 		default:
 			return state;
 	}
 };
 
-export default function AppProvider({ children }: tProps) {
+export default function AppProvider({ children }: Props) {
 	const [app, dispatch] = useReducer(reducer, {
 		isAuthenticated: initialAppStateContext.app.isAuthenticated,
 		userProfile: initialAppStateContext.app.userProfile,
 		previewProject: initialAppStateContext.app.previewProject,
+		deleteIds: initialAppStateContext.app.deleteIds,
+		impactCategory: initialAppStateContext.app.impactCategory,
 	});
 
 	return <AppContext.Provider value={{ app, dispatch }}>{children}</AppContext.Provider>;

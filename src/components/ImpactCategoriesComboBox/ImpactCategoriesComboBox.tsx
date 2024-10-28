@@ -7,7 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Skeleton } from '@/components/ui/skeleton';
 import React, { useEffect, useState } from 'react';
 import { SVGIcon } from '@/utils/SVGIcon';
-
+import { ImpactCategory } from '@/@types/impactCategory.type';
+import _ from 'lodash';
 type ComboBoxData = {
 	id: string;
 	value: string;
@@ -15,14 +16,15 @@ type ComboBoxData = {
 	iconUrl: string;
 	midPointName: string;
 	abbr: string;
+	[key: string]: unknown;
 };
 
 type Props = {
 	data: ComboBoxData[];
 	title?: string;
-	onSelected: (id: string) => void;
+	onSelected: (payload: ImpactCategory) => void;
 	isLoading?: boolean;
-	selectedId: string;
+	selectedId: ImpactCategory | ComboBoxData;
 };
 
 export function ImpactCategoriesComboBox({ data, onSelected, title, isLoading = true, selectedId }: Props) {
@@ -31,7 +33,7 @@ export function ImpactCategoriesComboBox({ data, onSelected, title, isLoading = 
 
 	useEffect(() => {
 		if (selectedId) {
-			const selectedItem = data.find((item) => item.id === selectedId);
+			const selectedItem = data.find((item) => item.id === selectedId.id);
 			if (selectedItem) setValue(selectedItem.value);
 		}
 	}, [selectedId, data]);
@@ -43,12 +45,7 @@ export function ImpactCategoriesComboBox({ data, onSelected, title, isLoading = 
 			) : (
 				<Popover open={open} onOpenChange={setOpen}>
 					<PopoverTrigger asChild>
-						<Button
-							variant="outline"
-							role="combobox"
-							aria-expanded={open}
-							className="w-[270px] justify-between font-normal"
-						>
+						<Button variant="outline" role="combobox" aria-expanded={open} className="w-[270px] justify-between font-normal">
 							{value ? data.find((item) => item.value === value)?.label : title}
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 						</Button>
@@ -64,7 +61,7 @@ export function ImpactCategoriesComboBox({ data, onSelected, title, isLoading = 
 											key={item.id}
 											value={item.value}
 											onSelect={(currentValue) => {
-												onSelected(item.id);
+												onSelected(_.omit(item, ['value', 'label', 'midPointName']) as ImpactCategory);
 												setValue(currentValue === value ? '' : currentValue);
 												setOpen(false);
 											}}

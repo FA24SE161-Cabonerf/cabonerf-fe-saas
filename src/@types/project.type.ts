@@ -1,3 +1,4 @@
+import { ImpactCategory } from '@/@types/impactCategory.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
 
 interface Workspace {
@@ -12,16 +13,27 @@ interface Owner {
 	profilePictureUrl: string;
 }
 
-interface Project {
+interface Impact {
+	id: string;
+	value: number;
+	method: Omit<ImpactMethod, 'description'>;
+	impactCategory: Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>;
+}
+
+interface Project<IData = unknown, PData = unknown, CData = unknown> {
 	id: string;
 	name: string;
 	description: string;
 	location: string;
 	method: Omit<ImpactMethod, 'reference'>;
-	impacts: unknown[];
-	processes: unknown[];
-	connectors: unknown[];
+	impacts: IData;
+	processes: PData;
+	connectors: CData;
 }
+
+type GetProject = Omit<Project<Impact[]>, 'processes' | 'connectors'> & {
+	value: number;
+};
 
 type CreateProjectResponse = {
 	projectId: string;
@@ -31,10 +43,18 @@ type UpdateProjectResponse = Omit<Project, 'processes' | 'connectors' | 'impacts
 	modifiedAt: string;
 };
 
-type GetProjectListResponse = Omit<Project, 'processes' | 'connectors'> & {
+type GetProjectListResponse = Omit<Project<Impact[]>, 'processes' | 'connectors'> & {
 	modifiedAt: string;
 	owner: Owner;
 	workspace: Workspace;
 };
 
-export type { Project, CreateProjectResponse, GetProjectListResponse, UpdateProjectResponse, Workspace, Owner };
+export type {
+	CreateProjectResponse,
+	GetProject,
+	GetProjectListResponse,
+	Owner,
+	Project,
+	UpdateProjectResponse,
+	Workspace,
+};

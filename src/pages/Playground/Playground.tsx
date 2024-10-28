@@ -1,7 +1,7 @@
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
-import PlaygroundToolBox from '@/pages/Playground/components/PlaygroundToolbox';
+import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
 import StickyNode from '@/pages/Playground/customs/StickyNode';
 import {
 	applyNodeChanges,
@@ -65,9 +65,7 @@ export default function Playground() {
 				<ReactFlow nodeTypes={customNode} nodes={nodes} onNodesChange={onNodeChange}>
 					<Background variant={BackgroundVariant.Dots} size={1.5} color="#d4d4d4" />
 					<MiniMap pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
-					<Panel position="top-left" className="m-0">
-						<PlaygroundToolBox />
-					</Panel>
+					<PlaygroundToolBoxV2 />
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
