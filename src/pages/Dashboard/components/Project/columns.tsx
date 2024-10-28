@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
-import { GetProjectListResponse, Owner } from '@/@types/project.type';
+import { GetProjectListResponse, Impact, Owner } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import TheadTable from '@/components/THeadTable';
@@ -13,7 +13,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AppContext } from '@/contexts/app.context';
+import { SVGIcon } from '@/utils/SVGIcon';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
@@ -37,6 +39,7 @@ import { toast } from 'sonner';
 export const columns: ColumnDef<GetProjectListResponse>[] = [
 	{
 		accessorKey: 'name',
+		size: 400,
 		header: ({ column }) => (
 			<TheadTable onAction={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="justify-start">
 				<Workflow strokeWidth={2} size={18} />
@@ -47,6 +50,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 	},
 	{
 		accessorKey: 'impacts',
+		size: 300,
 		header: ({ column }) => (
 			<TheadTable onAction={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="justify-start">
 				<FlaskConicalOff strokeWidth={2} size={18} />
@@ -59,13 +63,26 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 				app: { impactCategory },
 			} = useContext(AppContext);
 
-			const data = row.getValue('impacts');
+			const impactData = row.getValue<Impact[]>('impacts');
 
-			return <div>{impactCategory?.name ?? '123'}</div>;
+			if (!impactCategory) return <Skeleton className="h-[24px] w-[160px] rounded" />;
+
+			// Find the matching impact category ID and return the value or default to 0 if not found
+			const matchingImpact = impactData.find((data) => data.impactCategory.id === impactCategory.id);
+			const value = matchingImpact ? matchingImpact.value : 0;
+			console.log('123');
+			return (
+				<div className="flex items-center space-x-1">
+					{impactCategory.iconUrl && <SVGIcon url={impactCategory.iconUrl} />}
+					<span className="font-medium">{value}</span>
+					<span>{impactCategory.midpointImpactCategory?.unit?.name || ''}</span>
+				</div>
+			);
 		},
 	},
 	{
 		accessorKey: 'method',
+		size: 400,
 		header: ({ column }) => (
 			<TheadTable onAction={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="">
 				<Menu strokeWidth={2} size={18} />
@@ -80,6 +97,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 	},
 	{
 		accessorKey: 'owner',
+		size: 400,
 		header: ({ column }) => (
 			<TheadTable onAction={() => column.toggleSorting(column.getIsSorted() === 'asc')} className="">
 				<UserRound strokeWidth={2} size={18} />
@@ -99,6 +117,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 	},
 	{
 		accessorKey: 'modifiedAt',
+		size: 200,
 		header: ({ column }) => (
 			<TheadTable onAction={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
 				<Dot strokeWidth={5} color="#16a34a" className="mx-0 animate-blink" />
@@ -110,12 +129,24 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 	},
 	{
 		id: 'actions',
+		size: 100,
 		cell: ({ row }) => {
 			const project = row.original;
-			const { dispatch } = useContext(AppContext);
+			const { app, dispatch } = useContext(AppContext);
 
 			const onPreview = () => {
 				dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
+			};
+
+			const clearPreview = () => {
+				dispatch({ type: eDispatchType.CLEAR_PROJECT_PREVIEW });
+			};
+
+			const togglePreview = () => {
+				if (app.previewProject?.id === project.id) {
+					return clearPreview();
+				}
+				return onPreview();
 			};
 
 			const deleteProjectMutate = useMutation({
@@ -154,9 +185,9 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 							<span>Open Project</span>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={onPreview} className="flex cursor-pointer items-center space-x-1">
+						<DropdownMenuItem onClick={togglePreview} className="flex cursor-pointer items-center space-x-1">
 							<ScanSearch size={17} />
-							<span>Preview LCA</span>
+							<span>{app.previewProject?.id === project.id ? 'Close preview' : 'Preview LCA'}</span>
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => navigator.clipboard.writeText(project.id.toString())}

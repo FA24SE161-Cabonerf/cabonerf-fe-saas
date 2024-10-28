@@ -74,9 +74,7 @@ export default function DashboardHeader() {
 			<div className="flex items-end justify-between">
 				<div className="flex flex-col leading-7">
 					<span className="text-2xl font-medium">Projects</span>
-					<span className="font-normal tracking-wide text-gray-400">
-						All Life Cycle Assessment projects in this workspace
-					</span>
+					<span className="font-normal tracking-wide text-gray-400">All Life Cycle Assessment projects in this workspace</span>
 				</div>
 				<div className="flex items-center space-x-2">
 					<Button variant={'outline'} className="space-x-1 rounded-sm font-normal">
@@ -105,8 +103,8 @@ export default function DashboardHeader() {
 									<DialogHeader>
 										<DialogTitle className="text-2xl font-semibold">Creat your new project</DialogTitle>
 										<DialogDescription>
-											This action will initiate a new Life Cycle Assessment project, allowing you to analyze
-											environmental impacts across the lifecycle of products, processes, or systems
+											This action will initiate a new Life Cycle Assessment project, allowing you to analyze environmental
+											impacts across the lifecycle of products, processes, or systems
 										</DialogDescription>
 									</DialogHeader>
 
@@ -132,11 +130,7 @@ export default function DashboardHeader() {
 													<FormItem>
 														<FormLabel htmlFor="description">Desription</FormLabel>
 														<FormControl>
-															<Textarea
-																id="description"
-																placeholder="Describe your project"
-																{...field}
-															/>
+															<Textarea id="description" placeholder="Describe your project" {...field} />
 														</FormControl>
 														<FormMessage className="font-normal" />
 													</FormItem>
@@ -160,8 +154,7 @@ export default function DashboardHeader() {
 																	className="w-full justify-between font-normal"
 																>
 																	{value
-																		? _impactMethods.find((framework) => framework.value === value)
-																				?.label
+																		? _impactMethods.find((framework) => framework.value === value)?.label
 																		: 'Choose impact method...'}
 																	<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 																</Button>
@@ -180,22 +173,16 @@ export default function DashboardHeader() {
 																							onSelect={(currentValue) => {
 																								form.setValue(
 																									'methodId',
-																									form.getValues('methodId') === framework.id
-																										? ''
-																										: framework.id
+																									form.getValues('methodId') === framework.id ? '' : framework.id
 																								);
-																								setValue(
-																									currentValue === value ? '' : currentValue
-																								);
+																								setValue(currentValue === value ? '' : currentValue);
 																								setOpenMethodDropdown(false); // Close dropdown after selection
 																							}}
 																						>
 																							<Check
 																								className={cn(
 																									'mr-2 h-4 w-4',
-																									value === framework.value
-																										? 'opacity-100'
-																										: 'opacity-0'
+																									value === framework.value ? 'opacity-100' : 'opacity-0'
 																								)}
 																							/>
 																							{framework.label}
@@ -209,9 +196,7 @@ export default function DashboardHeader() {
 															</div>
 														</FormControl>
 
-														<span className="text-[12.8px] text-red-500">
-															{form.formState.errors.methodId?.message}
-														</span>
+														<span className="text-[12.8px] text-red-500">{form.formState.errors.methodId?.message}</span>
 													</FormItem>
 												)}
 											/>

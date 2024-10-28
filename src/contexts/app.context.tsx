@@ -44,7 +44,6 @@ type AddProjectPreview = {
 
 type ClearProjectPreview = {
 	type: eDispatchType.CLEAR_PROJECT_PREVIEW;
-	payload: undefined;
 };
 
 type AddDeleteIds = {
