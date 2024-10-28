@@ -1,5 +1,5 @@
 interface Perspective {
-	id: number;
+	id: string;
 	name: string;
 	abbr: string;
 }
@@ -7,9 +7,9 @@ interface Perspective {
 interface ImpactMethod {
 	id: string;
 	name: string;
-	description: string;
+	description?: string;
 	version: string;
-	reference: string;
+	reference?: string;
 	perspective: Perspective;
 }
 

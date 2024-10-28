@@ -18,7 +18,7 @@ type EmissionCompartment = {
 type MidpointImpactCategory = {
 	id: string;
 	name: string;
-	description: string;
+	description?: string;
 	abbr: string;
 	unit: Unit;
 };
@@ -26,9 +26,9 @@ type MidpointImpactCategory = {
 type Unit = {
 	id: string;
 	name: string;
-	conversionFactor: number;
-	unitGroup: UnitGroup;
-	default: boolean;
+	conversionFactor?: number;
+	unitGroup?: UnitGroup;
+	default?: boolean;
 };
 
 type UnitGroup = {

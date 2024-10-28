@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
-import { Owner, Project } from '@/@types/project.type';
+import { GetProjectListResponse, Owner } from '@/@types/project.type';
+import ProjectApis from '@/apis/project.apis';
 import MyAvatar from '@/components/Avatar/MyAvatar';
 import TheadTable from '@/components/THeadTable';
 import { Button } from '@/components/ui/button';
@@ -13,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
 import { formatDate } from '@/utils/utils';
+import { useMutation } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import {
 	ChevronsUpDown,
@@ -29,8 +32,9 @@ import {
 	Workflow,
 } from 'lucide-react';
 import { useContext } from 'react';
+import { toast } from 'sonner';
 
-export const columns: ColumnDef<Project>[] = [
+export const columns: ColumnDef<GetProjectListResponse>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) => (
@@ -50,7 +54,15 @@ export const columns: ColumnDef<Project>[] = [
 				<ChevronsUpDown strokeWidth={2} size={15} />
 			</TheadTable>
 		),
-		cell: () => <div>123 laksjdlkj alskdj alskdj aslkdj</div>,
+		cell: ({ row }) => {
+			const {
+				app: { impactCategory },
+			} = useContext(AppContext);
+
+			const data = row.getValue('impacts');
+
+			return <div>{impactCategory?.name ?? '123'}</div>;
+		},
 	},
 	{
 		accessorKey: 'method',
@@ -100,11 +112,32 @@ export const columns: ColumnDef<Project>[] = [
 		id: 'actions',
 		cell: ({ row }) => {
 			const project = row.original;
-			// eslint-disable-next-line react-hooks/rules-of-hooks
 			const { dispatch } = useContext(AppContext);
 
 			const onPreview = () => {
 				dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
+			};
+
+			const deleteProjectMutate = useMutation({
+				mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
+			});
+
+			const onDeleteProject = (id: string) => {
+				deleteProjectMutate.mutate(
+					{ id },
+					{
+						onSuccess: () => {
+							dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
+							toast(`Project has been deleted: ${id}`, {
+								description: 'Sunday, December 03, 2023 at 9:00 AM',
+								action: {
+									label: 'Undo',
+									onClick: () => alert('Processing'),
+								},
+							});
+						},
+					}
+				);
 			};
 
 			return (
@@ -115,7 +148,7 @@ export const columns: ColumnDef<Project>[] = [
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
+					<DropdownMenuContent align="end" className="w-[150px]">
 						<DropdownMenuItem className="flex cursor-pointer items-center space-x-1">
 							<SquareArrowOutUpRight size={17} />
 							<span>Open Project</span>
@@ -132,13 +165,18 @@ export const columns: ColumnDef<Project>[] = [
 							<Copy size={17} />
 							<span>Copy ID</span>
 						</DropdownMenuItem>
+
 						<DropdownMenuItem className="flex cursor-pointer items-center space-x-1">
 							<GitCompare size={17} />
 							<span>Compare</span>
 						</DropdownMenuItem>
-						<DropdownMenuItem className="flex cursor-pointer items-center space-x-1 text-red-600">
+						<DropdownMenuItem
+							disabled={deleteProjectMutate.isPending}
+							onClick={() => onDeleteProject(project.id)}
+							className="flex cursor-pointer items-center space-x-1 text-red-600"
+						>
 							<Trash2 size={17} />
-							<span>Delete</span>
+							<span>{deleteProjectMutate.isPending ? 'Deleting...' : 'Delete'}</span>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

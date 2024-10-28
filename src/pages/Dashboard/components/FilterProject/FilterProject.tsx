@@ -1,15 +1,21 @@
+import { eDispatchType } from '@/@types/dispatch.type';
+import { ImpactCategory } from '@/@types/impactCategory.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
 import { ImpactCategoriesComboBox } from '@/components/ImpactCategoriesComboBox/ImpactCategoriesComboBox';
 import { ImpactMethodComboBox } from '@/components/ImpactMethodComboBox/ImpactMethodComboBox';
 import { Button } from '@/components/ui/button';
+import { AppContext } from '@/contexts/app.context';
 import { useQuery } from '@tanstack/react-query';
 import { Download, Filter } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 
 export default function FilterProject() {
+	const {
+		app: { impactCategory },
+		dispatch,
+	} = useContext(AppContext);
 	const [selectedImpactMethodId, setSelectedImpactMethodId] = useState<string>('');
-	const [selectedImpactCategoriesId, setSelectedImpactCategoriesId] = useState<string>('');
 
 	const { data: impactMethods, isLoading: impact_methods_loading } = useQuery({
 		queryKey: ['impact_methods'],
@@ -37,16 +43,14 @@ export default function FilterProject() {
 
 	const _impactCategories = useMemo(() => {
 		return (
-			impactCategories?.data.data.map(
-				({ id, iconUrl, name: impactName, midpointImpactCategory: { name: midPointName, abbr } }) => ({
-					id,
-					value: impactName,
-					label: impactName,
-					iconUrl: iconUrl,
-					midPointName: midPointName,
-					abbr: abbr,
-				})
-			) || []
+			impactCategories?.data.data.map((data) => ({
+				...data,
+				value: data.name,
+				label: data.name,
+				midPointName: data.midpointImpactCategory.name,
+				abbr: data.midpointImpactCategory.abbr,
+				iconUrl: data.iconUrl,
+			})) || []
 		);
 	}, [impactCategories?.data.data]);
 
@@ -58,16 +62,16 @@ export default function FilterProject() {
 
 	useEffect(() => {
 		if (impactCategories?.data.data) {
-			setSelectedImpactCategoriesId(impactCategories?.data.data[0].id);
+			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload: impactCategories?.data.data[0] });
 		}
-	}, [impactCategories?.data.data]);
+	}, [impactCategories?.data.data, dispatch]);
 
 	const updateSelectedImpactMethod = (id: string) => {
 		setSelectedImpactMethodId(id);
 	};
 
-	const updateSelectedImpactCategories = (id: string) => {
-		setSelectedImpactCategoriesId(id);
+	const updateSelectedImpactCategories = (payload: ImpactCategory) => {
+		dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload });
 	};
 
 	return (
@@ -81,7 +85,7 @@ export default function FilterProject() {
 			/>
 
 			<ImpactCategoriesComboBox
-				selectedId={selectedImpactCategoriesId}
+				selectedId={impactCategory as ImpactCategory}
 				isLoading={!impact_categories_success}
 				title="Select impact method"
 				onSelected={updateSelectedImpactCategories}

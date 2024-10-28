@@ -11,6 +11,7 @@ type ComboBoxData = {
 	id: string;
 	value: string;
 	label: string;
+	[key: string]: string;
 };
 
 type Props = {

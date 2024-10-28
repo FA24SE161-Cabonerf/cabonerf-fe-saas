@@ -1,5 +1,5 @@
 import { CommonResponse } from '@/@types/common.type';
-import { CreateProjectResponse, Project } from '@/@types/project.type';
+import { CreateProjectResponse, GetProjectListResponse } from '@/@types/project.type';
 import { PROJECT_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http';
@@ -11,12 +11,17 @@ class ProjectApis {
 				pageCurrent: string;
 				pageSize: string;
 				totalPage: string;
-				projects: Project[];
+				projects: GetProjectListResponse[];
 			}>
 		>(PROJECT_ENDPOINT.PROJECT);
 	}
+
 	public async createProject(payload: CreateProjectSchema) {
 		return httpService.post<CommonResponse<CreateProjectResponse>>(PROJECT_ENDPOINT.CREATE_NEW_PROJECT, payload);
+	}
+
+	public async deleteProject(payload: { id: string }) {
+		return httpService.delete<CommonResponse<[]>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.id}`);
 	}
 }
 

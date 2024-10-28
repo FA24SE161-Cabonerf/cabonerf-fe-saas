@@ -56,7 +56,7 @@ export default function DashboardHeader() {
 
 	const onSubmit: SubmitHandler<CreateProjectSchema> = (data) => {
 		createProjectMutate.mutate(data, {
-			onSuccess: (data) => {
+			onSuccess: async (data) => {
 				setOpenDialogCreateProject(false);
 				toast(`Project has been created: ${data.data.data.projectId}`, {
 					description: 'Sunday, December 03, 2023 at 9:00 AM',
@@ -232,7 +232,7 @@ export default function DashboardHeader() {
 			</div>
 
 			<div className="mt-2">
-				<div className="h-[140px] rounded-2xl bg-stone-300"></div>
+				<div className="h-[140px] rounded-2xl bg-stone-100"></div>
 			</div>
 		</div>
 	);
