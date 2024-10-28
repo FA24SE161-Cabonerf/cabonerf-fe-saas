@@ -57,13 +57,11 @@ export function ImpactMethodComboBox({ data, onSelected, title, isLoading = true
 											value={item.value}
 											onSelect={(currentValue) => {
 												onSelected(item.id);
-												setValue(currentValue === value ? '' : currentValue);
+												setValue(currentValue);
 												setOpen(false);
 											}}
 										>
-											<Check
-												className={cn('mr-2 h-4 w-4', value === item.value ? 'opacity-100' : 'opacity-0')}
-											/>
+											<Check className={cn('mr-2 h-4 w-4', value === item.value ? 'opacity-100' : 'opacity-0')} />
 											{item.label}
 										</CommandItem>
 									))}

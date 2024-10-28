@@ -25,8 +25,7 @@ export default function FilterProject() {
 
 	const { data: impactCategories, isSuccess: impact_categories_success } = useQuery({
 		queryKey: ['impact_categories', selectedImpactMethodId],
-		queryFn: () =>
-			ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: selectedImpactMethodId as string }),
+		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: selectedImpactMethodId as string }),
 		staleTime: 60_000,
 		enabled: !!selectedImpactMethodId,
 	});
@@ -87,7 +86,6 @@ export default function FilterProject() {
 			<ImpactCategoriesComboBox
 				selectedId={impactCategory as ImpactCategory}
 				isLoading={!impact_categories_success}
-				title="Select impact method"
 				onSelected={updateSelectedImpactCategories}
 				data={_impactCategories}
 			/>
