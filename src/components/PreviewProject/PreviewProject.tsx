@@ -1,6 +1,6 @@
 import { AppContext } from '@/contexts/app.context';
-import { SVGIcon } from '@/utils/SVGIcon';
 import clsx from 'clsx';
+import DOMPurify from 'dompurify';
 import { MapPin } from 'lucide-react';
 import { useContext, useMemo } from 'react';
 
@@ -16,8 +16,9 @@ export default function PreviewProject() {
 
 	return (
 		<div
-			className={clsx(`h-full w-0 overflow-hidden transition-all duration-500`, {
-				'w-[750px]': previewProject !== undefined,
+			className={clsx(`h-full overflow-hidden transition-all duration-500`, {
+				'w-[750px] opacity-100': previewProject !== undefined,
+				'w-0 opacity-0': previewProject === undefined,
 			})}
 		>
 			<div className="relative h-full border-l">
@@ -26,7 +27,9 @@ export default function PreviewProject() {
 						<div className="flex flex-col space-y-2 p-4">
 							<span className="text-2xl font-semibold text-white">{previewProject?.name}</span>
 							<div className="flex items-center space-x-1 text-white">
-								{impactCategory?.iconUrl && <SVGIcon url={impactCategory.iconUrl} />}
+								{impactCategory?.iconUrl && (
+									<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(impactCategory.iconUrl as string) }} />
+								)}
 								<span className="font-medium">{value}</span>
 								<span>{impactCategory?.midpointImpactCategory?.unit?.name || ''}</span>
 							</div>
@@ -39,15 +42,20 @@ export default function PreviewProject() {
 
 					<div className="mt-3">
 						<div className="flex justify-between">
-							<div className="w-[75%] text-left text-base font-medium">Impact category</div>
-							<div className="w-[25%] text-right text-base font-medium">Unit value</div>
+							<div className="w-[75%] text-left text-[15px] font-medium">Impact category</div>
+							<div className="w-[25%] text-right text-[15px] font-medium">Unit value</div>
 						</div>
 
 						<div className="mt-3 space-y-1 overflow-y-auto pb-2" style={{ maxHeight: '440px' }}>
 							{previewProject?.impacts.map((item) => (
-								<div key={item.id} className="flex w-full items-center gap-1 px-2">
+								<div
+									key={item.id}
+									className={clsx(`flex w-full items-center gap-1 px-2 py-1`, {
+										'rounded-[2px] bg-[#dcfce7]': impactCategory?.id === item.impactCategory.id,
+									})}
+								>
 									<div className="flex w-[75%] items-center space-x-3">
-										<SVGIcon url={item.impactCategory.iconUrl} />
+										<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.impactCategory.iconUrl) }} />
 										<div className="flex flex-col">
 											<span className="text-sm font-medium">{item.impactCategory.name}</span>
 											<span className="text-xs text-gray-500">

@@ -66,6 +66,9 @@ export default function Playground() {
 					<Background variant={BackgroundVariant.Dots} size={1.5} color="#d4d4d4" />
 					<MiniMap pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
+					{/* <Panel>
+						<PlaygroundToolBox />
+					</Panel> */}
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>

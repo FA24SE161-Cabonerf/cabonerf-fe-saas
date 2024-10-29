@@ -21,20 +21,20 @@ function PlaygroundControls() {
 			<MenuExport isShareMenu={isShareMenu} />
 			<div className="flex items-center space-x-2 p-[8px]">
 				<div className="flex items-center space-x-2 rounded-sm bg-green-200 p-2">
-					<Pencil size={17} strokeWidth={1.5} color="green" />
+					<Pencil size={17} strokeWidth={2} color="green" />
 					<span className="text-[13px] font-medium text-green-700">Editing</span>
 				</div>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomIn}>
-					<ZoomIn size={19} strokeWidth={1.5} />
+					<ZoomIn size={19} strokeWidth={2} />
 				</ControlItem>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomOut}>
-					<ZoomOut size={19} strokeWidth={1.5} />
+					<ZoomOut size={19} strokeWidth={2} />
 				</ControlItem>
 				<ControlItem duration={FIT_VIEW} onAction={reactflow.fitView}>
-					<Scan size={19} strokeWidth={1.5} />
+					<Scan size={19} strokeWidth={2} />
 				</ControlItem>
 				<ControlItem isActive={!!isShareMenu} duration={18} onAction={toggleShareMenu}>
-					{isShareMenu ? <ArrowDownFromLine strokeWidth={1.5} size={19} /> : <Share strokeWidth={1.5} size={19} />}
+					{isShareMenu ? <ArrowDownFromLine strokeWidth={2} size={19} /> : <Share strokeWidth={2} size={19} />}
 				</ControlItem>
 				<Separator orientation="vertical" className="h-6" color="black" />
 

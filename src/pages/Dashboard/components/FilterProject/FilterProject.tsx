@@ -2,13 +2,13 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
-import { ImpactCategoriesComboBox } from '@/components/ImpactCategoriesComboBox/ImpactCategoriesComboBox';
-import { ImpactMethodComboBox } from '@/components/ImpactMethodComboBox/ImpactMethodComboBox';
+import ImpactCategoriesComboBox from '@/components/ImpactCategoriesComboBox/ImpactCategoriesComboBox';
+import ImpactMethodComboBox from '@/components/ImpactMethodComboBox/ImpactMethodComboBox';
 import { Button } from '@/components/ui/button';
 import { AppContext } from '@/contexts/app.context';
 import { useQuery } from '@tanstack/react-query';
 import { Download, Filter } from 'lucide-react';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 export default function FilterProject() {
 	const {
@@ -65,13 +65,16 @@ export default function FilterProject() {
 		}
 	}, [impactCategories?.data.data, dispatch]);
 
-	const updateSelectedImpactMethod = (id: string) => {
+	const updateSelectedImpactMethod = useCallback((id: string) => {
 		setSelectedImpactMethodId(id);
-	};
+	}, []);
 
-	const updateSelectedImpactCategories = (payload: ImpactCategory) => {
-		dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload });
-	};
+	const updateSelectedImpactCategories = useCallback(
+		(payload: ImpactCategory) => {
+			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload });
+		},
+		[dispatch]
+	);
 
 	return (
 		<div className="flex space-x-2">

@@ -5,20 +5,7 @@ import ComponentProcess from '@/pages/Playground/components/ComponentProcess';
 import { getColor } from '@/utils/color';
 import { Node as ReactNode, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
-import {
-	Factory,
-	Pickaxe,
-	Pin,
-	PinOff,
-	Plus,
-	Recycle,
-	Search,
-	SquarePlus,
-	StickyNote,
-	Text,
-	Truck,
-	UserRoundCheck,
-} from 'lucide-react';
+import { Factory, Pickaxe, Pin, PinOff, Plus, Recycle, Search, SquarePlus, StickyNote, Text, Truck, UserRoundCheck } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 const dataLifeStage = [
@@ -173,9 +160,7 @@ function PlaygroundToolBox() {
 				<div className="h-[calc(100vh-200px)] overflow-scroll">
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
-								LIFE CYCLE STAGES
-							</AccordionTrigger>
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">LIFE CYCLE STAGES</AccordionTrigger>
 							<AccordionContent className="bg-[#fafafa] px-2 py-3">
 								{dataLifeStage.map((data) => (
 									<ComponentProcess
@@ -193,9 +178,7 @@ function PlaygroundToolBox() {
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
-								ANNOTATIONS
-							</AccordionTrigger>
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">ANNOTATIONS</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-2 py-4">
 								{dataAnnotation.map((data) => (
 									<ComponentProcess
@@ -213,17 +196,13 @@ function PlaygroundToolBox() {
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
-								DATABASE ONLINE
-							</AccordionTrigger>
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">DATABASE ONLINE</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-3 py-4">Updating</AccordionContent>
 						</AccordionItem>
 					</Accordion>
 					<Accordion type="single" collapsible className="w-full">
 						<AccordionItem value="item-1" className="rounded-br-md border-none">
-							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">
-								OBJECT LIBRARY
-							</AccordionTrigger>
+							<AccordionTrigger className="border-b px-6 py-3 text-xs font-normal shadow-sm">OBJECT LIBRARY</AccordionTrigger>
 							<AccordionContent className="bg-[#fbfbfb] px-3 py-4">Updating</AccordionContent>
 						</AccordionItem>
 					</Accordion>
