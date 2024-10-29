@@ -1,15 +1,15 @@
 import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { ImpactCategory } from '@/@types/impactCategory.type';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
-import React, { useContext, useEffect, useState } from 'react';
-import { SVGIcon } from '@/utils/SVGIcon';
-import { ImpactCategory } from '@/@types/impactCategory.type';
-import _ from 'lodash';
 import { AppContext } from '@/contexts/app.context';
+import { cn } from '@/lib/utils';
+import DOMPurify from 'dompurify';
+import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react';
 type ComboBoxData = {
 	id: string;
 	value: string;
@@ -27,12 +27,14 @@ type Props = {
 	selectedId: ImpactCategory | ComboBoxData;
 };
 
-export function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selectedId }: Props) {
+function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selectedId }: Props) {
 	const {
 		app: { impactCategory },
 	} = useContext(AppContext);
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
+
+	console.log('RENDERRRRR');
 
 	useEffect(() => {
 		if (selectedId) {
@@ -50,7 +52,7 @@ export function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, s
 					<PopoverTrigger asChild>
 						<Button variant="outline" role="combobox" aria-expanded={open} className="w-[300px] justify-between font-normal">
 							<div className="flex items-center space-x-2">
-								<SVGIcon url={impactCategory?.iconUrl as string} />
+								<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(impactCategory?.iconUrl as string) }} />
 								<span>{impactCategory?.name}</span>
 							</div>
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -76,7 +78,7 @@ export function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, s
 											className="flex justify-between"
 										>
 											<div className="flex items-center space-x-3">
-												<SVGIcon url={item.iconUrl} />
+												<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.iconUrl) }} />
 												<div className="flex flex-col">
 													<span className="text-sm font-medium">{item.label}</span>
 													<span className="text-xs text-gray-500">
@@ -96,3 +98,5 @@ export function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, s
 		</React.Fragment>
 	);
 }
+
+export default React.memo(ImpactCategoriesComboBox);

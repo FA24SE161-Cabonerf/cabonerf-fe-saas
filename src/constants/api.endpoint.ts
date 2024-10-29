@@ -5,15 +5,18 @@ class AUTH_ENDPOINT {
 	public static VERIFY_EMAIL = 'users/email-verify';
 }
 
+// Impact endpoint
 class IMPACT_ENDPOINT {
 	public static IMPACT = '/impacts';
 }
 
+// Impact method endpoint
 class IMPACT_METHOD_ENDPOINT {
 	public static IMPACT_METHODS = '/impact-methods';
 	public static GET_IMPACT_METHODS = IMPACT_ENDPOINT.IMPACT + this.IMPACT_METHODS;
 }
 
+// Impact method category endpoint
 class IMPACT_METHOD_CATEGORIES_ENDPOINT {
 	public static IMPACT_CATEGORIES = '/impact-categories';
 
@@ -22,10 +25,22 @@ class IMPACT_METHOD_CATEGORIES_ENDPOINT {
 	}
 }
 
+// Project endpoint
 class PROJECT_ENDPOINT {
 	public static PROJECT = '/projects';
 
 	public static CREATE_NEW_PROJECT = this.PROJECT;
 }
 
-export { AUTH_ENDPOINT, IMPACT_METHOD_ENDPOINT, IMPACT_ENDPOINT, IMPACT_METHOD_CATEGORIES_ENDPOINT, PROJECT_ENDPOINT };
+class LIFE_CYCLE_STAGES_ENDPOINT {
+	public static LIFE_CYCLE_STAGES = '/life-cycle-stages';
+}
+
+export {
+	AUTH_ENDPOINT,
+	IMPACT_METHOD_ENDPOINT,
+	IMPACT_ENDPOINT,
+	IMPACT_METHOD_CATEGORIES_ENDPOINT,
+	PROJECT_ENDPOINT,
+	LIFE_CYCLE_STAGES_ENDPOINT,
+};

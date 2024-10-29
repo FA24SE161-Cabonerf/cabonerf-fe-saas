@@ -22,7 +22,7 @@ type Props = {
 	selectedId?: string;
 };
 
-export function ImpactMethodComboBox({ data, onSelected, title, isLoading = true, selectedId }: Props) {
+function ImpactMethodComboBox({ data, onSelected, title, isLoading = true, selectedId }: Props) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
 
@@ -74,3 +74,5 @@ export function ImpactMethodComboBox({ data, onSelected, title, isLoading = true
 		</React.Fragment>
 	);
 }
+
+export default React.memo(ImpactMethodComboBox);

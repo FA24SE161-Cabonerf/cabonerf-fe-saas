@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AppContext } from '@/contexts/app.context';
-import { SVGIcon } from '@/utils/SVGIcon';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
+import DOMPurify from 'dompurify';
 import {
 	ChevronsUpDown,
 	Copy,
@@ -70,10 +70,10 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 			// Find the matching impact category ID and return the value or default to 0 if not found
 			const matchingImpact = impactData.find((data) => data.impactCategory.id === impactCategory.id);
 			const value = matchingImpact ? matchingImpact.value : 0;
-			console.log('123');
+
 			return (
 				<div className="flex items-center space-x-1">
-					{impactCategory.iconUrl && <SVGIcon url={impactCategory.iconUrl} />}
+					{impactCategory.iconUrl && <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(impactCategory.iconUrl) }} />}
 					<span className="font-medium">{value}</span>
 					<span>{impactCategory.midpointImpactCategory?.unit?.name || ''}</span>
 				</div>
