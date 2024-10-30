@@ -19,7 +19,7 @@ function PlaygroundControls() {
 	return (
 		<div className="relative w-auto transform rounded-md border border-gray-100 bg-white shadow-lg duration-300">
 			<MenuExport isShareMenu={isShareMenu} />
-			<div className="flex items-center space-x-2 p-[8px]">
+			<div className="flex items-center space-x-2 p-2">
 				<div className="flex items-center space-x-2 rounded-sm bg-green-200 p-2">
 					<Pencil size={17} strokeWidth={2} color="green" />
 					<span className="text-[13px] font-medium text-green-700">Editing</span>

@@ -1,6 +1,6 @@
 import { eDispatchType } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
-import { DataTable } from '@/components/DataTable/data-table';
+import { DataTable } from '@/components/data-table';
 import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
 import TAB_TITLES from '@/constants/tab.titles';

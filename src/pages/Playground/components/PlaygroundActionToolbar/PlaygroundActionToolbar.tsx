@@ -1,83 +1,97 @@
-import ImpactAssessmentMethodApi from '@/apis/impactMethod.apis';
-import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandInput, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { CaretSortIcon } from '@radix-ui/react-icons';
+import { eDispatchType } from '@/@types/dispatch.type';
+import { ImpactCategory } from '@/@types/impactCategory.type';
+import ImpactCategoryApis from '@/apis/impactCategories.apis';
+import ImpactMethodApis from '@/apis/impactMethod.apis';
+import ImpactCategoriesComboBox from '@/components/ImpactCategoriesComboBox';
+import ImpactMethodComboBox from '@/components/ImpactMethodComboBox';
+import { AppContext } from '@/contexts/app.context';
 import { useQuery } from '@tanstack/react-query';
-import { CommandItem } from 'cmdk';
-import { CheckIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 function PlaygroundActionToolbar() {
-	const [open, setOpen] = useState<boolean>(false);
-	const [value, setValue] = useState<string>('');
+	const {
+		app: { impactCategory },
+		dispatch,
+	} = useContext(AppContext);
+	const [selectedImpactMethodId, setSelectedImpactMethodId] = useState<string>('');
 
-	const data = useQuery({
-		queryKey: ['impact_assessment_method'],
-		queryFn: ImpactAssessmentMethodApi.prototype.getListImpactAssessmentMethod,
+	const { data: impactMethods, isLoading: impact_methods_loading } = useQuery({
+		queryKey: ['impact_methods'],
+		queryFn: ImpactMethodApis.prototype.getImpactMethods,
+		staleTime: 60_000,
 	});
 
-	const impactMethodData = data.data?.data.data;
-	if (!impactMethodData) return null;
+	const { data: impactCategories, isSuccess: impact_categories_success } = useQuery({
+		queryKey: ['impact_categories', selectedImpactMethodId],
+		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: selectedImpactMethodId as string }),
+		staleTime: 60_000,
+		enabled: !!selectedImpactMethodId,
+	});
 
-	console.log('PlaygroundActionToolbar');
+	const _impactMethods = useMemo(() => {
+		return (
+			impactMethods?.data.data.map(({ id, name, version, perspective }) => ({
+				id,
+				value: `${name}, ${version} (${perspective.abbr})`,
+				label: `${name}, ${version} (${perspective.abbr})`,
+			})) || []
+		);
+	}, [impactMethods?.data.data]);
+
+	const _impactCategories = useMemo(() => {
+		return (
+			impactCategories?.data.data.map((data) => ({
+				...data,
+				value: data.name,
+				label: data.name,
+				midPointName: data.midpointImpactCategory.name,
+				abbr: data.midpointImpactCategory.abbr,
+				iconUrl: data.iconUrl,
+			})) || []
+		);
+	}, [impactCategories?.data.data]);
+
+	useEffect(() => {
+		if (impactMethods?.data.data) {
+			setSelectedImpactMethodId(impactMethods?.data.data[0].id);
+		}
+	}, [impactMethods?.data.data]);
+
+	useEffect(() => {
+		if (impactCategories?.data.data) {
+			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload: impactCategories?.data.data[0] });
+		}
+	}, [impactCategories?.data.data, dispatch]);
+
+	const updateSelectedImpactMethod = useCallback((id: string) => {
+		setSelectedImpactMethodId(id);
+	}, []);
+
+	const updateSelectedImpactCategories = useCallback(
+		(payload: ImpactCategory) => {
+			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload });
+		},
+		[dispatch]
+	);
 
 	return (
-		<div className="bg-white">
-			<div className="flex items-center">
+		<div className="rounded-2xl border border-gray-100 bg-white p-2 shadow">
+			<div className="flex items-center space-x-2">
 				{/* Method  */}
-				<div>
-					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
-							<Button
-								variant="outline"
-								role="combobox"
-								aria-expanded={open}
-								className="w-[300px] justify-between rounded-sm font-medium"
-							>
-								{value
-									? impactMethodData.find(
-											({ name, version, perspective: { abbr } }) =>
-												`${name} , ${version} (${abbr})` === value
-										) && value
-									: 'Choose impact assessment method'}
-								<CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-[300px] rounded-sm p-0">
-							<Command>
-								<CommandInput placeholder="Search impact method..." className="h-9" />
-								<CommandList className="pb-1">
-									<p className="px-3 py-2 text-xs text-gray-400">List of methods supported by us</p>
-									<CommandEmpty>No impact method found.</CommandEmpty>
-									{impactMethodData.map(({ id, name, version, perspective: { abbr } }) => {
-										const renderValue = `${name} , ${version} (${abbr})`;
-										return (
-											<CommandItem
-												key={id}
-												value={renderValue}
-												onSelect={(currentValue) => {
-													setValue(currentValue === value ? '' : currentValue);
-													setOpen(false);
-												}}
-												className="mx-1 flex justify-between rounded-[4px] px-2 py-1 hover:bg-gray-100"
-											>
-												<div className="text-sm">{renderValue}</div>
-												<CheckIcon
-													className={cn(
-														'ml-auto h-4 w-4',
-														renderValue === value ? 'opacity-100' : 'opacity-0'
-													)}
-												/>
-											</CommandItem>
-										);
-									})}
-								</CommandList>
-							</Command>
-						</PopoverContent>
-					</Popover>
-				</div>
+				<ImpactMethodComboBox
+					selectedId={selectedImpactMethodId}
+					isLoading={impact_methods_loading}
+					title="Select impact method"
+					onSelected={updateSelectedImpactMethod}
+					data={_impactMethods}
+				/>
+
+				<ImpactCategoriesComboBox
+					selectedId={impactCategory as ImpactCategory}
+					isLoading={!impact_categories_success}
+					onSelected={updateSelectedImpactCategories}
+					data={_impactCategories}
+				/>
 				{/* Category of method */}
 			</div>
 		</div>
