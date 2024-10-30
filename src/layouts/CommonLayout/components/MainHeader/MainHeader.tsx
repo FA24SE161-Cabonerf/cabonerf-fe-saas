@@ -1,5 +1,5 @@
-import MyAvatar from '@/components/Avatar/MyAvatar';
-import BreadcrumbWithMenu from '@/components/BreadcrumbMenu/BreadcrumbMenu';
+import MyAvatar from '@/components/MyAvatar';
+import BreadcrumbWithMenu from '@/components/BreadcrumbMenu';
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
@@ -64,9 +64,7 @@ export default function MainHeader() {
 							{
 								<div className="w-[250px] rounded-sm p-[5px] text-sm">
 									{/* Title */}
-									<div className="mx-7 my-2 text-[11px] font-medium uppercase tracking-widest text-stone-500">
-										Projects
-									</div>
+									<div className="mx-7 my-2 text-[11px] font-medium uppercase tracking-widest text-stone-500">Projects</div>
 									{Array(3)
 										.fill(0)
 										.map((_, index) => (

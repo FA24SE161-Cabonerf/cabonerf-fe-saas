@@ -3,8 +3,8 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
 import { GetProjectListResponse, Impact, Owner } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
-import MyAvatar from '@/components/Avatar/MyAvatar';
-import TheadTable from '@/components/THeadTable';
+import MyAvatar from '@/components/MyAvatar';
+import TheadTable from '@/components/TheadTable';
 import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,

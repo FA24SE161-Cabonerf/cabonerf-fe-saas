@@ -49,4 +49,4 @@ type GetProjectListResponse = Omit<Project<Impact[]>, 'processes' | 'connectors'
 	workspace: Workspace;
 };
 
-export type { CreateProjectResponse, GetProject, GetProjectListResponse, Owner, Project, UpdateProjectResponse, Workspace, Impact };
+export type { CreateProjectResponse, GetProject, GetProjectListResponse, Impact, Owner, Project, UpdateProjectResponse, Workspace };

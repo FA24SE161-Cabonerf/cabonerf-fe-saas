@@ -1,8 +1,8 @@
+import BackButton from '@/pages/Playground/components/BackButton';
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
-import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
-import StickyNode from '@/pages/Playground/customs/StickyNode';
+import Process from '@/pages/Playground/customs/Process';
 import {
 	applyNodeChanges,
 	Background,
@@ -20,7 +20,7 @@ import { debounce } from 'lodash';
 import React, { useCallback, useState } from 'react';
 
 const customNode: NodeTypes = {
-	'sticky-node': StickyNode,
+	process: Process,
 };
 
 const nds: Node[] = [
@@ -28,13 +28,15 @@ const nds: Node[] = [
 		id: '123',
 		data: {
 			name: '123',
-			color: 'blue',
+			label: 'blue',
 		},
 		position: {
 			x: 700,
 			y: 450,
 		},
-		type: 'sticky-node',
+		initialWidth: 200,
+		initialHeight: 300,
+		type: 'process',
 		sourcePosition: Position.Right,
 		selectable: true,
 		draggable: true,
@@ -42,8 +44,8 @@ const nds: Node[] = [
 ];
 
 const debouncedLog = debounce((id: string, x, y) => {
-	alert(`id:${id}, x: ${x}, y: ${y}`);
-}, 1000);
+	console.log(`id:${id}, x: ${x}, y: ${y}`);
+}, 200);
 
 export default function Playground() {
 	const [nodes, setNodes] = useState<Node[]>(nds);
@@ -60,11 +62,13 @@ export default function Playground() {
 
 	return (
 		<React.Fragment>
-			<PlaygroundHeader />
-			<div className="relative h-[calc(100vh-57px)]">
+			<div className="relative h-[100vh]">
 				<ReactFlow nodeTypes={customNode} nodes={nodes} onNodesChange={onNodeChange}>
 					<Background variant={BackgroundVariant.Dots} size={1.5} color="#d4d4d4" />
-					<MiniMap pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
+					<MiniMap className="" offsetScale={2} pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
+					<Panel position="top-left">
+						<BackButton />
+					</Panel>
 					<PlaygroundToolBoxV2 />
 					{/* <Panel>
 						<PlaygroundToolBox />
