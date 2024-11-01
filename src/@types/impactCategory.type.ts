@@ -4,7 +4,6 @@ type ImpactCategory = {
 	indicator: string;
 	iconUrl: string;
 	indicatorDescription: string;
-	unit: string;
 	midpointImpactCategory: MidpointImpactCategory;
 	emissionCompartment: EmissionCompartment;
 };
