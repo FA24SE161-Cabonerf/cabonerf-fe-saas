@@ -2,15 +2,16 @@ import { ContextDispatch } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
+import ContextMenuProcess from '@/pages/Playground/customs/components/ContextMenuProcess';
 import { processImpacts } from '@/utils/mockdata';
 import { updateSVGAttributes } from '@/utils/utils';
 import { Node as NodeFlow, NodeProps } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import { MoreHorizontal, ThermometerSnowflake, ThermometerSnowflakeIcon } from 'lucide-react';
-import { MouseEvent as ReactMouseEvent, useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 
 interface NodeDataTemp {
-	id: string;
 	name: string;
 	lifeCycleStages: {
 		id: string;
@@ -28,29 +29,48 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 	const contextMenuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			const isOutsideClick =
-				!triggerRef.current?.contains(event.target as Node) && !contextMenuRef.current?.contains(event.target as Node);
-			if (app.contextMenuSelector && isOutsideClick) {
+		const handleContextMenuEvent = (event: MouseEvent) => {
+			if (
+				app.contextMenuSelector &&
+				triggerRef.current &&
+				!triggerRef.current.contains(event.target as Node) &&
+				contextMenuRef.current &&
+				!contextMenuRef.current.contains(event.target as Node)
+			) {
 				dispatch({ type: ContextDispatch.CLEAR_CONTEXT_MENU });
 			}
 		};
 
-		document.addEventListener('contextmenu', handleClickOutside);
-		document.addEventListener('click', handleClickOutside);
+		const handleClickEvent = (event: MouseEvent) => {
+			event.preventDefault();
+
+			if (app.contextMenuSelector && contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+				dispatch({ type: ContextDispatch.CLEAR_CONTEXT_MENU });
+			}
+		};
+
+		document.addEventListener('contextmenu', handleContextMenuEvent);
+
+		document.addEventListener('click', handleClickEvent);
 
 		return () => {
-			document.removeEventListener('contextmenu', handleClickOutside);
-			document.removeEventListener('click', handleClickOutside);
-		};
-	}, [app.contextMenuSelector, dispatch]);
+			document.removeEventListener('contextmenu', handleContextMenuEvent);
 
-	const handleTriggerContextMenu = (event: ReactMouseEvent<HTMLDivElement>) => {
+			document.removeEventListener('click', handleClickEvent);
+		};
+	}, [dispatch, lifeCycleStages.id, app.contextMenuSelector]);
+
+	const handleTriggerContextMenu = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		event.preventDefault();
 		event.stopPropagation();
+
 		dispatch({
 			type: ContextDispatch.SET_CONTEXT_MENU,
-			payload: { id, clientX: event.nativeEvent.offsetX, clientY: event.nativeEvent.offsetY },
+			payload: {
+				id,
+				clientX: event.pageX,
+				clientY: event.pageY,
+			},
 		});
 	};
 
@@ -60,25 +80,24 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 				onContextMenu={handleTriggerContextMenu}
 				ref={triggerRef}
 				style={{ width }}
-				className="relative rounded-2xl border-[1px] border-gray-100 bg-white shadow-md"
+				className="rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
 			>
 				<div className="p-4">
 					<div className="flex items-center justify-between space-x-2">
 						{/* Logo */}
-						<div className="flex items-center space-x-1">
-							<div className="rounded bg-[#16a34a] p-1">
+						<div className="flex items-start space-x-1">
+							<div className="rounded-md bg-[#16a34a] p-2">
 								<div
 									dangerouslySetInnerHTML={{
 										__html: DOMPurify.sanitize(
 											updateSVGAttributes({
 												svgString: lifeCycleStages.iconUrl,
-												properties: { color: 'white', fill: 'white', height: 13, width: 13 },
+												properties: { color: 'white', fill: 'white', height: 20, width: 20 },
 											})
 										),
 									}}
 								/>
 							</div>
-							<span className="text-xs text-gray-700">{lifeCycleStages.name}</span>
 						</div>
 						{/* CTA */}
 						<SheetTrigger className="cursor-pointer rounded-sm p-1 duration-200 hover:bg-gray-100">
@@ -120,19 +139,7 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 					</div>
 				</div>
 				{/* Context Menu */}
-				{app.contextMenuSelector?.id === id && (
-					<div
-						ref={contextMenuRef}
-						style={{
-							position: 'absolute',
-							top: `${app.contextMenuSelector.clientY}px`,
-							left: `${app.contextMenuSelector.clientX}px`,
-						}}
-						className="z-50 h-[100px] w-[200px] cursor-pointer overflow-visible border bg-white p-5"
-					>
-						Context menu
-					</div>
-				)}
+				{app.contextMenuSelector?.id === id && ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
 			</div>
 			<SheetContent>
 				<SheetHeader>
