@@ -3,10 +3,17 @@ import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import { ToolboxContext } from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
 import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
-import { Node, Position, useReactFlow } from '@xyflow/react';
+import { Node, useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+
+interface NewNode {
+	id: string;
+	name: string;
+	iconUrl: string;
+	description: string;
+}
 
 function ToolboxLifeCycleStages() {
 	const { addNodes } = useReactFlow();
@@ -27,33 +34,37 @@ function ToolboxLifeCycleStages() {
 	}, [lifeCycleStagesQuery.isFetching, dispatch]);
 
 	const addNewNode =
-		({ id, name, iconUrl }: { id: string; name: string; iconUrl: string }) =>
+		({ id, name, iconUrl, description }: NewNode) =>
 		() => {
 			const _id = uuidv4();
+
+			// Get properties of screen
+			const screenWidth = window.innerWidth;
+			const screenHeight = window.innerHeight;
+
 			const newNode: Node = {
 				id: _id,
 				data: {
-					id: _id,
+					projectId: '909aas-123axc7987-as8d79xcv-128379',
 					name: 'New process',
 					lifeCycleStages: {
 						id,
 						name,
 						iconUrl,
+						description,
 					},
 				},
 				position: {
-					x: 700,
-					y: 450,
+					x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
+					y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
 				},
 				initialWidth: 400,
 				type: 'process',
-				sourcePosition: Position.Right,
-				selectable: true,
-				draggable: true,
 			};
 
 			addNodes(newNode);
 
+			//Emit event to Nodebased Server
 			socket.emit('node:create', newNode);
 		};
 
@@ -70,7 +81,7 @@ function ToolboxLifeCycleStages() {
 				{lifeCycleStagesQuery.data?.data.data.map((item) => (
 					<button
 						key={item.iconUrl}
-						onClick={addNewNode({ id: item.id, name: item.name, iconUrl: item.iconUrl })}
+						onClick={addNewNode({ id: item.id, name: item.name, iconUrl: item.iconUrl, description: item.description })}
 						className="flex flex-col items-center"
 					>
 						<div className="relative aspect-square w-full rounded-lg bg-gray-100">
