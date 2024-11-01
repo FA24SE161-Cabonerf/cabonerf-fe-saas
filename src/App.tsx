@@ -8,6 +8,7 @@ import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Toaster as ToastShadcnUI } from '@/components/ui/sonner';
+import ContextMenuProvider from '@/pages/Playground/contexts/contextmenu.context';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -29,9 +30,11 @@ function App() {
 			<AppProvider>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<ReactFlowProvider>
-						<RouterProvider router={routers} />
-						<Toaster />
-						<ToastShadcnUI />
+						<ContextMenuProvider>
+							<RouterProvider router={routers} />
+							<Toaster />
+							<ToastShadcnUI />
+						</ContextMenuProvider>
 					</ReactFlowProvider>
 				</ThemeProvider>
 			</AppProvider>

@@ -34,8 +34,6 @@ function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selected
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
 
-	console.log('RENDERRRRR');
-
 	useEffect(() => {
 		if (selectedId) {
 			const selectedItem = data.find((item) => item.id === selectedId.id);

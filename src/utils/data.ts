@@ -649,6 +649,8 @@
 // 	connectors: [],
 // };
 
+import { Node } from '@xyflow/react';
+
 export const a = {
 	id: '0ec98bc2-a5f1-43fe-b7e2-ab1a055af0dc',
 	name: 'New project',
@@ -703,57 +705,4 @@ export const a = {
 	],
 };
 
-const b = {
-	id: '9d609007-91a5-45ef-aad3-73c18c53af1f',
-	name: 'New Process 1',
-	description: '',
-	lifeCycleStage: {
-		id: '823e4567-e89b-12d3-a456-426614174001',
-		name: 'Production',
-		description: 'From input materials to output products of the production facility.',
-		iconUrl: null,
-	},
-	overallProductFlowRequired: null,
-	exchanges: [
-		{
-			id: 'c0068ac3-9623-4539-bccf-91a21ed355c8',
-			name: 'Product Output',
-			value: 2,
-			exchangesType: {
-				id: '723e4567-e89b-12d3-a456-426614174000',
-				name: 'Product', //Elementary (In: true / Out: false) | Product (In:true/ Out:false)
-			},
-			unit: {
-				id: 'zxczxc4567-e89b-12d3-a456-426614174012',
-				name: 'g',
-				conversionFactor: 1,
-				unitGroup: {
-					id: '623e4567-e89b-12d3-a456-426614174001',
-					name: 'Unit of mass',
-					unitGroupType: 'Normal',
-				},
-				default: false,
-			},
-			input: false,
-		},
-	],
-};
-
-const connectors = [
-	{
-		id: '',
-		processStart: 'process1',
-		processEnd: 'process3',
-		exchangeStart: 'exchange1', // c0068ac3-9623-4539-bccf-91a21ed355c
-		exchangeEnd: 'exchange3', //123068ac3-9623-4539-bccf-91a21ed355c8
-		value: '',
-	},
-	{
-		id: '',
-		processStart: 'process2',
-		processEnd: 'process3',
-		exchangeStart: 'exchange2',
-		exchangeEnd: 'exchange3',
-		value: '',
-	},
-];
+const a: Node = {};

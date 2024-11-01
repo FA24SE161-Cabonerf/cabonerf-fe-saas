@@ -26,14 +26,15 @@ export const getTokenFromLocalStorage = (tokenType: TOKEN_KEY_NAME): string | nu
 };
 
 export const getUserProfileFromLocalStorage = (): Omit<User, 'phone' | 'bio' | 'address'> | null => {
+	const userProfileData = localStorage.getItem(USER_PROFILE_KEY_NAME);
+	if (!userProfileData) {
+		return null;
+	}
+
 	try {
-		const userProfile = localStorage.getItem(USER_PROFILE_KEY_NAME);
-		if (!userProfile) {
-			return null;
-		}
-		return JSON.parse(userProfile);
+		return JSON.parse(userProfileData);
 	} catch (error) {
-		console.error('Error parsing user profile from localStorage:', error);
+		console.error('Failed to parse user profile from local storage:', error);
 		return null;
 	}
 };

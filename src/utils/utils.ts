@@ -27,3 +27,21 @@ export const formatDate = (inputDate: string): string => {
 	const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: '2-digit' };
 	return date.toLocaleDateString('en-US', options);
 };
+
+type CustomSVG = {
+	svgString: string;
+	properties: {
+		width: number;
+		height: number;
+		fill: string;
+		color: string;
+	};
+};
+
+export const updateSVGAttributes = ({ svgString, properties }: CustomSVG) => {
+	return svgString
+		.replace(/width="\d+"/, `width="${properties.width}"`)
+		.replace(/height="\d+"/, `height="${properties.height}"`)
+		.replace(/fill="[^"]*"/, `fill="${properties.fill}"`)
+		.replace(/stroke="[^"]*"/, `stroke="${properties.color}"`);
+};
