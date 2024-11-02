@@ -1,11 +1,15 @@
+import { CabonerfNode } from '@/@types/cabonerfNode.type';
 import { ToolboxDispatchType } from '@/@types/dispatch.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
+import CustomSuccessSooner from '@/components/CustomSooner';
 import { ToolboxContext } from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
+import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
 import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
-import { Node, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect } from 'react';
+import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
 interface NewNode {
@@ -33,36 +37,40 @@ function ToolboxLifeCycleStages() {
 		}
 	}, [lifeCycleStagesQuery.isFetching, dispatch]);
 
+	useEffect(() => {
+		socket.on('node:created', (data: CabonerfNode) => {
+			addNodes(data);
+			toast(<CustomSuccessSooner data={data.data.lifeCycleStages} />);
+		});
+	}, [addNodes]);
+
 	const addNewNode =
 		({ id, name, iconUrl, description }: NewNode) =>
 		() => {
-			const _id = uuidv4();
+			const nodeId = uuidv4();
 
 			// Get properties of screen
 			const screenWidth = window.innerWidth;
 			const screenHeight = window.innerHeight;
 
-			const newNode: Node = {
-				id: _id,
-				data: {
-					projectId: '909aas-123axc7987-as8d79xcv-128379',
-					name: 'New process',
-					lifeCycleStages: {
-						id,
-						name,
-						iconUrl,
-						description,
-					},
+			// Create new node
+			const newNode: CreateCabonerfNodeReqBody = {
+				id: nodeId,
+				projectId: '909aas-123axc7987-as8d79xcv-128379',
+				name: 'New process',
+				color: '#a3a3a3',
+				lifeCycleStages: {
+					id,
+					name,
+					iconUrl,
+					description,
 				},
 				position: {
 					x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
 					y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
 				},
-				initialWidth: 400,
 				type: 'process',
 			};
-
-			addNodes(newNode);
 
 			//Emit event to Nodebased Server
 			socket.emit('node:create', newNode);

@@ -1,7 +1,21 @@
 import { ImpactProcess } from '@/@types/impactProcess.type';
-import { Position } from '@xyflow/react';
+import { Node, Position } from '@xyflow/react';
 
-export const process = {
+type CustomNode = Node & {
+	color: string;
+};
+
+export const customNodeTest: CustomNode = {
+	id: '',
+	color: '',
+	data: {},
+	position: {
+		x: 2,
+		y: 3,
+	},
+};
+
+export const process: Node = {
 	id: '3d6f28e8-a86b-4980-91e2-6789f535d191',
 	data: {
 		id: '3d6f28e8-a86b-4980-91e2-6789f535d191',
@@ -22,6 +36,15 @@ export const process = {
 	sourcePosition: 'right' as Position,
 	selectable: true,
 	draggable: true,
+	handles: [
+		{
+			id: '123ax',
+			position: Position.Left,
+			type: 'source',
+			x: 400,
+			y: 500,
+		},
+	],
 };
 
 export const processImpacts: ImpactProcess[] = [
