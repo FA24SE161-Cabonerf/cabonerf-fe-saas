@@ -1,6 +1,6 @@
 import ToolboxLifeCycleStages from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxLifeCycleStages';
 import ToolboxMenu from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxMenu';
-import ToolboxTrigger from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxTrigger/ToolboxTrigger';
+import ToolboxTrigger from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxTrigger';
 import Toolbox from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
 import { Blocks, DatabaseZap, Package, SquarePlus, StickyNote, Type } from 'lucide-react';
 

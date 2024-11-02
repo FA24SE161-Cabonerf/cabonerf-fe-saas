@@ -1,29 +1,20 @@
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ContextDispatch } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
-import ContextMenuProcess from '@/pages/Playground/customs/components/ContextMenuProcess';
 import { processImpacts } from '@/utils/mockdata';
 import { updateSVGAttributes } from '@/utils/utils';
-import { Node as NodeFlow, NodeProps } from '@xyflow/react';
+import { NodeProps, Node as NodeReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import { MoreHorizontal, ThermometerSnowflake, ThermometerSnowflakeIcon } from 'lucide-react';
 import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
-interface NodeDataTemp {
-	name: string;
-	lifeCycleStages: {
-		id: string;
-		name: string;
-		iconUrl: string;
-	};
-	[key: string]: unknown;
-}
+type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData & { [key: string]: unknown }, 'process'>;
 
-type ProcessNode = NodeFlow<NodeDataTemp, 'process'>;
-
-export default function ProcessNode({ id, width, data: { name, lifeCycleStages } }: NodeProps<ProcessNode>) {
+export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const { app, dispatch } = useContext(contextMenu);
 	const triggerRef = useRef<HTMLDivElement>(null);
 	const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -58,7 +49,7 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 
 			document.removeEventListener('click', handleClickEvent);
 		};
-	}, [dispatch, lifeCycleStages.id, app.contextMenuSelector]);
+	}, [dispatch, data.id, app.contextMenuSelector]);
 
 	const handleTriggerContextMenu = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		event.preventDefault();
@@ -67,7 +58,7 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 		dispatch({
 			type: ContextDispatch.SET_CONTEXT_MENU,
 			payload: {
-				id,
+				id: data.id,
 				clientX: event.pageX,
 				clientY: event.pageY,
 			},
@@ -79,19 +70,18 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 			<div
 				onContextMenu={handleTriggerContextMenu}
 				ref={triggerRef}
-				style={{ width }}
-				className="rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
+				className="w-[370px] rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
 			>
 				<div className="p-4">
 					<div className="flex items-center justify-between space-x-2">
 						{/* Logo */}
 						<div className="flex items-start space-x-1">
-							<div className="rounded-md bg-[#16a34a] p-2">
+							<div className="rounded-md bg-[#a3a3a3] p-2">
 								<div
 									dangerouslySetInnerHTML={{
 										__html: DOMPurify.sanitize(
 											updateSVGAttributes({
-												svgString: lifeCycleStages.iconUrl,
+												svgString: data.data.lifeCycleStages.iconUrl,
 												properties: { color: 'white', fill: 'white', height: 20, width: 20 },
 											})
 										),
@@ -100,11 +90,12 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 							</div>
 						</div>
 						{/* CTA */}
+
 						<SheetTrigger className="cursor-pointer rounded-sm p-1 duration-200 hover:bg-gray-100">
 							<MoreHorizontal color="#525252" strokeWidth={3} size={15} />
 						</SheetTrigger>
 					</div>
-					<div className="mt-3 break-words text-xl font-medium">{name}</div>
+					<div className="mt-3 break-words text-xl font-medium">{data.data.name}</div>
 					<div className="mt-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
@@ -139,7 +130,7 @@ export default function ProcessNode({ id, width, data: { name, lifeCycleStages }
 					</div>
 				</div>
 				{/* Context Menu */}
-				{app.contextMenuSelector?.id === id && ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
+				{app.contextMenuSelector?.id === data.id && ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
 			</div>
 			<SheetContent>
 				<SheetHeader>
