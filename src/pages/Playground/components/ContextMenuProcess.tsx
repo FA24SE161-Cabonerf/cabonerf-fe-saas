@@ -1,20 +1,34 @@
+import { eDispatchType } from '@/@types/dispatch.type';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { AppContext } from '@/contexts/app.context';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import socket from '@/socket.io';
 import { useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
-import { forwardRef, useContext } from 'react';
+import { forwardRef, useContext, useEffect } from 'react';
+import { toast } from 'sonner';
 
 const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
+	const { dispatch } = useContext(AppContext);
 	const { deleteElements } = useReactFlow();
 	const { app } = useContext(contextMenu);
 
-	const handleDeleteNodeProcess = () => {
-		socket.emit('node:delete', app.contextMenuSelector?.id);
+	useEffect(() => {
+		socket.on('nodebased:delete-process-success', (data: string) => {
+			deleteElements({
+				nodes: [{ id: data }],
+			});
+			toast.success('Delete success');
+		});
+	}, [deleteElements]);
 
-		deleteElements({
-			nodes: [{ id: app.contextMenuSelector?.id as string }],
+	const handleDeleteNodeProcess = () => {
+		socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.id);
+
+		dispatch({
+			type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
+			payload: app.contextMenuSelector?.id as string,
 		});
 	};
 

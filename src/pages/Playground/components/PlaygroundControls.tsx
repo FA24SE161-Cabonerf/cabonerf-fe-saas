@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import ControlItem from '@/pages/Playground/components/ControlItem';
 import MenuExport from '@/pages/Playground/components/MenuExport';
+import socket from '@/socket.io';
 import { useReactFlow } from '@xyflow/react';
 import { ArrowDownFromLine, Pencil, Play, Scan, Share, ZoomIn, ZoomOut } from 'lucide-react';
 import React, { useState } from 'react';
@@ -38,7 +39,10 @@ function PlaygroundControls() {
 				</ControlItem>
 				<Separator orientation="vertical" className="h-6" color="black" />
 
-				<Button className="back space-x-3 rounded-sm text-[13px] font-normal">
+				<Button
+					className="back space-x-3 rounded-sm text-[13px] font-normal"
+					onClick={() => socket.emit('gateway:process-create', 'asd')}
+				>
 					<Play size={16} fill="white" color="white" /> <span>Calculate LCA</span>
 				</Button>
 			</div>

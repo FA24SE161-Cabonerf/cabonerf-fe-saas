@@ -1,20 +1,24 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { ContextDispatch } from '@/@types/dispatch.type';
+import { ContextDispatch, eDispatchType } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { AppContext } from '@/contexts/app.context';
 import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
+import socket from '@/socket.io';
 import { processImpacts } from '@/utils/mockdata';
 import { updateSVGAttributes } from '@/utils/utils';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import { NodeProps, Node as NodeReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import { MoreHorizontal, ThermometerSnowflake, ThermometerSnowflakeIcon } from 'lucide-react';
 import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
-type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData & { [key: string]: unknown }, 'process'>;
+export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData & { [key: string]: unknown }, 'process'>;
 
 export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
+	const { app: appContext, dispatch: appDispatch } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
 	const triggerRef = useRef<HTMLDivElement>(null);
 	const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -51,6 +55,25 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		};
 	}, [dispatch, data.id, app.contextMenuSelector]);
 
+	useEffect(() => {
+		const handleDeleteElement = (event: KeyboardEvent) => {
+			if (event.key === 'Backspace' && data.selected) {
+				socket.emit('gateway:cabonerf-node-delete', data.id);
+
+				appDispatch({
+					type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
+					payload: data.id,
+				});
+			}
+		};
+
+		document.addEventListener('keydown', handleDeleteElement);
+
+		return () => {
+			document.removeEventListener('keydown', handleDeleteElement);
+		};
+	}, [data.id, data.selected, appDispatch]);
+
 	const handleTriggerContextMenu = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -70,7 +93,7 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			<div
 				onContextMenu={handleTriggerContextMenu}
 				ref={triggerRef}
-				className="w-[370px] rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
+				className="relative w-[370px] rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
 			>
 				<div className="p-4">
 					<div className="flex items-center justify-between space-x-2">
@@ -81,7 +104,7 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 									dangerouslySetInnerHTML={{
 										__html: DOMPurify.sanitize(
 											updateSVGAttributes({
-												svgString: data.data.lifeCycleStages.iconUrl,
+												svgString: data.data.lifeCycleStage.iconUrl,
 												properties: { color: 'white', fill: 'white', height: 20, width: 20 },
 											})
 										),
@@ -129,6 +152,15 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 						</DropdownMenu>
 					</div>
 				</div>
+				{appContext.deleteProcessesIds.includes(data.id) && (
+					<>
+						<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[22px] border-[1px] border-gray-100 bg-gray-100/80"></div>
+						<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
+							<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
+						</div>
+					</>
+				)}
+
 				{/* Context Menu */}
 				{app.contextMenuSelector?.id === data.id && ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
 			</div>

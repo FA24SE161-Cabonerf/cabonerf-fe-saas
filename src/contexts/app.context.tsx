@@ -15,6 +15,7 @@ type State = {
 	previewProject: GetProjectListResponse | undefined;
 	deleteIds: string[];
 	impactCategory: ImpactCategory | undefined;
+	deleteProcessesIds: string[];
 };
 
 type LoginAction = {
@@ -60,6 +61,16 @@ type SetImpactCategory = {
 	payload: ImpactCategory;
 };
 
+type AddDeleteProcessesIds = {
+	type: eDispatchType.ADD_DELETE_PROCESSES_IDS;
+	payload: string;
+};
+
+type ClearDeleteProcessesIds = {
+	type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS;
+	payload: string;
+};
+
 type Action =
 	| LoginAction
 	| RegisterAction
@@ -68,7 +79,9 @@ type Action =
 	| ClearProjectPreview
 	| AddDeleteIds
 	| ClearDeleteIds
-	| SetImpactCategory;
+	| SetImpactCategory
+	| AddDeleteProcessesIds
+	| ClearDeleteProcessesIds;
 
 type AppContext = {
 	app: State;
@@ -82,6 +95,7 @@ const initialAppStateContext: AppContext = {
 		previewProject: undefined,
 		deleteIds: [],
 		impactCategory: undefined,
+		deleteProcessesIds: [],
 	},
 	dispatch: () => {},
 };
@@ -120,11 +134,13 @@ const reducer = (state: State, action: Action) => {
 				...state,
 				previewProject: undefined,
 			};
+
 		case eDispatchType.ADD_DELETE_IDS:
 			return {
 				...state,
 				deleteIds: [...state.deleteIds, action.payload],
 			};
+
 		case eDispatchType.CLEAR_DELETE_IDS:
 			return {
 				...state,
@@ -136,6 +152,21 @@ const reducer = (state: State, action: Action) => {
 				...state,
 				impactCategory: action.payload,
 			};
+
+		case eDispatchType.ADD_DELETE_PROCESSES_IDS:
+			return {
+				...state,
+				deleteProcessesIds: [...state.deleteProcessesIds, action.payload],
+			};
+
+		case eDispatchType.CLEAR_DELETE_PROCESSES_IDS: {
+			const filtered = state.deleteProcessesIds.filter((item) => item !== action.payload);
+			return {
+				...state,
+				deleteProcessesIds: filtered,
+			};
+		}
+
 		default:
 			return state;
 	}
@@ -148,6 +179,7 @@ export default function AppProvider({ children }: Props) {
 		previewProject: initialAppStateContext.app.previewProject,
 		deleteIds: initialAppStateContext.app.deleteIds,
 		impactCategory: initialAppStateContext.app.impactCategory,
+		deleteProcessesIds: initialAppStateContext.app.deleteProcessesIds,
 	});
 
 	return <AppContext.Provider value={{ app, dispatch }}>{children}</AppContext.Provider>;

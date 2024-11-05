@@ -10,14 +10,6 @@ import { useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect } from 'react';
 import { toast } from 'sonner';
-import { v4 as uuidv4 } from 'uuid';
-
-interface NewNode {
-	id: string;
-	name: string;
-	iconUrl: string;
-	description: string;
-}
 
 function ToolboxLifeCycleStages() {
 	const { addNodes } = useReactFlow();
@@ -38,43 +30,35 @@ function ToolboxLifeCycleStages() {
 	}, [lifeCycleStagesQuery.isFetching, dispatch]);
 
 	useEffect(() => {
-		socket.on('node:created', (data: CabonerfNode) => {
+		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			addNodes(data);
-			toast(<CustomSuccessSooner data={data.data.lifeCycleStages} />);
+
+			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
+				className: 'border-[0.5px] rounded-2xl',
+			});
 		});
 	}, [addNodes]);
 
-	const addNewNode =
-		({ id, name, iconUrl, description }: NewNode) =>
-		() => {
-			const nodeId = uuidv4();
+	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
+		// Get properties of screen
+		const screenWidth = window.innerWidth;
+		const screenHeight = window.innerHeight;
 
-			// Get properties of screen
-			const screenWidth = window.innerWidth;
-			const screenHeight = window.innerHeight;
-
-			// Create new node
-			const newNode: CreateCabonerfNodeReqBody = {
-				id: nodeId,
-				projectId: '909aas-123axc7987-as8d79xcv-128379',
-				name: 'New process',
-				color: '#a3a3a3',
-				lifeCycleStages: {
-					id,
-					name,
-					iconUrl,
-					description,
-				},
-				position: {
-					x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
-					y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
-				},
-				type: 'process',
-			};
-
-			//Emit event to Nodebased Server
-			socket.emit('node:create', newNode);
+		// Create new node
+		const newNode: CreateCabonerfNodeReqBody = {
+			projectId: 'fa132da5-9d6c-40bd-bd1a-1a1eaa5c0399',
+			color: '#a3a3a3',
+			lifeCycleStageId: payload.lifeCycleStageId,
+			position: {
+				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
+				y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
+			},
+			type: 'process',
 		};
+
+		//Emit event to Nodebased Server
+		socket.emit('gateway:cabonerf-node-create', newNode);
+	};
 
 	return (
 		<div className="w-[300px]">
@@ -87,11 +71,7 @@ function ToolboxLifeCycleStages() {
 
 			<section className="grid grid-cols-3 gap-5">
 				{lifeCycleStagesQuery.data?.data.data.map((item) => (
-					<button
-						key={item.iconUrl}
-						onClick={addNewNode({ id: item.id, name: item.name, iconUrl: item.iconUrl, description: item.description })}
-						className="flex flex-col items-center"
-					>
+					<button key={item.iconUrl} onClick={addNewNode({ lifeCycleStageId: item.id })} className="flex flex-col items-center">
 						<div className="relative aspect-square w-full rounded-lg bg-gray-100">
 							<div
 								className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
