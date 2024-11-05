@@ -10,7 +10,7 @@ export default function CustomSuccessSooner({ data }: Props) {
 	return (
 		<div className="flex items-center space-x-3">
 			{/* Icon */}
-			<div className="h-fit w-fit rounded bg-[#16a34a] p-1">
+			<div className="h-fit w-fit rounded-sm bg-[#16a34a] p-2">
 				<div
 					dangerouslySetInnerHTML={{
 						__html: DOMPurify.sanitize(
