@@ -46,7 +46,7 @@ function ToolboxLifeCycleStages() {
 
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
-			projectId: 'fa132da5-9d6c-40bd-bd1a-1a1eaa5c0399',
+			projectId: '882034f1-642a-44a7-b831-7b95995926ea',
 			color: '#a3a3a3',
 			lifeCycleStageId: payload.lifeCycleStageId,
 			position: {

@@ -1,4 +1,4 @@
-import { LifeCycleStages } from '@/@types/lifeCycleStages.type';
+import { LifeCycleStages } from '@/@types/lifeCycleStage.type';
 import { updateSVGAttributes } from '@/utils/utils';
 import DOMPurify from 'dompurify';
 

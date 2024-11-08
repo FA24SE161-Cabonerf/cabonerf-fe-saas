@@ -1,561 +1,328 @@
-import { ImpactProcess } from '@/@types/impactProcess.type';
-import { Node, Position } from '@xyflow/react';
+import { EmissionSubstances } from '@/@types/emissionSubstance.type';
 
-type CustomNode = Node & {
-	color: string;
-};
-
-export const customNodeTest: CustomNode = {
-	id: '',
-	color: '',
-	data: {},
-	position: {
-		x: 2,
-		y: 3,
-	},
-};
-
-export const process: Node = {
-	id: '3d6f28e8-a86b-4980-91e2-6789f535d191',
-	data: {
-		id: '3d6f28e8-a86b-4980-91e2-6789f535d191',
-		name: 'New process',
-		lifeCycleStages: {
-			id: '823e4567-e89b-12d3-a456-426614174001',
-			name: 'Production',
-			iconUrl:
-				'<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-factory"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>',
-		},
-	},
-	position: {
-		x: 600,
-		y: 450,
-	},
-	initialWidth: 400,
-	type: 'process',
-	sourcePosition: 'right' as Position,
-	selectable: true,
-	draggable: true,
-	handles: [
-		{
-			id: '123ax',
-			position: Position.Left,
-			type: 'source',
-			x: 400,
-			y: 500,
-		},
-	],
-};
-
-export const processImpacts: ImpactProcess[] = [
+export const substances: EmissionSubstances[] = [
 	{
-		id: '439ff186-eee8-4fbd-9bcb-54e8c87807e3',
-		unitLevel: 0.345457692640615,
-		systemLevel: 0.9622171001180908,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '01249052-d4de-4ced-b0a8-7eea0d469364',
+		emissionSubstance: {
+			id: '835bb904-05fe-4bc2-b05a-857a20c249c3',
+			name: 'Potash*',
+			chemicalName: '',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174000',
-			name: 'Climate Change',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/thermometer-sun.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174000',
-				name: 'Global Warming Potential',
-				abbr: 'GWP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174000',
-					name: 'kg CO2',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: '2c5594b5-fdb3-481b-9f95-1097c6f5b53e',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174115',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174015',
+						name: 'Resource Scarity Mineral',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pickaxe"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393"/><path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174015',
+							name: 'Surplus Ore Potential',
+							abbr: 'SOP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174010',
+								name: 'kg Cu-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '6.93e-02',
+				decimalValue: 0.07,
 			},
-		},
+		],
 	},
 	{
-		id: 'a6541d40-b42a-4607-a7c8-6d925668c10d',
-		unitLevel: 0.2345642685665975,
-		systemLevel: 0.5543843218662687,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '014ca248-737b-4356-aef8-14115cca73b6',
+		emissionSubstance: {
+			id: 'b5549701-d024-44c7-9d67-a25179c36efe',
+			name: 'Natural gas',
+			chemicalName: '',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174001',
-			name: 'Ozone Depletion',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/earth.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174001',
-				name: 'Ozone Depletion Potential',
-				abbr: 'ODP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174001',
-					name: 'kg CFC-11',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: 'c404f673-6d8f-4ee5-99a2-2028ae1d6280',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174116',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174016',
+						name: 'Resource Scarity Fossil',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-round"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174016',
+							name: 'Fossil Fuel Potential',
+							abbr: 'FFP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174011',
+								name: 'kg oil-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '8.40e-01',
+				decimalValue: 0.84,
 			},
-		},
+		],
 	},
 	{
-		id: 'b84d2d4d-b08a-4721-9f21-703221adb7bf',
-		unitLevel: 0.9263638630020319,
-		systemLevel: 0.8313618104142443,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '03098ab7-f6ff-4f44-b30e-6314ef30ab95',
+		emissionSubstance: {
+			id: 'ae7f387f-1a5e-4f60-8247-492f090c3fb0',
+			name: 'Silicon*',
+			chemicalName: '',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174002',
-			name: 'Ionizing Radiation',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/radiation.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174002',
-				name: 'Ionizing Radiation Potential',
-				abbr: 'IRP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174002',
-					name: 'kBq Co-60',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: '02c91b63-67f2-411a-8105-b95679813015',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174115',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174015',
+						name: 'Resource Scarity Mineral',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pickaxe"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393"/><path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174015',
+							name: 'Surplus Ore Potential',
+							abbr: 'SOP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174010',
+								name: 'kg Cu-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '3.18e-01',
+				decimalValue: 0.32,
 			},
-		},
+		],
 	},
 	{
-		id: 'c4543be1-1eda-414c-b24e-d89d437a6b7e',
-		unitLevel: 0.5906098671173919,
-		systemLevel: 0.8638969270668709,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '07f0e034-0ff9-470d-afd4-051bbb7d9d31',
+		emissionSubstance: {
+			id: '7cb8b48b-998d-48e6-a40a-47879e4d86d0',
+			name: 'Palladium*',
+			chemicalName: 'Pd',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174003',
-			name: 'Particulate Matter Formation',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/wind.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174003',
-				name: 'Particulate Matter Formation Potential',
-				abbr: 'PMFP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174003',
-					name: 'kg PM2.5',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: 'b02097ed-2a1b-4eb9-a3d1-924d6135b389',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174115',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174015',
+						name: 'Resource Scarity Mineral',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pickaxe"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393"/><path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174015',
+							name: 'Surplus Ore Potential',
+							abbr: 'SOP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174010',
+								name: 'kg Cu-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '6.37e+03',
+				decimalValue: 6373.2,
 			},
-		},
+		],
 	},
 	{
-		id: '48fd21aa-4324-4bfa-b5e8-3120956b59e8',
-		unitLevel: 0.6561769650154423,
-		systemLevel: 0.8084995963741686,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '0835e4ca-e502-4481-ab41-5921df86ef5c',
+		emissionSubstance: {
+			id: '27bd072a-e8d3-4b5b-95e3-43e00513950f',
+			name: 'Garnets*',
+			chemicalName: '',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174004',
-			name: 'Photochemical Oxidant Ecosystem',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/cloud-sun-rain.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174004',
-				name: 'Photochemical Oxidant Formation Potential: Ecosystems',
-				abbr: 'EOFP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174004',
-					name: 'kg NOx',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: '4f4a7645-562e-444f-a28f-e1a69da407d9',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174115',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174015',
+						name: 'Resource Scarity Mineral',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pickaxe"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393"/><path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174015',
+							name: 'Surplus Ore Potential',
+							abbr: 'SOP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174010',
+								name: 'kg Cu-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '2.99e-02',
+				decimalValue: 0.03,
 			},
-		},
+		],
 	},
 	{
-		id: '6d39291a-9953-4aa2-a439-4aa9332bd9b5',
-		unitLevel: 0.3633271020456581,
-		systemLevel: 0.4358450883466781,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
+		id: '093173c8-1e45-4d1a-91ba-b3d4e0f4f0c0',
+		emissionSubstance: {
+			id: 'f9385826-81f9-4455-97f6-c1277e75cb74',
+			name: 'Iodine*',
+			chemicalName: 'I',
+			molecularFormula: '',
+			alternativeFormula: '',
+			cas: '-',
 		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174005',
-			name: 'Photochemical Oxidant Human',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/cloud-sun-rain.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174005',
-				name: 'Photochemical Oxidant Formation Potential: Humans',
-				abbr: 'HOFP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174004',
-					name: 'kg NOx',
+		emissionCompartment: {
+			id: '423e4567-e89b-12d3-a456-426614174011',
+			name: 'Natural Resource',
+			description: '',
+		},
+		factors: [
+			{
+				id: 'd88fd368-286b-41f6-b25b-fb9a59f2a331',
+				impactMethodCategory: {
+					id: '123e4567-e89b-12d3-a456-426614174115',
+					lifeCycleImpactAssessmentMethod: {
+						id: '923e4567-e89b-12d3-a456-426614174000',
+						name: 'ReCiPe 2016 Midpoint',
+						description: '',
+						version: 'v1.03',
+						reference: '',
+						perspective: {
+							id: '523e4567-e89b-12d3-a456-426614174000',
+							name: 'Individualist',
+							abbr: 'I',
+						},
+					},
+					impactCategory: {
+						id: '123e4567-e89b-12d3-a456-426614174015',
+						name: 'Resource Scarity Mineral',
+						iconUrl:
+							'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pickaxe"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958 1 1 0 0 0 5.58 4.71a22 22 0 0 1 6.318 3.393"/><path d="M17.7 3.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l2.6 2.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="M19.686 8.314a12.501 12.501 0 0 1 1.356 10.225 1 1 0 0 1-1.751-.119 22 22 0 0 0-3.393-6.319"/></svg>',
+						midpointImpactCategory: {
+							id: '234e4567-e89b-12d3-a456-426614174015',
+							name: 'Surplus Ore Potential',
+							abbr: 'SOP',
+							unit: {
+								id: '723e4567-e89b-12d3-a456-426614174010',
+								name: 'kg Cu-Eq',
+							},
+						},
+						emissionCompartment: null,
+					},
 				},
+				scientificValue: '6.51e+00',
+				decimalValue: 6.51,
 			},
-		},
-	},
-	{
-		id: '5fa2c505-21b5-4036-b61e-6187f7a39edc',
-		unitLevel: 0.8954257599867269,
-		systemLevel: 0.1425421725878404,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174006',
-			name: 'Acidification Terrestrial',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/cloud-rain-wind.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174006',
-				name: 'Terrestrial Acidification Potential',
-				abbr: 'TAP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174005',
-					name: 'kg SO2',
-				},
-			},
-		},
-	},
-	{
-		id: '19a7e38a-9c49-4db4-900d-f0b67a007bc5',
-		unitLevel: 0.9694012196204741,
-		systemLevel: 0.4135249638559707,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174007',
-			name: 'Eutrophication Freshwater',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/fish-off.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174007',
-				name: 'Freshwater Eutrophication Potential',
-				abbr: 'FEP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174006',
-					name: 'kg P',
-				},
-			},
-		},
-	},
-	{
-		id: '92702384-5c45-45d8-aeeb-6e330bd7ae4a',
-		unitLevel: 0.5224170688731067,
-		systemLevel: 0.5741585046126383,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174008',
-			name: 'Human Toxicity Carcinogenic',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/skull.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174008',
-				name: 'Human Toxicity Potential',
-				abbr: 'HTPc',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174007',
-					name: 'kg 1,4-DCB',
-				},
-			},
-		},
-	},
-	{
-		id: 'ce0bce8b-02d6-4cff-b3b7-7cb430f0f877',
-		unitLevel: 0.006733656940671073,
-		systemLevel: 0.38184681712701196,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174009',
-			name: 'Human Toxicity Non-Carcinogenic',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/angry.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174009',
-				name: 'Human Toxicity Potential',
-				abbr: 'HTPnc',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174007',
-					name: 'kg 1,4-DCB',
-				},
-			},
-		},
-	},
-	{
-		id: 'cda927f9-0137-46b4-852c-106cf40f0847',
-		unitLevel: 0.17431953584505855,
-		systemLevel: 0.7500627593028104,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174010',
-			name: 'Ecotoxicity Terrestrial',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/tree-pine.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174010',
-				name: 'Terrestrial Ecotoxicity Potential',
-				abbr: 'TETP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174007',
-					name: 'kg 1,4-DCB',
-				},
-			},
-		},
-	},
-	{
-		id: '85bd4ab8-ee65-4324-abf7-00f24caecab0',
-		unitLevel: 0.6501260243290252,
-		systemLevel: 0.3663490219163523,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174011',
-			name: 'Ecotoxicity Freshwater',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/fish-symbol.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174011',
-				name: 'Freshwater Ecotoxicity Potential',
-				abbr: 'FETP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174007',
-					name: 'kg 1,4-DCB',
-				},
-			},
-		},
-	},
-	{
-		id: '399ba37b-a81a-4f3a-9fc4-aa5c028ec85e',
-		unitLevel: 0.11224402466108452,
-		systemLevel: 0.830776712562537,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174012',
-			name: 'Ecotoxicity Marine',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/fish-symbol.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174012',
-				name: 'Marine Ecotoxicity Potential',
-				abbr: 'METP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174007',
-					name: 'kg 1,4-DCB',
-				},
-			},
-		},
-	},
-	{
-		id: 'd8348395-af7e-4668-aabc-8c2707a2137e',
-		unitLevel: 0.9623238090280888,
-		systemLevel: 0.5339970866967819,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174013',
-			name: 'Land Use',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/droplet.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174013',
-				name: 'Argicultural Land Occupation Potential',
-				abbr: 'LOP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174008',
-					name: 'm2×yr',
-				},
-			},
-		},
-	},
-	{
-		id: '2cbfa9df-3267-47e8-a3a5-8d316f28c2f3',
-		unitLevel: 0.5151037531050251,
-		systemLevel: 0.7204714126133646,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174014',
-			name: 'Water Use',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/trees.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174014',
-				name: 'Water Consumption Potential',
-				abbr: 'WCP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174009',
-					name: 'm3',
-				},
-			},
-		},
-	},
-	{
-		id: '2d9d5c12-166a-47c6-a718-c8893f1e52d3',
-		unitLevel: 0.6788177327282153,
-		systemLevel: 0.005917088482906396,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174015',
-			name: 'Resource Scarity Mineral',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/pickaxe.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174015',
-				name: 'Surplus Ore Potential',
-				abbr: 'SOP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174010',
-					name: 'kg Cu',
-				},
-			},
-		},
-	},
-	{
-		id: 'd8d58653-2cc3-4af1-a31f-b7774ded2bda',
-		unitLevel: 0.732331616461719,
-		systemLevel: 0.867709171502805,
-		overallImpactContribution: 0.0,
-		method: {
-			id: '923e4567-e89b-12d3-a456-426614174000',
-			name: 'ReCiPe 2016 Midpoint',
-			version: 'v1.03',
-			perspective: {
-				id: '523e4567-e89b-12d3-a456-426614174000',
-				name: 'Individualist',
-				abbr: 'I',
-			},
-		},
-		impactCategory: {
-			id: '123e4567-e89b-12d3-a456-426614174016',
-			name: 'Resource Scarity Fossil',
-			iconUrl: 'https://s3.ap-southeast-1.amazonaws.com/cabonerf.icon.storage/amphora.svg',
-			midpointImpactCategory: {
-				id: '234e4567-e89b-12d3-a456-426614174016',
-				name: 'Fossil Fuel Potential',
-				abbr: 'FFP',
-				unit: {
-					id: '723e4567-e89b-12d3-a456-426614174011',
-					name: 'kg oil',
-				},
-			},
-		},
+		],
 	},
 ];

@@ -26,4 +26,10 @@ export enum ToolboxDispatchType {
 export enum ContextDispatch {
 	SET_CONTEXT_MENU = 'SET_CONTEXT_MENU',
 	CLEAR_CONTEXT_MENU = 'CLEAR_CONTEXT_MENU',
+	CLOSE_CONTEXT_MENU = 'CLOSE_CONTEXT_MENU',
+}
+
+export enum SheetBarDispatch {
+	SET_NODE = 'SET_NODE',
+	REMOVE_NODE = 'REMOVE_NODE',
 }

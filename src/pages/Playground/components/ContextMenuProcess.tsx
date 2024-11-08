@@ -1,18 +1,22 @@
-import { eDispatchType } from '@/@types/dispatch.type';
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
+import { ContextDispatch, eDispatchType, SheetBarDispatch } from '@/@types/dispatch.type';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { AppContext } from '@/contexts/app.context';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
+import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
-import { useReactFlow } from '@xyflow/react';
+import { Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
-import { forwardRef, useContext, useEffect } from 'react';
+import { forwardRef, useContext, useEffect, useId } from 'react';
 import { toast } from 'sonner';
 
 const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
+	const { deleteElements, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
+	const id = useId();
+	const { sheetDispatch } = useContext(SheetbarContext);
 	const { dispatch } = useContext(AppContext);
-	const { deleteElements } = useReactFlow();
-	const { app } = useContext(contextMenu);
+	const { app, dispatch: contextDispatch } = useContext(contextMenu);
 
 	useEffect(() => {
 		socket.on('nodebased:delete-process-success', (data: string) => {
@@ -23,17 +27,34 @@ const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
 		});
 	}, [deleteElements]);
 
-	const handleDeleteNodeProcess = () => {
-		socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.id);
+	const handleDeleteNodeProcess = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		event.stopPropagation();
+		socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.process.id);
 
 		dispatch({
 			type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
-			payload: app.contextMenuSelector?.id as string,
+			payload: app.contextMenuSelector?.process.id as string,
 		});
+		contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
+	};
+
+	const handleEditDetail = async () => {
+		if (app.contextMenuSelector?.process) {
+			sheetDispatch({
+				type: SheetBarDispatch.SET_NODE,
+				payload: { ...app.contextMenuSelector.process },
+			});
+			contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
+
+			await fitView({ nodes: [{ id: app.contextMenuSelector.process.id }], maxZoom: 2.7, duration: 700, includeHiddenNodes: false });
+			const { x, y, zoom } = getViewport();
+			setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
+		}
 	};
 
 	return (
 		<div
+			id={id}
 			ref={ref}
 			style={{
 				position: 'absolute',
@@ -63,7 +84,11 @@ const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
 								<Pencil size={15} />
 								<span>Edit Process Details</span>
 							</Button>
-							<Button variant="ghost" className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black">
+							<Button
+								onClick={handleEditDetail}
+								variant="ghost"
+								className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black"
+							>
 								<Leaf size={15} />
 								<span>Edit Elementary Exchanges</span>
 							</Button>

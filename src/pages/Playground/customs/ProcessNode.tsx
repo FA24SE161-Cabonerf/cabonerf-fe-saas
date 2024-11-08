@@ -1,28 +1,30 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { ContextDispatch, eDispatchType } from '@/@types/dispatch.type';
+import { ContextDispatch } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { AppContext } from '@/contexts/app.context';
 import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
-import socket from '@/socket.io';
-import { processImpacts } from '@/utils/mockdata';
+import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { NodeProps, Node as NodeReactFlow } from '@xyflow/react';
+import { Handle, NodeProps, Node as NodeReactFlow, Position } from '@xyflow/react';
+import clsx from 'clsx';
 import DOMPurify from 'dompurify';
-import { MoreHorizontal, ThermometerSnowflake, ThermometerSnowflakeIcon } from 'lucide-react';
+import { ThermometerSnowflake } from 'lucide-react';
 import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
-export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData & { [key: string]: unknown }, 'process'>;
+export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 
-export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
-	const { app: appContext, dispatch: appDispatch } = useContext(AppContext);
+function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
+	const { sheetState } = useContext(SheetbarContext);
+	const { app: appContext } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
+
 	const triggerRef = useRef<HTMLDivElement>(null);
 	const contextMenuRef = useRef<HTMLDivElement>(null);
 
+	// Handle context menu
 	useEffect(() => {
 		const handleContextMenuEvent = (event: MouseEvent) => {
 			if (
@@ -55,25 +57,6 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		};
 	}, [dispatch, data.id, app.contextMenuSelector]);
 
-	useEffect(() => {
-		const handleDeleteElement = (event: KeyboardEvent) => {
-			if (event.key === 'Backspace' && data.selected) {
-				socket.emit('gateway:cabonerf-node-delete', data.id);
-
-				appDispatch({
-					type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
-					payload: data.id,
-				});
-			}
-		};
-
-		document.addEventListener('keydown', handleDeleteElement);
-
-		return () => {
-			document.removeEventListener('keydown', handleDeleteElement);
-		};
-	}, [data.id, data.selected, appDispatch]);
-
 	const handleTriggerContextMenu = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -81,7 +64,7 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		dispatch({
 			type: ContextDispatch.SET_CONTEXT_MENU,
 			payload: {
-				id: data.id,
+				process: { ...data.data, id: data.id },
 				clientX: event.pageX,
 				clientY: event.pageY,
 			},
@@ -89,89 +72,86 @@ export default function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	};
 
 	return (
-		<Sheet>
-			<div
-				onContextMenu={handleTriggerContextMenu}
-				ref={triggerRef}
-				className="relative w-[370px] rounded-3xl border-[1px] border-gray-100 bg-white shadow-md"
-			>
-				<div className="p-4">
-					<div className="flex items-center justify-between space-x-2">
-						{/* Logo */}
-						<div className="flex items-start space-x-1">
-							<div className="rounded-md bg-[#a3a3a3] p-2">
-								<div
-									dangerouslySetInnerHTML={{
-										__html: DOMPurify.sanitize(
-											updateSVGAttributes({
-												svgString: data.data.lifeCycleStage.iconUrl,
-												properties: { color: 'white', fill: 'white', height: 20, width: 20 },
-											})
-										),
-									}}
-								/>
-							</div>
+		<div
+			onContextMenu={handleTriggerContextMenu}
+			ref={triggerRef}
+			className={clsx(`relative w-[340px] rounded-3xl border-[1px] border-gray-200 bg-white shadow transition-transform`, {
+				'scale-105': data.dragging,
+				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
+			})}
+		>
+			<div className="p-4">
+				<div className="flex items-center justify-between space-x-2">
+					{/* Logo */}
+					<div className="flex items-start space-x-1">
+						<div className="rounded-md bg-[#a3a3a3] p-1.5">
+							<div
+								dangerouslySetInnerHTML={{
+									__html: DOMPurify.sanitize(
+										updateSVGAttributes({
+											svgString: data.data.lifeCycleStage.iconUrl,
+											properties: { color: 'white', fill: 'white', height: 20, width: 20 },
+										})
+									),
+								}}
+							/>
 						</div>
-						{/* CTA */}
-
-						<SheetTrigger className="cursor-pointer rounded-sm p-1 duration-200 hover:bg-gray-100">
-							<MoreHorizontal color="#525252" strokeWidth={3} size={15} />
-						</SheetTrigger>
 					</div>
-					<div className="mt-3 break-words text-xl font-medium">{data.data.name}</div>
-					<div className="mt-2">
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
-									<ThermometerSnowflake size={15} />
-									<div>kg S02-eq</div>
-								</button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">
-								<div className="grid grid-cols-12 px-2 py-1">
-									<div className="col-span-8 mx-auto text-sm font-medium">Impact Category</div>
-									<div className="col-span-2 text-sm font-medium">Unit Level</div>
-									<div className="col-span-2 text-sm font-medium">System Level</div>
-								</div>
-								{processImpacts.map((item, index) => (
-									<div key={index} className="grid grid-cols-12 space-y-1">
-										<div className="col-span-8 flex items-center space-x-3">
-											<ThermometerSnowflakeIcon size={20} />
-											<div className="flex flex-col">
-												<span className="text-sm font-medium">{item.impactCategory.name}</span>
-												<span className="text-xs text-gray-500">
-													{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
-												</span>
-											</div>
-										</div>
-										<div className="col-span-2 text-sm">123</div>
-										<div className="col-span-2 text-sm">123</div>
-									</div>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
+					{/* CTA */}
 				</div>
-				{appContext.deleteProcessesIds.includes(data.id) && (
-					<>
-						<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[22px] border-[1px] border-gray-100 bg-gray-100/80"></div>
-						<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
-							<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
-						</div>
-					</>
-				)}
-
-				{/* Context Menu */}
-				{app.contextMenuSelector?.id === data.id && ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
+				<div className="mt-3 break-words text-xl font-medium">{data.data.name}</div>
+				<div className="mt-2">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
+								<ThermometerSnowflake size={15} />
+								<div>kg S02-eq</div>
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">
+							<div className="grid grid-cols-12 px-2 py-1">
+								<div className="col-span-8 mx-auto text-sm font-medium">Impact Category</div>
+								<div className="col-span-2 text-sm font-medium">Unit Level</div>
+								<div className="col-span-2 text-sm font-medium">System Level</div>
+							</div>
+							{/* {processImpacts.map((item, index) => (
+								<div key={index} className="grid grid-cols-12 space-y-1">
+									<div className="col-span-8 flex items-center space-x-3">
+										<ThermometerSnowflakeIcon size={20} />
+										<div className="flex flex-col">
+											<span className="text-sm font-medium">{item.impactCategory.name}</span>
+											<span className="text-xs text-gray-500">
+												{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
+											</span>
+										</div>
+									</div>
+									<div className="col-span-2 text-sm">123</div>
+									<div className="col-span-2 text-sm">123</div>
+								</div>
+							))} */}
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			</div>
-			<SheetContent>
-				<SheetHeader>
-					<SheetTitle>Are you absolutely sure?</SheetTitle>
-					<SheetDescription>
-						This action cannot be undone. This will permanently delete your account and remove your data from our servers.
-					</SheetDescription>
-				</SheetHeader>
-			</SheetContent>
-		</Sheet>
+			{/* Handle */}
+			<Handle type="source" position={data.sourcePosition as Position}></Handle>
+
+			{/* Delete */}
+			{appContext.deleteProcessesIds.includes(data.id) && (
+				<>
+					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[22px] border-[1px] border-gray-100 bg-gray-100/80"></div>
+					<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
+						<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
+					</div>
+				</>
+			)}
+
+			{/* Context Menu */}
+			{app.contextMenuSelector?.process.id === data.id &&
+				app.isOpen &&
+				ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
+		</div>
 	);
 }
+
+export default React.memo(ProcessNode);

@@ -1,5 +1,5 @@
 import { CommonResponse } from '@/@types/common.type';
-import { CreateProjectResponse, GetProjectListResponse } from '@/@types/project.type';
+import { CreateProjectResponse, GetProjectListResponse, Project } from '@/@types/project.type';
 import { PROJECT_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http';
@@ -14,6 +14,10 @@ class ProjectApis {
 				projects: GetProjectListResponse[];
 			}>
 		>(PROJECT_ENDPOINT.PROJECT);
+	}
+
+	public async getProjectById(payload: { pid: string; wid: string }) {
+		return httpService.get<CommonResponse<Project>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}/${payload.wid}`);
 	}
 
 	public async createProject(payload: CreateProjectSchema) {

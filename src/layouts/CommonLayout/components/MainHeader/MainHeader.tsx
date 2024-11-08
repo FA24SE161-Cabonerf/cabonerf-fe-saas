@@ -93,9 +93,6 @@ export default function MainHeader() {
 				{/* Profile */}
 				<div className="mr-1 flex items-center space-x-4">
 					<div className="flex items-center space-x-2">
-						<Link className="px-2 py-1" to="/playground">
-							Playground
-						</Link>
 						<Link className="px-2 py-1" to="/">
 							Dashboard
 						</Link>

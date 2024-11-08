@@ -1,56 +1,52 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ContextDispatch, eDispatchType } from '@/@types/dispatch.type';
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
+import { eDispatchType, SheetBarDispatch } from '@/@types/dispatch.type';
+import ProjectApis from '@/apis/project.apis';
+import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
-import BackButton from '@/pages/Playground/components/BackButton';
-import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
+import LoadingProject from '@/pages/Playground/components/LoadingProject';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
+import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
-import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
+import SheetbarSide from '@/pages/Playground/components/SheetbarSide';
+import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import ProcessNode from '@/pages/Playground/customs/ProcessNode';
 import socket from '@/socket.io';
-import {
-	applyNodeChanges,
-	Background,
-	BackgroundVariant,
-	MiniMap,
-	Node,
-	NodeChange,
-	NodeTypes,
-	Panel,
-	ReactFlow,
-	useReactFlow,
-} from '@xyflow/react';
+import { useQuery } from '@tanstack/react-query';
+import { Background, BackgroundVariant, MiniMap, Node, NodeTypes, Panel, ReactFlow, useNodesState, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import React, { MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 const customNode: NodeTypes = {
 	process: ProcessNode,
 };
 
-const nds: Node[] = [];
-
 export default function Playground() {
-	const { deleteElements } = useReactFlow();
-	const { dispatch } = useContext(contextMenu);
+	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
+	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { app, dispatch: appDispatch } = useContext(AppContext);
-	const [nodes, setNodes] = useState<Node[]>(nds);
+	const params = useParams<{ pid: string; wid: string }>();
+
+	const { data: projectData, isFetching } = useQuery({
+		queryKey: ['projects', { pid: params.pid, wid: params.wid }],
+		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
+		enabled: Boolean(params.pid) && Boolean(params.wid),
+	});
 
 	useEffect(() => {
-		socket.auth = {
-			user_id: app.userProfile?.id,
-		};
+		if (projectData?.data.data.processes) {
+			setNodes(projectData.data.data.processes as Node<CabonerfNodeData>[]);
+		}
+	}, [projectData, setNodes]);
 
+	useEffect(() => {
+		socket.auth = { user_id: app.userProfile?.id };
 		socket.connect();
 
 		socket.on('gateway:delete-process-success', (data) => {
-			deleteElements({
-				nodes: [{ id: data }],
-			});
-
-			appDispatch({
-				type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS,
-				payload: data,
-			});
+			deleteElements({ nodes: [{ id: data }] });
+			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
 		});
 
 		return () => {
@@ -58,43 +54,53 @@ export default function Playground() {
 		};
 	}, [app.userProfile?.id, deleteElements, appDispatch]);
 
-	const handleNodeDragStop = useCallback((event: MouseEvent, node: Node, nodes: Node[]) => {}, []);
+	useEffect(() => {
+		setMoreNodes((nodes) => {
+			const shouldHide = Boolean(sheetState.process?.id);
+			return nodes.map((item) => ({
+				...item,
+				hidden: shouldHide ? item.id !== sheetState.process?.id : false,
+			}));
+		});
+	}, [sheetState.process?.id, setViewport, setMoreNodes]);
 
-	const handleNodeChange = useCallback(
-		(changes: NodeChange<Node>[]) => {
-			setNodes((nds) => applyNodeChanges(changes, nds));
+	const handlePaneClick = useCallback(() => {
+		sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
 
-			// Close context menu
-			dispatch({ type: ContextDispatch.CLEAR_CONTEXT_MENU });
-		},
-		[dispatch]
-	);
+		setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
+	}, [sheetDispatch, setViewport]);
+
+	const handleNodeDragStop = useCallback((event: any, node: Node<CabonerfNodeData>, nodes: Node<CabonerfNodeData>[]) => {
+		const data: { id: string; x: number; y: number } = { id: node.id, x: node.position.x, y: node.position.y };
+
+		socket.emit('gateway:node-update-position', data);
+	}, []);
+
+	if (isFetching) return <LoadingProject />;
 
 	return (
 		<React.Fragment>
-			<div className="h-[100vh]">
+			<PlaygroundHeader />
+			<div className="relative h-[calc(100vh-50px)]">
 				<ReactFlow
+					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
+					className="relative"
 					nodeTypes={customNode}
 					nodes={nodes}
 					deleteKeyCode=""
+					onPaneClick={handlePaneClick}
+					onNodesChange={onNodesChange}
 					onNodeDragStop={handleNodeDragStop}
-					onNodesChange={handleNodeChange}
 				>
-					<Background variant={BackgroundVariant.Dots} size={1.5} color="#dedede" />
-					<MiniMap className="" offsetScale={2} pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
-
-					<Panel position="top-left">
-						<BackButton />
-					</Panel>
+					<Background variant={BackgroundVariant.Lines} size={1.5} bgColor="#fafafa" color="#f4f4f5" />
+					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
-
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
-					<Panel position="top-right">
-						<PlaygroundActionToolbar />
-					</Panel>
+					<DevTools />
 				</ReactFlow>
+				{sheetState.process && <SheetbarSide />}
 			</div>
 		</React.Fragment>
 	);

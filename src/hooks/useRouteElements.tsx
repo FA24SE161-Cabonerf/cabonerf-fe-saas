@@ -45,6 +45,10 @@ export default function useRouteElements() {
 						},
 					],
 				},
+				{
+					path: 'playground/:pid/:wid',
+					element: <Playground />,
+				},
 			],
 		},
 		{
@@ -70,10 +74,6 @@ export default function useRouteElements() {
 		{
 			path: '/verify-email-token',
 			element: <VerifyEmailPage />,
-		},
-		{
-			path: 'playground',
-			element: <Playground />,
 		},
 	]);
 

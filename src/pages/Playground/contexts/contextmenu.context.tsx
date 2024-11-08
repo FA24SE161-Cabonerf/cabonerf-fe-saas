@@ -1,14 +1,16 @@
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ContextDispatch } from '@/@types/dispatch.type';
 import { createContext, Dispatch, useReducer } from 'react';
 
 interface ContextMenuSelector {
-	id: string;
+	process: CabonerfNodeData & { id: string };
 	clientX: number;
 	clientY: number;
 }
 
 type State = {
 	contextMenuSelector: ContextMenuSelector | null;
+	isOpen: boolean;
 };
 
 type Action =
@@ -18,6 +20,9 @@ type Action =
 	  }
 	| {
 			type: ContextDispatch.CLEAR_CONTEXT_MENU;
+	  }
+	| {
+			type: ContextDispatch.CLOSE_CONTEXT_MENU;
 	  };
 
 type ContextMenu = {
@@ -28,6 +33,7 @@ type ContextMenu = {
 const initialContext: ContextMenu = {
 	app: {
 		contextMenuSelector: null,
+		isOpen: false,
 	},
 	dispatch: () => {},
 };
@@ -38,7 +44,9 @@ export const contextMenu = createContext<ContextMenu>(initialContext);
 const reducer = (state: State, action: Action) => {
 	switch (action.type) {
 		case ContextDispatch.SET_CONTEXT_MENU:
-			return { ...state, contextMenuSelector: action.payload };
+			return { ...state, contextMenuSelector: action.payload, isOpen: true };
+		case ContextDispatch.CLOSE_CONTEXT_MENU:
+			return { ...state, isOpen: false };
 		case ContextDispatch.CLEAR_CONTEXT_MENU:
 			return { ...state, contextMenuSelector: null };
 		default:
@@ -52,6 +60,7 @@ type Props = {
 export default function ContextMenuProvider({ children }: Props) {
 	const [app, dispatch] = useReducer(reducer, {
 		contextMenuSelector: initialContext.app.contextMenuSelector,
+		isOpen: initialContext.app.isOpen,
 	});
 	return <contextMenu.Provider value={{ app, dispatch }}>{children}</contextMenu.Provider>;
 }

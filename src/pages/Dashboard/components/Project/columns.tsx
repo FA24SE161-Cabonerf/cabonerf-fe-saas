@@ -34,6 +34,7 @@ import {
 	Workflow,
 } from 'lucide-react';
 import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export const columns: ColumnDef<GetProjectListResponse>[] = [
@@ -132,6 +133,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 		size: 100,
 		cell: ({ row }) => {
 			const project = row.original;
+			const navigate = useNavigate();
 			const { app, dispatch } = useContext(AppContext);
 
 			const onPreview = () => {
@@ -180,7 +182,10 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-[150px]">
-						<DropdownMenuItem className="flex cursor-pointer items-center space-x-1">
+						<DropdownMenuItem
+							className="flex cursor-pointer items-center space-x-1"
+							onClick={() => navigate(`/playground/${project.id}/6ccbff7f-9653-44c0-8ddb-e7728f12e5a0`)}
+						>
 							<SquareArrowOutUpRight size={17} />
 							<span>Open Project</span>
 						</DropdownMenuItem>
