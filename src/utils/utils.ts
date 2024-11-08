@@ -30,7 +30,7 @@ export const formatDate = (inputDate: string): string => {
 
 type CustomSVG = {
 	svgString: string;
-	properties: {
+	properties?: {
 		width: number;
 		height: number;
 		fill: string;
@@ -39,9 +39,11 @@ type CustomSVG = {
 };
 
 export const updateSVGAttributes = ({ svgString, properties }: CustomSVG) => {
-	return svgString
-		.replace(/width="\d+"/, `width="${properties.width}"`)
-		.replace(/height="\d+"/, `height="${properties.height}"`)
-		.replace(/fill="[^"]*"/, `fill="${properties.fill}"`)
-		.replace(/stroke="[^"]*"/, `stroke="${properties.color}"`);
+	if (properties)
+		return svgString
+			.replace(/width="\d+"/, `width="${properties?.width}"`)
+			.replace(/height="\d+"/, `height="${properties?.height}"`)
+			.replace(/fill="[^"]*"/, `fill="${properties?.fill}"`)
+			.replace(/stroke="[^"]*"/, `stroke="${properties?.color}"`);
+	else return svgString;
 };

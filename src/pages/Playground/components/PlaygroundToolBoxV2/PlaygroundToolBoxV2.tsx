@@ -3,8 +3,9 @@ import ToolboxMenu from '@/pages/Playground/components/PlaygroundToolBoxV2/compo
 import ToolboxTrigger from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxTrigger';
 import Toolbox from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
 import { Blocks, DatabaseZap, Package, SquarePlus, StickyNote, Type } from 'lucide-react';
+import React from 'react';
 
-export default function PlaygroundToolBoxV2() {
+function PlaygroundToolBoxV2() {
 	return (
 		<Toolbox>
 			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-2xl border border-gray-200 bg-white p-2 shadow">
@@ -40,3 +41,5 @@ export default function PlaygroundToolBoxV2() {
 		</Toolbox>
 	);
 }
+
+export default React.memo(PlaygroundToolBoxV2);

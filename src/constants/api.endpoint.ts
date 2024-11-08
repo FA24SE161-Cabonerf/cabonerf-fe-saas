@@ -36,7 +36,12 @@ class LIFE_CYCLE_STAGES_ENDPOINT {
 	public static LIFE_CYCLE_STAGES = '/life-cycle-stages';
 }
 
+class EMISSION_SUBSTANCES_ENDPOINT {
+	public static EMISSION_SUBSTANCES = '/emission-substance';
+}
+
 export {
+	EMISSION_SUBSTANCES_ENDPOINT,
 	AUTH_ENDPOINT,
 	IMPACT_METHOD_ENDPOINT,
 	IMPACT_ENDPOINT,

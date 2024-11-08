@@ -5,7 +5,7 @@ type ImpactCategory = {
 	iconUrl: string;
 	indicatorDescription: string;
 	midpointImpactCategory: MidpointImpactCategory;
-	emissionCompartment: EmissionCompartment;
+	emissionCompartment: EmissionCompartment | null;
 };
 
 type EmissionCompartment = {
