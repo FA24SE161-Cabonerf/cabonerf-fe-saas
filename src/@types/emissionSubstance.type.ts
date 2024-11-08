@@ -12,9 +12,9 @@ interface CharacterizationFactor {
 	decimalValue: number;
 }
 
-interface EmissionSubstances {
+interface EmissionSubstance {
 	id: string;
-	emissionSubstance: {
+	substance: {
 		id: string;
 		name: string;
 		cas: string;
@@ -30,4 +30,4 @@ interface EmissionSubstances {
 	factors: CharacterizationFactor[];
 }
 
-export type { CharacterizationFactor, EmissionSubstances };
+export type { CharacterizationFactor, EmissionSubstance };

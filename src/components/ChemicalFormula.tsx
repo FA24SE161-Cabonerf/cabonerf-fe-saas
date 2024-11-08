@@ -7,7 +7,7 @@ type Props = {
 };
 
 const ChemicalFormula = ({ className, formula }: Props) => {
-	const formulaHtml = katex.renderToString(formula, { throwOnError: false });
+	const formulaHtml = katex.renderToString(formula === '-' ? '' : formula, { throwOnError: true, strict: false });
 
 	return <div className={className} dangerouslySetInnerHTML={{ __html: formulaHtml }} />;
 };
