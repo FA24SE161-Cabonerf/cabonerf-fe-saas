@@ -6,34 +6,52 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } 
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { columns } from '@/pages/Playground/components/Sheetbar/columns';
-import { data as datas } from '@/pages/Playground/components/Sheetbar/data-table';
 import { ExchangeTable } from '@/pages/Playground/components/Sheetbar/ExchangeTable';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { updateSVGAttributes } from '@/utils/utils';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
-import 'katex/dist/katex.min.css';
 import { Cog, Copy, Flame, Leaf, Plus, Search, X } from 'lucide-react';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 function SheetbarSide() {
+	const [isInput, setIsInput] = useState<boolean | null>(null);
 	const { setViewport } = useReactFlow();
-	const { sheetDispatch } = useContext(SheetbarContext);
+	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const [searchText, setSearchText] = useState<string>('');
 
-	const { data, fetchNextPage, isFetching } = useInfiniteQuery({
+	const { data, fetchNextPage, isFetching, isLoading, hasNextPage, refetch } = useInfiniteQuery({
 		queryKey: ['substances'],
 		queryFn: EmissionSubstancesApis.prototype.getEmissionSubstances,
 		initialPageParam: 1,
-		getNextPageParam: (lastPage) => lastPage.pageCurrent + 1,
+		getNextPageParam: (lastPage) => {
+			if (lastPage.totalPage === lastPage.pageCurrent) {
+				return undefined;
+			}
+			return lastPage.pageCurrent + 1;
+		},
+		enabled: isInput !== null,
 	});
+
+	useEffect(() => {
+		return () => {
+			setIsInput(null);
+		};
+	}, []);
 
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
 			fetchNextPage();
 		}
 	}, [isFetching, fetchNextPage]);
+
+	const handleFetch = () => {
+		setIsInput(true);
+		refetch();
+	};
 
 	const handleCloseSheetBar = () => {
 		sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
@@ -69,13 +87,16 @@ function SheetbarSide() {
 												<Leaf size={20} fill="#166534" color="white" />
 												<span className="text-[#166534]">Elementary Exchange Flow (Input)</span>
 											</div>
-											<DialogTrigger className="flex h-fit items-center space-x-1 rounded px-2 py-1">
+											<DialogTrigger
+												onClick={handleFetch}
+												className="flex h-fit items-center space-x-1 rounded-sm px-2 py-1 hover:bg-gray-100"
+											>
 												<span className="text-sm">Add new exchange</span>
 												<Plus size={14} />
 											</DialogTrigger>
 										</div>
 										<div className="mt-1 w-full">
-											<ExchangeTable columns={columns} data={datas} />
+											<ExchangeTable columns={columns} data={sheetState.process?.exchanges ?? []} />
 										</div>
 									</div>
 
@@ -90,9 +111,7 @@ function SheetbarSide() {
 												<Plus size={14} />
 											</Button>
 										</div>
-										<div className="mt-1 w-full">
-											<ExchangeTable columns={columns} data={datas} />
-										</div>
+										<div className="mt-1 w-full">{/* <ExchangeTable columns={columns} data={datas} /> */}</div>
 									</div>
 								</div>
 							</TabsContent>
@@ -109,9 +128,7 @@ function SheetbarSide() {
 												<Plus size={14} />
 											</Button>
 										</div>
-										<div className="mt-1 w-full">
-											<ExchangeTable columns={columns} data={datas} />
-										</div>
+										<div className="mt-1 w-full">{/* <ExchangeTable columns={columns} data={datas} /> */}</div>
 									</div>
 
 									<div className="h-auto w-full">
@@ -137,9 +154,15 @@ function SheetbarSide() {
 				<DialogTitle className="hidden"></DialogTitle>
 				<DialogDescription className="hidden"></DialogDescription>
 				<div className="h-full w-full">
-					<div className="flex space-x-2 p-2.5">
+					<div className="flex space-x-2 p-3">
 						<Search color="#d4d4d8" />
-						<input type="text" placeholder="Search" className="w-full outline-none" />
+						<input
+							type="text"
+							value={searchText}
+							onChange={(event) => setSearchText(event.target.value)}
+							placeholder="Search"
+							className="w-full outline-none"
+						/>
 					</div>
 					<Separator />
 					<div>Filter</div>
@@ -147,68 +170,86 @@ function SheetbarSide() {
 
 					{/* List Substance */}
 					<div className="mt-3 p-2">
-						<InfiniteScroll
-							next={handleFetchNext}
-							height={400}
-							hasMore={true}
-							dataLength={data?.pages.length as number}
-							loader={<div>loading</div>}
-						>
-							{data?.pages.map((item, index) => (
-								<React.Fragment key={index}>
-									{item.list.map((item) => (
-										<div
-											key={item.id}
-											className="flex w-full flex-col items-start justify-between space-y-2 rounded p-2.5 hover:bg-zinc-100"
-										>
-											{/* Information */}
-											<div className="flex w-full flex-col">
-												<div className="flex justify-between">
-													<div className="flex items-center space-x-2 text-xs">
-														<span>CAS:</span>
-														<div className="flex items-center space-x-1">
-															<span>{item.emissionSubstance.cas}</span>
-															<Copy size={12} />
-														</div>
-													</div>
-													{item.emissionSubstance.molecularFormula ? (
-														<ChemicalFormula className="text-[11px]" formula={item.emissionSubstance.molecularFormula} />
-													) : (
-														<ChemicalFormula className="text-[11px]" formula={item.emissionSubstance.alternativeFormula} />
-													)}
-												</div>
-												<div className="flex w-full justify-between">
-													<div className="max-w-[70%] text-base font-bold">{item.emissionSubstance.name}</div>
-													<div className="text-sm text-gray-400">{item.emissionCompartment.name}</div>
-												</div>
-												<div className="text-sm italic text-gray-500">{item.emissionSubstance.chemicalName}</div>
-											</div>
-
-											<div className="mt-1 flex w-full flex-wrap">
-												{item.factors.map((factor) => (
-													<div key={factor.id} className="flex basis-1/2 items-center space-x-2 text-[15px]">
-														<div
-															className=""
-															dangerouslySetInnerHTML={{
-																__html: DOMPurify.sanitize(
-																	updateSVGAttributes({
-																		svgString: factor.impactMethodCategory.impactCategory.iconUrl,
-																	})
-																),
-															}}
-														/>
-														<div>
-															{factor.scientificValue}{' '}
-															{factor.impactMethodCategory.impactCategory.midpointImpactCategory.unit.name}
-														</div>
-													</div>
-												))}
-											</div>
+						{isLoading ? (
+							<div className="flex justify-center">
+								<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+							</div>
+						) : (
+							<InfiniteScroll
+								next={handleFetchNext}
+								height={500}
+								hasMore={hasNextPage}
+								dataLength={(data?.pages.length as number) ?? 0}
+								loader={
+									<div className="flex items-center justify-center">
+										<div className="flex items-center">
+											<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+											<span>Loading...</span>
 										</div>
-									))}
-								</React.Fragment>
-							))}
-						</InfiniteScroll>
+									</div>
+								}
+								endMessage={
+									<div className="flex items-center">
+										<div className="mx-auto">End</div>
+									</div>
+								}
+							>
+								{data?.pages.map((item, index) => (
+									<React.Fragment key={index}>
+										{item.list.map((item) => (
+											<div
+												key={item.id}
+												className="flex w-full flex-col items-start justify-between space-y-3 rounded p-2.5 hover:bg-[#f4f4f5]"
+											>
+												{/* Information */}
+												<div className="flex w-full flex-col">
+													<div className="flex justify-between">
+														<div className="flex items-center space-x-2 text-xs">
+															<span>CAS:</span>
+															<div className="flex items-center space-x-1">
+																<span>{item.substance.cas}</span>
+																<Copy size={12} />
+															</div>
+														</div>
+														{item.substance.molecularFormula ? (
+															<ChemicalFormula className="text-[11px]" formula={item.substance.molecularFormula} />
+														) : (
+															<ChemicalFormula className="text-[11px]" formula={item.substance.alternativeFormula} />
+														)}
+													</div>
+													<div className="flex w-full justify-between">
+														<div className="max-w-[70%] text-base font-bold">{item.substance.name}</div>
+														<div className="text-sm text-gray-400">{item.emissionCompartment.name}</div>
+													</div>
+													<div className="text-sm italic text-gray-500">{item.substance.chemicalName}</div>
+												</div>
+
+												<div className="mt-1 flex w-full flex-wrap">
+													{item.factors.map((factor) => (
+														<div key={factor.id} className="flex basis-1/2 items-center space-x-2 text-[15px]">
+															<div
+																className=""
+																dangerouslySetInnerHTML={{
+																	__html: DOMPurify.sanitize(
+																		updateSVGAttributes({
+																			svgString: factor.impactMethodCategory.impactCategory.iconUrl,
+																		})
+																	),
+																}}
+															/>
+															<div>
+																{factor.scientificValue}{' '}
+																{factor.impactMethodCategory.impactCategory.midpointImpactCategory.unit.name}
+															</div>
+														</div>
+													))}
+												</div>
+											</div>
+										))}
+									</React.Fragment>
+								))}
+							</InfiniteScroll>
+						)}
 					</div>
 				</div>
 			</DialogContent>

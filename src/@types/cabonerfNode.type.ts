@@ -1,3 +1,4 @@
+import { Exchange } from '@/@types/exchange.type';
 import { LifeCycleStages } from '@/@types/lifeCycleStage.type';
 import { Node } from '@xyflow/react';
 
@@ -11,7 +12,7 @@ interface CabonerfNodeData {
 	lifeCycleStage: LifeCycleStages;
 	overallProductFlowRequired: number;
 	impacts: [];
-	exchanges: [];
+	exchanges: Exchange[];
 	[key: string]: unknown;
 }
 

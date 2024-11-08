@@ -40,7 +40,14 @@ class EMISSION_SUBSTANCES_ENDPOINT {
 	public static EMISSION_SUBSTANCES = '/emission-substance';
 }
 
+class EXCHANGE_ENDPOINT {
+	public static EXCHANGE = '/exchanges';
+	public static PRODUCT_EXCHANGE = '/product-exchange';
+	public static ELEMENTARY_EXCHANGE = '/elementary-exchange';
+}
+
 export {
+	EXCHANGE_ENDPOINT,
 	EMISSION_SUBSTANCES_ENDPOINT,
 	AUTH_ENDPOINT,
 	IMPACT_METHOD_ENDPOINT,
