@@ -1,3 +1,5 @@
+import { ExchangeApis } from '@/apis/exchange.apis';
+import { useMutation } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -78,7 +80,7 @@ export const columns: ColumnDef<Exchange>[] = [
 	{
 		id: 'actions',
 		size: 10,
-		cell: () => {
+		cell: ({ row }) => {
 			return (
 				<button className="rounded bg-red-50 p-1">
 					<Trash2 size={16} color="red" />

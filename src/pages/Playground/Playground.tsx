@@ -1,5 +1,6 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { eDispatchType, SheetBarDispatch } from '@/@types/dispatch.type';
+import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
+import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ProjectApis from '@/apis/project.apis';
 import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
@@ -8,6 +9,7 @@ import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
 import SheetbarSide from '@/pages/Playground/components/SheetbarSide';
+import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import ProcessNode from '@/pages/Playground/customs/ProcessNode';
 import socket from '@/socket.io';
@@ -22,10 +24,11 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
+	const { playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
-	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string; wid: string }>();
 
 	const { data: projectData, isFetching } = useQuery({
@@ -34,11 +37,19 @@ export default function Playground() {
 		enabled: Boolean(params.pid) && Boolean(params.wid),
 	});
 
+	useQuery({
+		queryKey: ['impact_categories', projectData?.data.data.method.id],
+		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: projectData?.data.data.method.id as string }),
+		enabled: projectData?.data.data.method.id !== undefined,
+		staleTime: 60 * 1000 * 10,
+	});
+
 	useEffect(() => {
 		if (projectData?.data.data.processes) {
 			setNodes(projectData.data.data.processes as Node<CabonerfNodeData>[]);
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method });
 		}
-	}, [projectData, setNodes]);
+	}, [projectData, setNodes, playgroundDispatch]);
 
 	useEffect(() => {
 		socket.auth = { user_id: app.userProfile?.id };

@@ -46,7 +46,13 @@ class EXCHANGE_ENDPOINT {
 	public static ELEMENTARY_EXCHANGE = '/elementary-exchange';
 }
 
+class EMISSIONS {
+	public static EMISSIONS = '/emissions';
+	public static EMISSIONS_COMPARTMENT = this.EMISSIONS + '/emission-compartments';
+}
+
 export {
+	EMISSIONS,
 	EXCHANGE_ENDPOINT,
 	EMISSION_SUBSTANCES_ENDPOINT,
 	AUTH_ENDPOINT,

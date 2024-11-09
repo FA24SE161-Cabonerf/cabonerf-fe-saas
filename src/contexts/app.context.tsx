@@ -3,7 +3,7 @@ import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import { User } from '@/@types/user.type';
 import { getTokenFromLocalStorage, getUserProfileFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
-import React, { createContext, Dispatch, useReducer } from 'react';
+import React, { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 type Props = {
 	children: React.ReactNode;
@@ -182,5 +182,9 @@ export default function AppProvider({ children }: Props) {
 		deleteProcessesIds: initialAppStateContext.app.deleteProcessesIds,
 	});
 
-	return <AppContext.Provider value={{ app, dispatch }}>{children}</AppContext.Provider>;
+	const context = useMemo(() => {
+		return { app, dispatch };
+	}, [app, dispatch]);
+
+	return <AppContext.Provider value={context}>{children}</AppContext.Provider>;
 }

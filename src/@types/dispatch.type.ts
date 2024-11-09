@@ -33,3 +33,8 @@ export enum SheetBarDispatch {
 	SET_NODE = 'SET_NODE',
 	REMOVE_NODE = 'REMOVE_NODE',
 }
+
+export enum PlaygroundDispatch {
+	SET_IMPACT_METHOD = 'SET_IMPACT_METHOD',
+	REMOVE_IMPACT_METHOD = 'REMOVE_IMPACT_METHOD',
+}
