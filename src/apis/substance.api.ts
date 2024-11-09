@@ -4,15 +4,19 @@ import { EMISSION_SUBSTANCES_ENDPOINT } from '@/constants/api.endpoint';
 import httpService from '@/services/http';
 
 interface QueryParams {
-	pageParam: number;
-	pageCurrent: number;
-	methodId: string;
+	pageCurrent?: number;
+	pageSize?: number;
+	methodId?: string;
 	keyword?: string;
-	input: string;
+	input?: string;
+	impactCategoryId?: string;
+	emissionCompartmentId?: string;
 }
 
 export class EmissionSubstancesApis {
-	public async getEmissionSubstances({ pageParam }: { pageParam: number }) {
+	public async getEmissionSubstances(_queryParams: QueryParams) {
+		console.log(_queryParams);
+
 		const response = await httpService.get<
 			CommonResponse<{
 				pageCurrent: number;
@@ -20,10 +24,9 @@ export class EmissionSubstancesApis {
 				totalPage: number;
 				list: EmissionSubstance[];
 			}>
-		>(
-			EMISSION_SUBSTANCES_ENDPOINT.EMISSION_SUBSTANCES +
-				`?methodId=923e4567-e89b-12d3-a456-426614174000&pageCurrent=${pageParam}&pageSize=6&input=false`
-		);
+		>(EMISSION_SUBSTANCES_ENDPOINT.EMISSION_SUBSTANCES, {
+			params: _queryParams,
+		});
 
 		return response.data.data;
 	}
