@@ -11,7 +11,39 @@ import { Leaf, Pencil, Trash2 } from 'lucide-react';
 import { forwardRef, useContext, useEffect, useId } from 'react';
 import { toast } from 'sonner';
 
+const colors = [
+	{
+		bg: '#a3a3a3',
+		border: '#8a8a8a', // #737373 nhạt 10%
+	},
+	{
+		bg: '#fcd34d',
+		border: '#fcca4f', // #fbbf24 nhạt 10%
+	},
+	{
+		bg: '#f87171',
+		border: '#fa7c7c', // #ef4444 nhạt 10%
+	},
+	{
+		bg: '#4ade80',
+		border: '#3edc72', // #22c55e nhạt 10%
+	},
+	{
+		bg: '#60a5fa',
+		border: '#5a94f9', // #3b82f6 nhạt 10%
+	},
+];
+
+function lightenColor({ hex, amount }: { hex: string; amount: number }) {
+	const num = parseInt(hex.replace('#', ''), 16);
+	const r = Math.min(255, (num >> 16) + Math.round(255 * amount));
+	const g = Math.min(255, ((num >> 8) & 0x00ff) + Math.round(255 * amount));
+	const b = Math.min(255, (num & 0x0000ff) + Math.round(255 * amount));
+	return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
 const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
+	const { setNodes } = useReactFlow();
 	const { deleteElements, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
 	const id = useId();
 	const { sheetDispatch } = useContext(SheetbarContext);
@@ -52,6 +84,19 @@ const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
 		}
 	};
 
+	const handleChangeColor = (backgroundColor: string, id: string) => {
+		socket.emit('gateway:node-update-color', {
+			id: id,
+			color: backgroundColor,
+		});
+
+		socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
+			setNodes((nodes) => {
+				return nodes.map((node) => (node.id === dataColor.id ? { ...node, data: { ...node.data, color: dataColor.color } } : node));
+			});
+		});
+	};
+
 	return (
 		<div
 			id={id}
@@ -70,11 +115,23 @@ const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
 					<div className="flex flex-col">
 						<span className="px-3 py-1 text-xs">Process color</span>
 						<div className="flex justify-between px-3">
-							{Array(5)
-								.fill(0)
-								.map((_, index) => (
-									<div key={index} className="size-9 rounded-full border"></div>
-								))}
+							{colors.map((item) => (
+								<button
+									onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
+									key={item.bg}
+									className="size-10 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
+									style={{
+										border: `1px solid ${item.border}`,
+										backgroundColor: item.bg,
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.backgroundColor = `${lightenColor({ hex: item.bg, amount: 0.09 })}`;
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = item.bg;
+									}}
+								></button>
+							))}
 						</div>
 					</div>
 					<div className="mt-2 flex flex-col">

@@ -84,7 +84,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				<div className="flex items-center justify-between space-x-2">
 					{/* Logo */}
 					<div className="flex items-start space-x-1">
-						<div className="rounded-md bg-[#a3a3a3] p-1.5">
+						<div className="rounded-md p-1.5" style={{ backgroundColor: data.data.color }}>
 							<div
 								dangerouslySetInnerHTML={{
 									__html: DOMPurify.sanitize(
