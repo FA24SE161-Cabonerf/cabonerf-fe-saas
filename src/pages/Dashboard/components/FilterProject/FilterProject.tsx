@@ -25,7 +25,7 @@ export default function FilterProject() {
 
 	const { data: impactCategories, isSuccess: impact_categories_success } = useQuery({
 		queryKey: ['impact_categories', selectedImpactMethodId],
-		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: selectedImpactMethodId as string }),
+		queryFn: ({ queryKey }) => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: queryKey[1] }),
 		staleTime: 60_000,
 		enabled: !!selectedImpactMethodId,
 	});
@@ -60,10 +60,10 @@ export default function FilterProject() {
 	}, [impactMethods?.data.data]);
 
 	useEffect(() => {
-		if (impactCategories?.data.data) {
+		if (impact_categories_success) {
 			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload: impactCategories?.data.data[0] });
 		}
-	}, [impactCategories?.data.data, dispatch]);
+	}, [dispatch, impact_categories_success, impactCategories?.data.data]);
 
 	const updateSelectedImpactMethod = useCallback((id: string) => {
 		setSelectedImpactMethodId(id);

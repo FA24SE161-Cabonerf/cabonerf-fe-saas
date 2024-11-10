@@ -37,5 +37,6 @@ export enum SheetBarDispatch {
 
 export enum PlaygroundDispatch {
 	SET_IMPACT_METHOD = 'SET_IMPACT_METHOD',
+	SET_IMPACT_CATEGORY = 'SET_IMPACT_CATEGORY',
 	REMOVE_IMPACT_METHOD = 'REMOVE_IMPACT_METHOD',
 }

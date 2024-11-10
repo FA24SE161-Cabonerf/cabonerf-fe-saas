@@ -1,19 +1,15 @@
-import { eDispatchType } from '@/@types/dispatch.type';
+import { PlaygroundDispatch } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
 import ImpactCategoriesComboBox from '@/components/ImpactCategoriesComboBox';
 import ImpactMethodComboBox from '@/components/ImpactMethodComboBox';
-import { AppContext } from '@/contexts/app.context';
+import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { useQuery } from '@tanstack/react-query';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 
 function PlaygroundActionToolbar() {
-	const {
-		app: { impactCategory },
-		dispatch,
-	} = useContext(AppContext);
-	const [selectedImpactMethodId, setSelectedImpactMethodId] = useState<string>('');
+	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 
 	const { data: impactMethods, isLoading: impact_methods_loading } = useQuery({
 		queryKey: ['impact_methods'],
@@ -22,10 +18,10 @@ function PlaygroundActionToolbar() {
 	});
 
 	const { data: impactCategories, isSuccess: impact_categories_success } = useQuery({
-		queryKey: ['impact_categories', selectedImpactMethodId],
-		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: selectedImpactMethodId as string }),
+		queryKey: ['impact_categories', playgroundState.impactMethod],
+		queryFn: ({ queryKey }) => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: queryKey[1] as string }),
 		staleTime: 60_000,
-		enabled: !!selectedImpactMethodId,
+		enabled: playgroundState.impactMethod !== undefined,
 	});
 
 	const _impactMethods = useMemo(() => {
@@ -52,34 +48,31 @@ function PlaygroundActionToolbar() {
 	}, [impactCategories?.data.data]);
 
 	useEffect(() => {
-		if (impactMethods?.data.data) {
-			setSelectedImpactMethodId(impactMethods?.data.data[0].id);
-		}
-	}, [impactMethods?.data.data]);
-
-	useEffect(() => {
 		if (impactCategories?.data.data) {
-			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload: impactCategories?.data.data[0] });
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_CATEGORY, payload: impactCategories?.data.data[0] });
 		}
-	}, [impactCategories?.data.data, dispatch]);
+	}, [impactCategories?.data.data, playgroundDispatch]);
 
-	const updateSelectedImpactMethod = useCallback((id: string) => {
-		setSelectedImpactMethodId(id);
-	}, []);
+	const updateSelectedImpactMethod = useCallback(
+		(id: string) => {
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: id });
+		},
+		[playgroundDispatch]
+	);
 
 	const updateSelectedImpactCategories = useCallback(
 		(payload: ImpactCategory) => {
-			dispatch({ type: eDispatchType.SET_IMPACT_CATEGORY, payload });
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_CATEGORY, payload });
 		},
-		[dispatch]
+		[playgroundDispatch]
 	);
 
 	return (
-		<div className="rounded-2xl border border-gray-100 bg-white p-2 shadow">
+		<div className="rounded-[12.5px] border-gray-100 bg-white p-2 shadow">
 			<div className="flex items-center space-x-2">
 				{/* Method  */}
 				<ImpactMethodComboBox
-					selectedId={selectedImpactMethodId}
+					selectedId={playgroundState.impactMethod as string}
 					isLoading={impact_methods_loading}
 					title="Select impact method"
 					onSelected={updateSelectedImpactMethod}
@@ -87,7 +80,7 @@ function PlaygroundActionToolbar() {
 				/>
 
 				<ImpactCategoriesComboBox
-					selectedId={impactCategory as ImpactCategory}
+					selectedId={playgroundState.impactCategory as ImpactCategory}
 					isLoading={!impact_categories_success}
 					onSelected={updateSelectedImpactCategories}
 					data={_impactCategories}

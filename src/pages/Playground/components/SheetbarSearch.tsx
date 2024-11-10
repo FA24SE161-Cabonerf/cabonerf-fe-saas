@@ -1,7 +1,9 @@
-import { CommonResponse } from '@/@types/common.type';
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import EmissionCompartmentApis from '@/apis/emisisonCompartment.apis';
+import { ExchangeApis } from '@/apis/exchange.apis';
+import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import { EmissionSubstancesApis } from '@/apis/substance.api';
 import ChemicalFormula from '@/components/ChemicalFormula';
 import { DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
@@ -21,18 +23,20 @@ import { Separator } from '@/components/ui/separator';
 import { useDebounce } from '@/hooks/useDebounce';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { queryClient } from '@/queryClient';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
+import { useReactFlow } from '@xyflow/react';
+import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import { isUndefined, omitBy } from 'lodash';
 import { Copy, ListFilter, Search, X } from 'lucide-react';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 const LIMIT_SIZE_PAGE = 7;
 
 function SheetbarSearch() {
+	const { setNodes } = useReactFlow();
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const [searchText, setSearchText] = useState<string>('');
@@ -79,27 +83,72 @@ function SheetbarSearch() {
 	});
 
 	// Get impact category
-	const { data: impactCategoriesCachedData } = queryClient.getQueryData<CommonResponse<ImpactCategory[]>>([
-		'impact_categories',
-		playgroundState.impactMethod?.id,
-	]);
+	const { data: impactCategoriesCachedData } = useQuery({
+		queryKey: ['impact_categories', playgroundState.impactMethod],
+		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: playgroundState.impactMethod as string }),
+		enabled: playgroundState.impactMethod !== undefined,
+		staleTime: 60 * 1000 * 10,
+	});
+
+	// Add new exchange
+	const addNewExchangeMutate = useMutation({
+		mutationFn: ExchangeApis.prototype.createElementaryExchange,
+		onSuccess: (data) => {
+			const newProcess = data.data.data;
+
+			setNodes((nodes) => {
+				return nodes.map((node) => {
+					if (node.id === newProcess.id) {
+						const _newProcess = {
+							...node,
+							data: { ...node.data, id: newProcess.id, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+						};
+						sheetDispatch({
+							type: SheetBarDispatch.SET_NODE,
+							payload: _newProcess.data as CabonerfNodeData & { id: string },
+						});
+						return _newProcess;
+					}
+					return node;
+				});
+			});
+		},
+	});
 
 	useEffect(() => {
 		sheetDispatch({
 			type: SheetBarDispatch.MODIFY_QUERY_PARAMS,
 			payload: {
 				pageSize: LIMIT_SIZE_PAGE,
-				methodId: playgroundState.impactMethod?.id as string,
+				methodId: playgroundState.impactMethod as string,
 				keyword: searchTextDebounced,
 			},
 		});
-	}, [sheetDispatch, playgroundState.impactMethod?.id, searchTextDebounced]);
+	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
 
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
 			fetchNextPage();
 		}
 	}, [isFetching, fetchNextPage]);
+
+	const handleAddNewExchange = ({ substanceId }: { substanceId: string }) => {
+		console.log(sheetState.process);
+		const processId = sheetState.process?.id as string;
+		console.log(sheetState.process?.id);
+		addNewExchangeMutate.mutate(
+			{
+				processId: processId,
+				emissionSubstanceId: substanceId,
+				input: sheetState.queryParams.input as string,
+			},
+			{
+				onError: (err) => {
+					console.log(err.message);
+				},
+			}
+		);
+	};
 
 	return (
 		<DialogContent className="border p-0 shadow-md [&>button]:hidden" style={{ borderRadius: 16 }}>
@@ -129,7 +178,7 @@ function SheetbarSearch() {
 								</DropdownMenuSubTrigger>
 								<DropdownMenuPortal>
 									<DropdownMenuSubContent>
-										{(impactCategoriesCachedData as CommonResponse<ImpactCategory[]>).data.map((item) => (
+										{impactCategoriesCachedData?.data.data.map((item) => (
 											<DropdownMenuItem
 												key={item.id}
 												onClick={() => {
@@ -218,7 +267,7 @@ function SheetbarSearch() {
 					)}
 				</div>
 				{/* List Substance */}
-				{isLoading || !data?.pages?.length ? (
+				{isLoading || !data?.pages?.length || addNewExchangeMutate.isPending ? (
 					<div className="flex items-center justify-center">
 						<div className="flex items-center p-5">
 							<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -250,56 +299,69 @@ function SheetbarSearch() {
 							{data.pages.map((item, index) => (
 								<React.Fragment key={index}>
 									{item.list.length > 0 ? (
-										item.list.map((item) => (
-											<div
-												key={item.id}
-												className="flex w-full flex-col items-start justify-between space-y-3 rounded p-2.5 hover:bg-[#f4f4f5]"
-											>
-												{/* Information */}
-												<div className="flex w-full flex-col">
-													<div className="flex justify-between">
-														<div className="flex items-center space-x-2 text-xs">
-															<span>CAS:</span>
-															<div className="flex items-center space-x-1">
-																<span>{item.substance.cas}</span>
-																<Copy size={12} />
+										item.list.map((item) => {
+											const isAdded = sheetState.process?.exchanges.some((ex) => ex.emissionSubstance.id === item.id);
+											return (
+												<div
+													onClick={() => !isAdded && handleAddNewExchange({ substanceId: item.id })}
+													key={item.id}
+													className={clsx(
+														'relative z-10 flex w-full flex-col items-start justify-between space-y-3 rounded p-2.5 hover:bg-[#f4f4f5]',
+														{ 'cursor-pointer': !isAdded, 'cursor-not-allowed text-gray-300': isAdded }
+													)}
+												>
+													{/* Information */}
+													<div className="flex w-full flex-col">
+														<div className="flex justify-between">
+															<div className="flex items-center space-x-2 text-xs">
+																<span>CAS:</span>
+																<div className="flex items-center space-x-1">
+																	<span>{item.substance.cas}</span>
+																	<Copy size={12} />
+																</div>
 															</div>
+															{item.substance.molecularFormula ? (
+																<ChemicalFormula className="text-[11px]" formula={item.substance.molecularFormula} />
+															) : (
+																<ChemicalFormula className="text-[11px]" formula={item.substance.alternativeFormula} />
+															)}
 														</div>
-														{item.substance.molecularFormula ? (
-															<ChemicalFormula className="text-[11px]" formula={item.substance.molecularFormula} />
-														) : (
-															<ChemicalFormula className="text-[11px]" formula={item.substance.alternativeFormula} />
-														)}
-													</div>
-													<div className="flex w-full justify-between">
-														<div className="max-w-[70%] text-base font-bold">{item.substance.name}</div>
-														<div className="text-sm text-gray-400">{item.emissionCompartment.name}</div>
-													</div>
-													<div className="text-sm italic text-gray-500">{item.substance.chemicalName}</div>
-												</div>
-
-												<div className="mt-1 flex w-full flex-wrap">
-													{item.factors.map((factor) => (
-														<div key={factor.id} className="flex basis-1/2 items-center space-x-2 text-[15px]">
+														<div className="flex w-full justify-between">
+															<div className="max-w-[70%] text-base font-bold">{item.substance.name}</div>
 															<div
-																className=""
-																dangerouslySetInnerHTML={{
-																	__html: DOMPurify.sanitize(
-																		updateSVGAttributes({
-																			svgString: factor.impactMethodCategory.impactCategory.iconUrl,
-																		})
-																	),
-																}}
-															/>
-															<div>
-																{factor.scientificValue}{' '}
-																{factor.impactMethodCategory.impactCategory.midpointImpactCategory.unit.name}
+																className={clsx(`text-sm text-gray-400`, {
+																	'text-gray-300': isAdded,
+																})}
+															>
+																{item.emissionCompartment.name}
 															</div>
 														</div>
-													))}
+														<div className="text-sm italic text-gray-500">{item.substance.chemicalName}</div>
+													</div>
+
+													<div className="mt-1 flex w-full flex-wrap">
+														{item.factors.map((factor) => (
+															<div key={factor.id} className="flex basis-1/2 items-center space-x-2 text-[15px]">
+																<div
+																	className=""
+																	dangerouslySetInnerHTML={{
+																		__html: DOMPurify.sanitize(
+																			updateSVGAttributes({
+																				svgString: factor.impactMethodCategory.impactCategory.iconUrl,
+																			})
+																		),
+																	}}
+																/>
+																<div>
+																	{factor.scientificValue}{' '}
+																	{factor.impactMethodCategory.impactCategory.midpointImpactCategory.unit.name}
+																</div>
+															</div>
+														))}
+													</div>
 												</div>
-											</div>
-										))
+											);
+										})
 									) : (
 										<div className="flex h-full items-center justify-center text-center">
 											<div className="overflow-auto break-words">No result for ‘{searchTextDebounced}’</div>

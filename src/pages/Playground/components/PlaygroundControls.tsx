@@ -4,7 +4,7 @@ import ControlItem from '@/pages/Playground/components/ControlItem';
 import MenuExport from '@/pages/Playground/components/MenuExport';
 import socket from '@/socket.io';
 import { useReactFlow } from '@xyflow/react';
-import { ArrowDownFromLine, Pencil, Play, Scan, Share, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowDownFromLine, ChartColumnBig, Pencil, Play, Scan, Share, ZoomIn, ZoomOut } from 'lucide-react';
 import React, { useState } from 'react';
 
 const FIT_VIEW = 1000;
@@ -34,9 +34,13 @@ function PlaygroundControls() {
 				<ControlItem duration={FIT_VIEW} onAction={reactflow.fitView}>
 					<Scan size={19} strokeWidth={2} />
 				</ControlItem>
+				<ControlItem>
+					<ChartColumnBig size={19} strokeWidth={2} />
+				</ControlItem>
 				<ControlItem isActive={!!isShareMenu} duration={18} onAction={toggleShareMenu}>
 					{isShareMenu ? <ArrowDownFromLine strokeWidth={2} size={19} /> : <Share strokeWidth={2} size={19} />}
 				</ControlItem>
+
 				<Separator orientation="vertical" className="h-6" color="black" />
 
 				<Button

@@ -2,9 +2,9 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ProjectApis from '@/apis/project.apis';
-import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
+import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
@@ -16,7 +16,7 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 import { Background, BackgroundVariant, MiniMap, Node, NodeTypes, Panel, ReactFlow, useNodesState, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { MouseEvent, useCallback, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 const customNode: NodeTypes = {
@@ -47,7 +47,7 @@ export default function Playground() {
 	useEffect(() => {
 		if (projectData?.data.data.processes) {
 			setNodes(projectData.data.data.processes as Node<CabonerfNodeData>[]);
-			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method });
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method.id });
 		}
 	}, [projectData, setNodes, playgroundDispatch]);
 
@@ -81,7 +81,8 @@ export default function Playground() {
 		setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
 	}, [sheetDispatch, setViewport]);
 
-	const handleNodeDragStop = useCallback((event: any, node: Node<CabonerfNodeData>, nodes: Node<CabonerfNodeData>[]) => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>, _nodes: Node<CabonerfNodeData>[]) => {
 		const data: { id: string; x: number; y: number } = { id: node.id, x: node.position.x, y: node.position.y };
 
 		socket.emit('gateway:node-update-position', data);
@@ -106,10 +107,12 @@ export default function Playground() {
 					<Background variant={BackgroundVariant.Lines} size={1.5} bgColor="#fafafa" color="#f4f4f5" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
+					<Panel position="top-left">
+						<PlaygroundActionToolbar />
+					</Panel>
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
-					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

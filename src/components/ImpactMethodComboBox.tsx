@@ -42,7 +42,7 @@ function ImpactMethodComboBox({ data, onSelected, title, isLoading = true, selec
 					<PopoverTrigger asChild>
 						<Button variant="outline" role="combobox" aria-expanded={open} className="w-auto px-2 font-normal">
 							{value ? data.find((item) => item.value === value)?.label : title}
-							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+							<ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent className="p-0">

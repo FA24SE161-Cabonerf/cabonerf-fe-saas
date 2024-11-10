@@ -1,7 +1,23 @@
+import { EmissionSubstance } from '@/@types/emissionSubstance.type';
+
 type CreateElementaryExchange = {
 	processId: string;
 	emissionSubstanceId: string;
-	input: boolean;
+	input: string;
+};
+
+type UnitGroup = {
+	id: string;
+	name: string;
+	unitGroupType: string;
+};
+
+type Unit = {
+	id: string;
+	name: string;
+	conversionFactor: number;
+	unitGroup: UnitGroup;
+	isDefault: boolean;
 };
 
 export type Exchange = {
@@ -12,19 +28,9 @@ export type Exchange = {
 		id: string;
 		name: string;
 	};
-	substancesCompartments: string;
-	unit: {
-		id: string;
-		name: string;
-		conversionFactor: number;
-		unitGroup: {
-			id: string;
-			name: string;
-			unitGroupType: string;
-		};
-		isDefault: boolean;
-	};
+	emissionSubstance: EmissionSubstance;
+	unit: Unit;
 	input: boolean;
 };
 
-export type { CreateElementaryExchange };
+export type { CreateElementaryExchange, Unit, UnitGroup };

@@ -16,16 +16,20 @@ function SheetbarSide() {
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 
 	const elementaryExchangeInput = useMemo(() => {
-		return sheetState.process?.exchanges.filter(
-			(item) => item.input === false && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174001'
-		);
-	}, [sheetState.process?.exchanges]);
+		return sheetState.process
+			? sheetState.process.exchanges.filter(
+					(item) => item.input === true && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174001'
+				)
+			: [];
+	}, [sheetState.process]);
 
 	const elementaryExchangeOutput = useMemo(() => {
-		return sheetState.process?.exchanges.filter(
-			(item) => item.input === true && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174001'
-		);
-	}, [sheetState.process?.exchanges]);
+		return sheetState.process
+			? sheetState.process.exchanges.filter(
+					(item) => item.input === false && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174001'
+				)
+			: [];
+	}, [sheetState.process]);
 
 	const handleCloseSheetBar = () => {
 		sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
