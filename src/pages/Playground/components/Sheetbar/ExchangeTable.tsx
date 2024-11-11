@@ -1,10 +1,8 @@
-'use client';
-
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel } from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -12,11 +10,20 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+	const [pagination, setPagination] = useState({
+		pageIndex: 0, //initial page index
+		pageSize: 3, //default page size
+	});
+
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		onPaginationChange: setPagination,
+		state: {
+			pagination,
+		},
 	});
 
 	return (
@@ -28,7 +35,7 @@ export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<T
 							<TableRow className="" key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id} style={{ width: `${header.getSize()}%` }}>
+										<TableHead key={header.id} style={{ width: header.getSize() }}>
 											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 										</TableHead>
 									);
@@ -58,7 +65,7 @@ export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<T
 			</div>
 			<div className="flex items-center justify-end space-x-2 py-4">
 				<div className="flex-1 text-sm text-muted-foreground">
-					{table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
+					{pagination.pageIndex + 1} of {table.getPageCount()} page(s).
 				</div>
 				<div className="space-x-2">
 					<Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>

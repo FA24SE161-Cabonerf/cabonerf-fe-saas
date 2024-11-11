@@ -170,7 +170,7 @@ function SheetbarSearch() {
 	};
 
 	return (
-		<DialogContent className="border p-0 shadow-md [&>button]:hidden" style={{ borderRadius: 16 }}>
+		<DialogContent className="border-[1.5px] p-0 shadow-xl [&>button]:hidden" style={{ borderRadius: 16 }}>
 			<DialogTitle className="hidden"></DialogTitle>
 			<DialogDescription className="hidden"></DialogDescription>
 			<div className="h-full w-[512px]">
