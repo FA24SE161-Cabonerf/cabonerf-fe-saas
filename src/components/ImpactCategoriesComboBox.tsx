@@ -24,13 +24,10 @@ type Props = {
 	data: ComboBoxData[];
 	onSelected: (payload: ImpactCategory) => void;
 	isLoading?: boolean;
-	selectedId: ImpactCategory | ComboBoxData;
+	selectedId: ImpactCategory;
 };
 
 function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selectedId }: Props) {
-	const {
-		app: { impactCategory },
-	} = useContext(AppContext);
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
 
@@ -50,8 +47,8 @@ function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selected
 					<PopoverTrigger asChild>
 						<Button variant="outline" role="combobox" aria-expanded={open} className="w-[300px] justify-between font-normal">
 							<div className="flex items-center space-x-2">
-								<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(impactCategory?.iconUrl as string) }} />
-								<span>{impactCategory?.name}</span>
+								<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedId?.iconUrl as string) }} />
+								<span>{selectedId?.name}</span>
 							</div>
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 						</Button>

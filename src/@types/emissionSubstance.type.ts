@@ -27,7 +27,28 @@ interface EmissionSubstance {
 		name: string;
 		description: string;
 	};
+	unit: {
+		id: string;
+		name: string;
+	};
+}
+
+interface EmissionSubstanceSearch {
+	id: string;
+	substance: {
+		id: string;
+		name: string;
+		cas: string;
+		chemicalName: string;
+		molecularFormula: string;
+		alternativeFormula: string;
+	};
+	emissionCompartment: {
+		id: string;
+		name: string;
+		description: string;
+	};
 	factors: CharacterizationFactor[];
 }
 
-export type { CharacterizationFactor, EmissionSubstance };
+export type { CharacterizationFactor, EmissionSubstance, EmissionSubstanceSearch };

@@ -68,7 +68,7 @@ function ToolboxTrigger({ id, iconRenderProps }: Props) {
 				<Skeleton className="h-[44px] w-[44px] rounded-lg" />
 			) : (
 				<button
-					className={clsx(`flex items-center rounded-lg p-2.5 transition duration-100`, {
+					className={clsx(`items-cente flex rounded-sm p-2.5 transition duration-100`, {
 						'bg-[#16a34a]': id && app.selectedTriggerId === id,
 						'hover:bg-zinc-100': app.selectedTriggerId !== id,
 					})}

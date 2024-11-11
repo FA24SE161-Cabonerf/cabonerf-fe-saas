@@ -1,16 +1,22 @@
 import { PlaygroundDispatch } from '@/@types/dispatch.type';
-import { ImpactMethod } from '@/@types/impactMethod.type';
+import { ImpactCategory } from '@/@types/impactCategory.type';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 interface SetImpactMethod {
 	type: PlaygroundDispatch.SET_IMPACT_METHOD;
-	payload: ImpactMethod;
+	payload: string;
 }
 
-type Action = SetImpactMethod;
+interface SetImpactCategory {
+	type: PlaygroundDispatch.SET_IMPACT_CATEGORY;
+	payload: ImpactCategory;
+}
+
+type Action = SetImpactMethod | SetImpactCategory;
 
 interface State {
-	impactMethod: ImpactMethod | null;
+	impactMethod: string | undefined;
+	impactCategory: ImpactCategory | undefined;
 }
 
 interface PlaygroundContext {
@@ -20,7 +26,8 @@ interface PlaygroundContext {
 
 const initialContext: PlaygroundContext = {
 	playgroundState: {
-		impactMethod: null,
+		impactMethod: undefined,
+		impactCategory: undefined,
 	},
 	playgroundDispatch: () => {},
 };
@@ -29,7 +36,8 @@ const reducer = (state: State, action: Action) => {
 	switch (action.type) {
 		case PlaygroundDispatch.SET_IMPACT_METHOD:
 			return { ...state, impactMethod: action.payload };
-
+		case PlaygroundDispatch.SET_IMPACT_CATEGORY:
+			return { ...state, impactCategory: action.payload };
 		default:
 			return state;
 	}
@@ -44,6 +52,7 @@ type Props = {
 export const PlaygroundProvider = ({ children }: Props) => {
 	const [playgroundState, playgroundDispatch] = useReducer(reducer, {
 		impactMethod: initialContext.playgroundState.impactMethod,
+		impactCategory: initialContext.playgroundState.impactCategory,
 	});
 
 	const state = useMemo(() => {

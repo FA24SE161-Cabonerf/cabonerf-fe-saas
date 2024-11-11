@@ -51,7 +51,13 @@ class EMISSIONS {
 	public static EMISSIONS_COMPARTMENT = this.EMISSIONS + '/emission-compartments';
 }
 
+class UNIT {
+	public static UNIT = '/units';
+	public static UNIT_GROUP = '/unit-groups';
+}
+
 export {
+	UNIT,
 	EMISSIONS,
 	EXCHANGE_ENDPOINT,
 	EMISSION_SUBSTANCES_ENDPOINT,

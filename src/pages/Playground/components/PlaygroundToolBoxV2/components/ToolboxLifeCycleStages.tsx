@@ -9,9 +9,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 function ToolboxLifeCycleStages() {
+	const data = useParams();
+
 	const { addNodes } = useReactFlow();
 	const { dispatch } = useContext(ToolboxContext);
 
@@ -46,7 +49,7 @@ function ToolboxLifeCycleStages() {
 
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
-			projectId: '882034f1-642a-44a7-b831-7b95995926ea',
+			projectId: data.pid as string,
 			color: '#a3a3a3',
 			lifeCycleStageId: payload.lifeCycleStageId,
 			position: {

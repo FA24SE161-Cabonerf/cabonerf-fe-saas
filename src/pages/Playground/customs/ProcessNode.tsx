@@ -4,19 +4,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { AppContext } from '@/contexts/app.context';
 import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
+import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { updateSVGAttributes } from '@/utils/utils';
+import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
-import { ThermometerSnowflake } from 'lucide-react';
 import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
+	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
@@ -100,38 +101,54 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					{/* CTA */}
 				</div>
 				<div className="mt-3 break-words text-xl font-medium">{data.data.name}</div>
-				<div className="mt-2">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
-								<ThermometerSnowflake size={15} />
-								<div>kg S02-eq</div>
-							</button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">
-							<div className="grid grid-cols-12 px-2 py-1">
-								<div className="col-span-8 mx-auto text-sm font-medium">Impact Category</div>
-								<div className="col-span-2 text-sm font-medium">Unit Level</div>
-								<div className="col-span-2 text-sm font-medium">System Level</div>
-							</div>
-							{/* {processImpacts.map((item, index) => (
-								<div key={index} className="grid grid-cols-12 space-y-1">
-									<div className="col-span-8 flex items-center space-x-3">
-										<ThermometerSnowflakeIcon size={20} />
-										<div className="flex flex-col">
-											<span className="text-sm font-medium">{item.impactCategory.name}</span>
-											<span className="text-xs text-gray-500">
-												{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
-											</span>
-										</div>
-									</div>
-									<div className="col-span-2 text-sm">123</div>
-									<div className="col-span-2 text-sm">123</div>
+				{data.data.impacts.length > 0 && (
+					<div className="mt-2">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
+									<div
+										dangerouslySetInnerHTML={{
+											__html: DOMPurify.sanitize(
+												updateSVGAttributes({
+													svgString: data.data.impacts.find(
+														(item) => item.impactCategory.id === playgroundState.impactCategory?.id
+													)?.impactCategory.iconUrl as string,
+												})
+											),
+										}}
+									/>
+									<div>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</div>
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">
+								<div className="grid grid-cols-12 px-2 py-1">
+									<div className="col-span-8 mx-auto text-sm font-semibold">Impact Category</div>
+									<div className="col-span-2 text-sm font-semibold">Unit Level</div>
+									<div className="col-span-2 text-sm font-semibold">System Level</div>
 								</div>
-							))} */}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+								{data.data.impacts.map((item, index) => (
+									<div key={index} className="grid grid-cols-12 space-y-1">
+										<div className="col-span-8 flex items-center space-x-3">
+											<div
+												dangerouslySetInnerHTML={{
+													__html: DOMPurify.sanitize(updateSVGAttributes({ svgString: item.impactCategory.iconUrl })),
+												}}
+											/>
+											<div className="flex flex-col">
+												<span className="text-sm font-medium">{item.impactCategory.name}</span>
+												<span className="text-xs text-gray-500">
+													{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
+												</span>
+											</div>
+										</div>
+										<div className="col-span-2 text-sm">{formatWithExponential(item.unitLevel)}</div>
+										<div className="col-span-2 text-sm">{item.systemLevel}</div>
+									</div>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				)}
 			</div>
 			{/* Handle */}
 			<Handle type="source" position={data.sourcePosition as Position}></Handle>

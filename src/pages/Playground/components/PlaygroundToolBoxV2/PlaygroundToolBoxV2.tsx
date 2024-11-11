@@ -8,7 +8,7 @@ import React from 'react';
 function PlaygroundToolBoxV2() {
 	return (
 		<Toolbox>
-			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-2xl border border-gray-200 bg-white p-2 shadow">
+			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-[12.5px] border-[0.5px] border-gray-200 bg-white p-2 shadow">
 				<div className="flex flex-col space-y-2">
 					<ToolboxTrigger iconRenderProps={(isActive) => <SquarePlus color={isActive ? 'white' : 'black'} />} />
 					<ToolboxTrigger id="2" iconRenderProps={(isActive) => <Blocks color={isActive ? 'white' : 'black'} />} />

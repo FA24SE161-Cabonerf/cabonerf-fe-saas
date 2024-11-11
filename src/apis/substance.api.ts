@@ -1,5 +1,5 @@
 import { CommonResponse } from '@/@types/common.type';
-import { EmissionSubstance } from '@/@types/emissionSubstance.type';
+import { EmissionSubstanceSearch } from '@/@types/emissionSubstance.type';
 import { EMISSION_SUBSTANCES_ENDPOINT } from '@/constants/api.endpoint';
 import httpService from '@/services/http';
 
@@ -15,14 +15,12 @@ interface QueryParams {
 
 export class EmissionSubstancesApis {
 	public async getEmissionSubstances(_queryParams: QueryParams) {
-		console.log(_queryParams);
-
 		const response = await httpService.get<
 			CommonResponse<{
 				pageCurrent: number;
 				pageSize: number;
 				totalPage: number;
-				list: EmissionSubstance[];
+				list: EmissionSubstanceSearch[];
 			}>
 		>(EMISSION_SUBSTANCES_ENDPOINT.EMISSION_SUBSTANCES, {
 			params: _queryParams,
