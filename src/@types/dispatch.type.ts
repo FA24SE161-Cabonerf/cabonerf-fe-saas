@@ -33,6 +33,7 @@ export enum SheetBarDispatch {
 	SET_NODE = 'SET_NODE',
 	REMOVE_NODE = 'REMOVE_NODE',
 	MODIFY_QUERY_PARAMS = 'MODIFY_QUERY_PARAMS',
+	SET_EXCHANGE = 'SET_EXCHANGE',
 }
 
 export enum PlaygroundDispatch {

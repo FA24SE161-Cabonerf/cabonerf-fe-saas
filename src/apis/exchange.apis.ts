@@ -19,4 +19,11 @@ export class ExchangeApis {
 	public async getUnitsByUnitGroupId(payload: { id: string }) {
 		return httpService.get<CommonResponse<Unit[]>>(`${UNIT.UNIT_GROUP}/${payload.id}${UNIT.UNIT}`);
 	}
+
+	public async updateElementaryExchange(id: string, payload: { processId: string; unitId: string; value: number }) {
+		return httpService.patch<CommonResponse<CabonerfNodeData>>(
+			`${EXCHANGE_ENDPOINT.EXCHANGE}${EXCHANGE_ENDPOINT.ELEMENTARY_EXCHANGE}/${id}`,
+			payload
+		);
+	}
 }

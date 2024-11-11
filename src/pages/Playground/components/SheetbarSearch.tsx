@@ -1,4 +1,5 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
+import { CommonResponse } from '@/@types/common.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import EmissionCompartmentApis from '@/apis/emisisonCompartment.apis';
@@ -23,20 +24,22 @@ import { Separator } from '@/components/ui/separator';
 import { useDebounce } from '@/hooks/useDebounce';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
+import { isUnprocessableEntity } from '@/utils/error';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { useReactFlow } from '@xyflow/react';
+import { Node, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import { isUndefined, omitBy } from 'lodash';
 import { Copy, ListFilter, Search, X } from 'lucide-react';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { toast } from 'sonner';
 const LIMIT_SIZE_PAGE = 7;
 
 function SheetbarSearch() {
-	const { setNodes } = useReactFlow();
+	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const [searchText, setSearchText] = useState<string>('');
@@ -105,13 +108,27 @@ function SheetbarSearch() {
 						};
 						sheetDispatch({
 							type: SheetBarDispatch.SET_NODE,
-							payload: _newProcess.data as CabonerfNodeData & { id: string },
+							payload: {
+								id: _newProcess.id,
+								name: _newProcess.data.name,
+								description: _newProcess.data.description,
+								projectId: _newProcess.data.projectId,
+								color: _newProcess.data.color,
+								overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
+								impacts: _newProcess.data.impacts,
+								exchanges: _newProcess.data.exchanges,
+								lifeCycleStage: _newProcess.data.lifeCycleStage,
+							},
 						});
 						return _newProcess;
 					}
 					return node;
 				});
 			});
+		},
+		onError(err) {
+			toast.error(err.message);
+			console.log(err.message);
 		},
 	});
 
@@ -133,9 +150,8 @@ function SheetbarSearch() {
 	}, [isFetching, fetchNextPage]);
 
 	const handleAddNewExchange = ({ substanceId }: { substanceId: string }) => {
-		console.log(sheetState.process);
 		const processId = sheetState.process?.id as string;
-		console.log(sheetState.process?.id);
+		console.log(sheetState);
 		addNewExchangeMutate.mutate(
 			{
 				processId: processId,
@@ -143,8 +159,11 @@ function SheetbarSearch() {
 				input: sheetState.queryParams.input as string,
 			},
 			{
-				onError: (err) => {
-					console.log(err.message);
+				onError: (error) => {
+					if (isUnprocessableEntity<CommonResponse<string>>(error)) {
+						const formError = error.response?.data.data;
+						toast(formError);
+					}
 				},
 			}
 		);

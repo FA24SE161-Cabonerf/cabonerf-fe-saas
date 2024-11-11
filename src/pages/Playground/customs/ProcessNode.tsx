@@ -6,7 +6,7 @@ import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { updateSVGAttributes } from '@/utils/utils';
+import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position } from '@xyflow/react';
 import clsx from 'clsx';
@@ -141,7 +141,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 												</span>
 											</div>
 										</div>
-										<div className="col-span-2 text-sm">{item.unitLevel}</div>
+										<div className="col-span-2 text-sm">{formatWithExponential(item.unitLevel)}</div>
 										<div className="col-span-2 text-sm">{item.systemLevel}</div>
 									</div>
 								))}

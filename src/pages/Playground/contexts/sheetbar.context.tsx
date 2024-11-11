@@ -1,20 +1,29 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
+import { Unit } from '@/@types/exchange.type';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 interface QueryParams {
-	pageSize?: number | undefined;
-	pageCurrent?: number | undefined;
-	methodId?: string | undefined;
-	input?: string | undefined;
-	keyword?: string | undefined;
-	impactCategoryId?: string | undefined;
-	emissionCompartmentId?: string | undefined;
+	pageSize?: number;
+	pageCurrent?: number;
+	methodId?: string;
+	input?: string;
+	keyword?: string;
+	impactCategoryId?: string;
+	emissionCompartmentId?: string;
 }
 
 type State = {
-	process: (CabonerfNodeData & { id: string }) | null;
+	process: (CabonerfNodeData & { id: string }) | undefined;
 	queryParams: QueryParams;
+	exchanges: {
+		id: string;
+		unit?: Unit;
+		initUnit?: Unit;
+		value?: number;
+		initialValue?: number;
+		isUpdate?: boolean;
+	}[];
 };
 
 type SetNode = {
@@ -31,24 +40,70 @@ type ModifyQueryParams = {
 	payload: QueryParams;
 };
 
-type Action = SetNode | RemoveNode | ModifyQueryParams;
+type SetExchange = {
+	type: SheetBarDispatch.SET_EXCHANGE;
+	payload: {
+		id: string;
+		unit?: Unit;
+		initUnit?: Unit;
+		value?: number;
+		initialValue?: number;
+		isUpdate?: boolean;
+	};
+};
+
+type Action = SetNode | RemoveNode | ModifyQueryParams | SetExchange;
 
 type SheetbarContext = {
 	sheetState: State;
 	sheetDispatch: Dispatch<Action>;
 };
 
-const reducer = (state: State, action: Action) => {
+const reducer = (state: State, action: Action): State => {
 	switch (action.type) {
 		case SheetBarDispatch.SET_NODE:
 			return { ...state, process: action.payload };
 
 		case SheetBarDispatch.REMOVE_NODE:
-			return { ...state, process: null };
+			return { ...state, process: undefined };
 
 		case SheetBarDispatch.MODIFY_QUERY_PARAMS:
 			return { ...state, queryParams: { ...state.queryParams, ...action.payload } };
 
+		case SheetBarDispatch.SET_EXCHANGE: {
+			const existedExchange = state.exchanges.find((item) => item.id === action.payload.id);
+
+			if (existedExchange) {
+				const initUnit = existedExchange.initUnit?.id;
+				const changingUnit = action.payload.unit?.id || existedExchange.unit?.id;
+
+				const initValue = action.payload.initialValue ?? existedExchange.initialValue;
+				const changeValue = action.payload.value !== undefined ? action.payload.value : existedExchange.value;
+
+				// Check if there is an actual change in unit or value
+				const isUpdateByUnitChange = initUnit !== changingUnit;
+				const isUpdateByValue = initValue !== changeValue;
+
+				// Only apply updates if there is a detected change
+				const updatedExchange = {
+					...existedExchange,
+					...action.payload,
+					isUpdate: isUpdateByUnitChange || isUpdateByValue,
+					value: changeValue, // Ensure `value` is updated to `changeValue`
+				};
+
+				return {
+					...state,
+					exchanges: state.exchanges.map((item) => (item.id === action.payload.id ? updatedExchange : item)),
+				};
+			}
+
+			// Add new `action.payload` if `existedExchange` not found
+			return {
+				...state,
+				exchanges: [...state.exchanges, action.payload],
+			};
+		}
 		default:
 			return state;
 	}
@@ -56,7 +111,7 @@ const reducer = (state: State, action: Action) => {
 
 const initialContext: SheetbarContext = {
 	sheetState: {
-		process: null,
+		process: undefined,
 		queryParams: {
 			input: undefined,
 			methodId: undefined,
@@ -66,6 +121,7 @@ const initialContext: SheetbarContext = {
 			pageCurrent: undefined,
 			pageSize: undefined,
 		},
+		exchanges: [],
 	},
 	sheetDispatch: () => {},
 };
@@ -77,14 +133,9 @@ type Props = {
 };
 
 export default function Sheetbar({ children }: Props) {
-	const [sheetState, sheetDispatch] = useReducer(reducer, {
-		process: initialContext.sheetState.process,
-		queryParams: initialContext.sheetState.queryParams,
-	});
+	const [sheetState, sheetDispatch] = useReducer(reducer, initialContext.sheetState);
 
-	const data = useMemo(() => {
-		return { sheetDispatch, sheetState };
-	}, [sheetState, sheetDispatch]);
+	const data = useMemo(() => ({ sheetDispatch, sheetState }), [sheetState, sheetDispatch]);
 
 	return <SheetbarContext.Provider value={data}>{children}</SheetbarContext.Provider>;
 }
