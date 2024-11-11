@@ -57,11 +57,11 @@ function SheetbarSide() {
 									Output line
 								</TabsTrigger>
 							</TabsList>
-							<TabsContent value="account">
+							<TabsContent value="account" className="mt-4">
 								<div className="space-y-4">
 									<div className="w-full">
 										<div className="flex items-center justify-between">
-											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-xs">
+											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-sm">
 												<Leaf size={20} fill="#166534" color="white" />
 												<span className="text-[#166534]">Elementary Exchange Flow (Input)</span>
 											</div>
@@ -74,10 +74,14 @@ function SheetbarSide() {
 														},
 													})
 												}
-												className="flex h-fit items-center space-x-1 rounded-sm px-2 py-1 hover:bg-gray-100"
+												asChild
+												className="flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5 text-white"
+												aria-label="Add a new exchange entry"
 											>
-												<span className="text-sm">Add new exchange</span>
-												<Plus size={14} />
+												<Button>
+													<span className="text-xs">Add New Exchange</span>
+													<Plus size={14} />
+												</Button>
 											</DialogTrigger>
 										</div>
 										<div className="mt-1 w-full">
@@ -87,9 +91,9 @@ function SheetbarSide() {
 
 									<div className="w-full">
 										<div className="flex items-center justify-between">
-											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-xs">
+											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-sm">
 												<Cog size={20} fill="white" color="#9333ea" />
-												<span className="text-[#9333ea]">Elementary Product Flow (Input)</span>
+												<span className="text-[#9333ea]">Product Flow (Input)</span>
 											</div>
 											<Button variant="ghost" className="flex h-fit items-center space-x-1 rounded px-2 py-1">
 												<span className="text-sm">Add new product</span>
@@ -100,11 +104,11 @@ function SheetbarSide() {
 									</div>
 								</div>
 							</TabsContent>
-							<TabsContent value="password">
+							<TabsContent value="password" className="mt-4">
 								<div className="h-full space-y-4">
 									<div className="w-full">
 										<div className="flex items-center justify-between">
-											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-xs">
+											<div className="flex w-fit items-center space-x-1 rounded-sm px-2 py-1 text-sm">
 												<Flame size={20} fill="#166534" color="#166534" />
 												<span className="text-[#166534]">Elementary Exchange Flow (Output)</span>
 											</div>
@@ -117,16 +121,20 @@ function SheetbarSide() {
 														},
 													})
 												}
-												className="flex h-fit items-center space-x-1 rounded-sm px-2 py-1 hover:bg-gray-100"
+												asChild
+												className="flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5 text-white"
+												aria-label="Add a new exchange entry"
 											>
-												<span className="text-sm">Add new exchange</span>
-												<Plus size={14} />
+												<Button>
+													<span className="text-xs">Add New Exchange</span>
+													<Plus size={14} />
+												</Button>
 											</DialogTrigger>
 										</div>
 										<div className="mt-1 w-full">
 											<ExchangeTable columns={columns} data={elementaryExchangeOutput ?? []} />
 										</div>
-										<div className="mt-1 w-full">{/* <ExchangeTable columns={columns} data={datas} /> */}</div>
+										<div className="mt-1 w-full"></div>
 									</div>
 
 									<div className="h-auto w-full">

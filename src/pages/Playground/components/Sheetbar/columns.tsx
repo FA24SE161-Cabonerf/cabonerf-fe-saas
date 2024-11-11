@@ -18,7 +18,7 @@ export const columns: ColumnDef<Exchange>[] = [
 	{
 		accessorKey: 'name',
 		header: 'Name',
-		size: 50,
+		size: 250,
 		cell: ({ row }) => {
 			const { sheetDispatch } = useContext(SheetbarContext);
 			const value = row.getValue<string>('name');
@@ -37,9 +37,9 @@ export const columns: ColumnDef<Exchange>[] = [
 			}, [sheetDispatch, row.original]);
 
 			return (
-				<div className="flex flex-col">
-					<div>{value}</div>
-					<div className="text-xs text-gray-400">{row.original.emissionSubstance.emissionCompartment.name}</div>
+				<div className="flex w-[250px] min-w-[250px] flex-col space-y-1 rounded-md">
+					<div className="text-base font-medium text-gray-800">{value}</div>
+					<div className="text-xs text-gray-500">{row.original.emissionSubstance.emissionCompartment.name}</div>
 				</div>
 			);
 		},
@@ -47,7 +47,7 @@ export const columns: ColumnDef<Exchange>[] = [
 	{
 		accessorKey: 'value',
 		header: 'Value',
-		size: 20,
+		size: 100,
 		cell: ({ row }) => {
 			const initialValue = row.getValue<number>('value');
 			const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -72,14 +72,16 @@ export const columns: ColumnDef<Exchange>[] = [
 				const { value } = event.target;
 				const newValue = value === '' ? '0' : value; // Mặc định là "0" khi rỗng
 
-				if (/^\d+(\.\d+)?$/.test(newValue) || newValue === '0') {
-					setValueExchange(newValue);
+				const sanitizedValue = newValue.replace(/^0+(?=\d)/, '');
+
+				if (/^\d+(\.\d+)?$/.test(sanitizedValue) || sanitizedValue === '0') {
+					setValueExchange(sanitizedValue);
 					sheetDispatch({
 						type: SheetBarDispatch.SET_EXCHANGE,
 						payload: {
 							id: row.original.id,
 							initialValue: initialValue,
-							value: Number(newValue),
+							value: Number(sanitizedValue),
 						},
 					});
 				}
@@ -94,13 +96,14 @@ export const columns: ColumnDef<Exchange>[] = [
 			};
 
 			return (
-				<div className="w-fit">
+				<div className="w-[100px] min-w-[100px]">
 					<input
 						type="number"
 						value={valueExchange}
 						onBlur={sanitizerInputValue}
 						onChange={handleChangeValueExchange}
-						className="no-arrows w-full rounded border-[1.5px] p-0.5"
+						className="no-arrows w-full rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-700 placeholder-gray-400 shadow-sm transition duration-150 ease-in-out focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+						placeholder="Enter value"
 					/>
 				</div>
 			);
@@ -108,8 +111,8 @@ export const columns: ColumnDef<Exchange>[] = [
 	},
 	{
 		accessorKey: 'unit',
-		header: 'Unit',
-		size: 20,
+		header: () => <div className="text-center">Unit</div>,
+		size: 100,
 
 		cell: ({ row }) => {
 			const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -148,31 +151,34 @@ export const columns: ColumnDef<Exchange>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="px-3 py-1 text-sm">
+						<Button
+							variant="ghost"
+							className="w-[100px] min-w-[100px] px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100"
+							aria-label="Select unit"
+						>
 							{exchange?.unit?.name}
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-[270px] p-0">
+					<DropdownMenuContent className="w-[270px] rounded-md border border-gray-200 p-0 shadow-lg">
 						<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
-							<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold">
+							<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
 								<div className="col-span-4">Unit</div>
 								<div className="col-span-5">Value</div>
-								<div className="col-span-3">Default</div>
+								<div className="col-span-3 text-right">Default</div>
 							</div>
-							<div className="z-10 p-2">
-								{unit?.data.data.map((item, index) => {
-									return (
-										<DropdownMenuItem
-											onClick={() => handleChangeUnit({ unit: item })}
-											key={index}
-											className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 transition-all duration-150 hover:bg-gray-50"
-										>
-											<div className="col-span-4 text-sm font-semibold text-gray-700">{item.name}</div>
-											<div className="col-span-5 text-sm text-gray-600">= {item.conversionFactor}</div>
-											<div className="col-span-3 text-right text-sm text-gray-500">{row.original.unit.name}</div>
-										</DropdownMenuItem>
-									);
-								})}
+							<div className="p-2">
+								{unit?.data.data.map((item, index) => (
+									<DropdownMenuItem
+										onClick={() => handleChangeUnit({ unit: item })}
+										key={index}
+										className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
+										aria-label={`Select unit ${item.name}`}
+									>
+										<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
+										<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
+										<div className="col-span-3 text-right text-gray-500">{row.original.unit.name}</div>
+									</DropdownMenuItem>
+								))}
 							</div>
 						</div>
 					</DropdownMenuContent>
@@ -182,7 +188,7 @@ export const columns: ColumnDef<Exchange>[] = [
 	},
 	{
 		id: 'actions',
-		size: 10,
+		size: 50,
 		cell: ({ row }) => {
 			const id = row.original.id;
 			const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -285,32 +291,32 @@ export const columns: ColumnDef<Exchange>[] = [
 			};
 
 			return (
-				<div className="flex justify-between space-x-2">
-					<div className="min-w-[24px]">
-						{exchange?.isUpdate && (
-							<button
-								onClick={() => handleUpdateExchange()}
-								className="flex items-center space-x-1 rounded bg-red-50 p-1"
-								disabled={deleteExchangeMutations.isPending}
-							>
-								{updateExchangeMutation.isPending ? (
-									<ReloadIcon className="h-4 w-4 animate-spin p-0.5" color="green" />
-								) : (
-									<Check size={17} color="green" />
-								)}
-							</button>
-						)}
-					</div>
+				<div className="flex w-[50px] max-w-[50px] justify-end space-x-1">
+					{exchange?.isUpdate && (
+						<button
+							onClick={() => handleUpdateExchange()}
+							className="flex items-center justify-center rounded-sm bg-green-100 p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={updateExchangeMutation.isPending}
+							aria-label="Update Exchange"
+						>
+							{updateExchangeMutation.isPending ? (
+								<ReloadIcon className="h-4 w-4 animate-spin text-green-600" />
+							) : (
+								<Check className="h-4 w-4 text-green-600" />
+							)}
+						</button>
+					)}
 
 					<button
-						className="flex items-center space-x-1 rounded bg-red-50 p-1"
-						disabled={deleteExchangeMutations.isPending}
 						onClick={handleDeleteExchange}
+						className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+						disabled={deleteExchangeMutations.isPending}
+						aria-label="Delete Exchange"
 					>
 						{deleteExchangeMutations.isPending ? (
-							<ReloadIcon className="h-4 w-4 animate-spin p-0.5" color="red" />
+							<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
 						) : (
-							<Trash2 size={17} color="red" />
+							<Trash2 className="h-4 w-4 text-red-600" />
 						)}
 					</button>
 				</div>
