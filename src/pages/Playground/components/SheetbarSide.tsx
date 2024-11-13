@@ -13,11 +13,12 @@ import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { useMutation } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
-import { Cog, Package, Plus, X } from 'lucide-react';
+import { Package, Plus, X } from 'lucide-react';
 import React, { useContext, useMemo } from 'react';
 import { toast } from 'sonner';
 
 function SheetbarSide() {
+	console.log('SheetbarSide');
 	const { setViewport, setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -67,31 +68,35 @@ function SheetbarSide() {
 
 		addNewProductExchangeMutate.mutate(newProductExchange, {
 			onSuccess: (data) => {
-				const newProcess = data.data.data;
+				const newExchanges = data.data.data;
 
 				setNodes((nodes) => {
 					return nodes.map((node) => {
-						if (node.id === newProcess.id) {
-							const _newProcess = {
+						if (node.id === sheetState.process?.id) {
+							const newProcess: Node<CabonerfNodeData> = {
 								...node,
-								data: { ...node.data, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+								data: {
+									...node.data,
+									exchanges: newExchanges,
+								},
 							};
 
 							sheetDispatch({
 								type: SheetBarDispatch.SET_NODE,
 								payload: {
-									id: _newProcess.id,
-									color: _newProcess.data.color,
-									description: _newProcess.data.description,
-									exchanges: _newProcess.data.exchanges,
-									impacts: _newProcess.data.impacts,
-									lifeCycleStage: _newProcess.data.lifeCycleStage,
-									name: _newProcess.data.name,
-									overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-									projectId: _newProcess.data.projectId,
+									id: sheetState.process.id,
+									name: sheetState.process.name,
+									description: sheetState.process.description,
+									projectId: sheetState.process.projectId,
+									color: sheetState.process.color,
+									overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
+									impacts: sheetState.process.impacts,
+									exchanges: newExchanges,
+									lifeCycleStage: sheetState.process.lifeCycleStage,
 								},
 							});
-							return _newProcess;
+
+							return newProcess;
 						}
 						return node;
 					});
@@ -156,7 +161,7 @@ function SheetbarSide() {
 										</div>
 
 										<ScrollableList
-											className="mt-4 h-[400px] space-y-3 overflow-scroll rounded-lg p-2"
+											className="mt-4 h-[400px] space-y-3 overflow-scroll border-b p-2"
 											data={elementaryExchangeInput}
 										>
 											{elementaryExchangeInput.length > 0 ? (
@@ -184,7 +189,7 @@ function SheetbarSide() {
 												<Package size={14} />
 											</Button>
 										</div>
-										<ScrollableList className="mt-4 h-fit space-y-3 overflow-scroll rounded-lg p-2" data={productExchangeInput}>
+										<ScrollableList className="mt-4 h-[300px] space-y-3 overflow-scroll border-b p-2" data={productExchangeInput}>
 											{productExchangeInput.length > 0 ? (
 												productExchangeInput.map((item) => <ProductItem data={item} key={item.id} />)
 											) : (
@@ -226,7 +231,7 @@ function SheetbarSide() {
 											data={elementaryExchangeOutput}
 										>
 											{elementaryExchangeOutput.length > 0 ? (
-												elementaryExchangeOutput.map((item) => <ExchangeItem isInput data={item} key={item.id} />)
+												elementaryExchangeOutput.map((item) => <ExchangeItem isInput={false} data={item} key={item.id} />)
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
 											)}

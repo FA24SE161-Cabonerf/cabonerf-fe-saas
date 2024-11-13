@@ -3,6 +3,7 @@ import { ContextDispatch } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
 import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
+import HandleProductItem from '@/pages/Playground/components/HandleProductItem';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
@@ -11,7 +12,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
 export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
@@ -73,18 +74,26 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		});
 	};
 
-	const isTarget = connection.inProgress;
+	const isTarget = connection.inProgress && connection.fromNode.id !== data.id;
+
+	const productExchangeInput = useMemo(() => {
+		return data.data.exchanges.filter((item) => item.input === true && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000');
+	}, [data.data.exchanges]);
+
+	const productExchangeOutput = useMemo(() => {
+		return data.data.exchanges.find((item) => item.input === false && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000');
+	}, [data.data.exchanges]);
 
 	return (
 		<div
 			onContextMenu={handleTriggerContextMenu}
 			ref={triggerRef}
-			className={clsx(`relative w-[340px] rounded-3xl border-[1px] border-gray-200 bg-white shadow-node transition-transform`, {
+			className={clsx(`relative w-[370px] rounded-3xl border-[1px] border-gray-200 bg-white shadow-node transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
 			})}
 		>
-			{/* <Handle
+			<Handle
 				position={Position.Left}
 				type="target"
 				id="target1"
@@ -92,7 +101,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					invisible: !isTarget,
 					'visible opacity-0': isTarget,
 				})}
-			/> */}
+			/>
 
 			<div className="p-4">
 				<div className="flex items-center justify-between space-x-2">
@@ -179,6 +188,22 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					</div>
 				</>
 			)}
+
+			<div className="flex items-start gap-1">
+				{productExchangeInput.length > 0 && (
+					<div className="mb-5 space-y-1">
+						{productExchangeInput.map((item) => (
+							<HandleProductItem data={item} key={item.id} />
+						))}
+					</div>
+				)}
+
+				{productExchangeOutput && (
+					<div className="mb-5 ml-auto">
+						<HandleProductItem isReverse data={productExchangeOutput} />
+					</div>
+				)}
+			</div>
 
 			{/* Context Menu */}
 			{app.contextMenuSelector?.process.id === data.id &&

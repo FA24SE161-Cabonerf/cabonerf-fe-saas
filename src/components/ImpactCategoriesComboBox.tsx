@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AppContext } from '@/contexts/app.context';
 import { cn } from '@/lib/utils';
 import DOMPurify from 'dompurify';
 import _ from 'lodash';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 type ComboBoxData = {
 	id: string;
 	value: string;

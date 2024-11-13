@@ -70,8 +70,12 @@
 		@apply bg-background text-foreground;
 	}
 
-	.exchange-substance {
-		@apply before:absolute before:left-0 before:top-1/2 before:h-[30px] before:w-[4px] before:-translate-y-1/2 before:rounded-br-full before:rounded-tr-full before:content-[''];
+	.before-exchange-substance {
+		@apply before:absolute before:left-0 before:top-1/2 before:h-[60%] before:w-[5px] before:-translate-y-1/2 before:rounded-br before:rounded-tr before:content-[''];
+	}
+
+	.after-exchange-substance {
+		@apply after:absolute after:right-0 after:top-1/2 after:h-[60%] after:w-[5px] after:-translate-y-1/2 after:rounded-bl after:rounded-tl after:content-[''];
 	}
 
 	input[type='number']::-webkit-inner-spin-button,

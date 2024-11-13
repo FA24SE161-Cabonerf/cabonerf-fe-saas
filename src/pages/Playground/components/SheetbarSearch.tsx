@@ -97,30 +97,35 @@ function SheetbarSearch() {
 	const addNewExchangeMutate = useMutation({
 		mutationFn: ExchangeApis.prototype.createElementaryExchange,
 		onSuccess: (data) => {
-			const newProcess = data.data.data;
+			const newExchanges = data.data.data;
 
 			setNodes((nodes) => {
 				return nodes.map((node) => {
-					if (node.id === newProcess.id) {
-						const _newProcess = {
+					if (node.id === sheetState.process?.id) {
+						const newProcess: Node<CabonerfNodeData> = {
 							...node,
-							data: { ...node.data, id: newProcess.id, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+							data: {
+								...node.data,
+								exchanges: newExchanges,
+							},
 						};
+
 						sheetDispatch({
 							type: SheetBarDispatch.SET_NODE,
 							payload: {
-								id: _newProcess.id,
-								name: _newProcess.data.name,
-								description: _newProcess.data.description,
-								projectId: _newProcess.data.projectId,
-								color: _newProcess.data.color,
-								overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-								impacts: _newProcess.data.impacts,
-								exchanges: _newProcess.data.exchanges,
-								lifeCycleStage: _newProcess.data.lifeCycleStage,
+								id: sheetState.process.id,
+								name: sheetState.process.name,
+								description: sheetState.process.description,
+								projectId: sheetState.process.projectId,
+								color: sheetState.process.color,
+								overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
+								impacts: sheetState.process.impacts,
+								exchanges: newExchanges,
+								lifeCycleStage: sheetState.process.lifeCycleStage,
 							},
 						});
-						return _newProcess;
+
+						return newProcess;
 					}
 					return node;
 				});
