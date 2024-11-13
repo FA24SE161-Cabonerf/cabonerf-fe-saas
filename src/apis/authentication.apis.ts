@@ -1,7 +1,7 @@
 import { AuthenicationResponse } from '@/@types/authentication.type';
 import { CommonResponse } from '@/@types/common.type';
 import { AUTH_ENDPOINT } from '@/constants/api.endpoint';
-import httpService from '@/services/http';
+import httpService from '@/services/http.tsx';
 
 export const authenticationApis = {
 	login: (payload: { email: string; password: string }) => {

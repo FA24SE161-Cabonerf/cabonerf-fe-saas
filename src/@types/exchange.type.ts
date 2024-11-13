@@ -6,6 +6,12 @@ type CreateElementaryExchange = {
 	input: string;
 };
 
+type CreateProductExchange = {
+	processId: string;
+	name: string;
+	input: string;
+};
+
 type UnitGroup = {
 	id: string;
 	name: string;
@@ -33,4 +39,4 @@ export type Exchange = {
 	input: boolean;
 };
 
-export type { CreateElementaryExchange, Unit, UnitGroup };
+export type { CreateElementaryExchange, Unit, UnitGroup, CreateProductExchange };

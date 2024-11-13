@@ -12,7 +12,7 @@ interface DataTableProps<TData, TValue> {
 export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
 	const [pagination, setPagination] = useState({
 		pageIndex: 0, //initial page index
-		pageSize: 3, //default page size
+		pageSize: 5, //default page size
 	});
 
 	const table = useReactTable({
@@ -28,14 +28,14 @@ export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<T
 
 	return (
 		<React.Fragment>
-			<div className="rounded-md border-[1.5px]">
-				<Table>
-					<TableHeader className="">
+			<div className="border-gray-200">
+				<Table className="rounded-lg bg-[#f5f5f5]">
+					<TableHeader className="rounded-t-lg">
 						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow className="" key={headerGroup.id}>
+							<TableRow className="border-none" key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id} style={{ width: header.getSize() }}>
+										<TableHead key={header.id} style={{ width: header.getSize() }} className="p-2">
 											{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 										</TableHead>
 									);
@@ -44,23 +44,25 @@ export function ExchangeTable<TData, TValue>({ columns, data }: DataTableProps<T
 						))}
 					</TableHeader>
 
-					<TableBody>
+					<tbody>
 						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+							table.getRowModel().rows.map((row, index) => (
+								<tr key={row.id} className={`border bg-white ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+										<td className="mt-2 p-2" key={cell.id}>
+											{flexRender(cell.column.columnDef.cell, cell.getContext())}
+										</td>
 									))}
-								</TableRow>
+								</tr>
 							))
 						) : (
-							<TableRow>
-								<TableCell colSpan={columns.length} className="h-24 text-center">
+							<tr>
+								<td colSpan={columns.length} className="h-24 text-center">
 									No elementary.
-								</TableCell>
-							</TableRow>
+								</td>
+							</tr>
 						)}
-					</TableBody>
+					</tbody>
 				</Table>
 			</div>
 			<div className="flex items-center justify-end space-x-2 py-4">

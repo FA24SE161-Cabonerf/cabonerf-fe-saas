@@ -69,6 +69,11 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+
+	.exchange-substance {
+		@apply before:absolute before:left-0 before:top-1/2 before:h-[30px] before:w-[4px] before:-translate-y-1/2 before:rounded-br-full before:rounded-tr-full before:content-[''];
+	}
+
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		-webkit-appearance: none;

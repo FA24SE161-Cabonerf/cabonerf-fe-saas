@@ -83,14 +83,14 @@ export default function FilterProject() {
 				isLoading={impact_methods_loading}
 				title="Select impact method"
 				onSelected={updateSelectedImpactMethod}
-				data={_impactMethods}
+				data={_impactMethods ?? []}
 			/>
 
 			<ImpactCategoriesComboBox
 				selectedId={impactCategory as ImpactCategory}
 				isLoading={!impact_categories_success}
 				onSelected={updateSelectedImpactCategories}
-				data={_impactCategories}
+				data={_impactCategories ?? []}
 			/>
 
 			<Button className="flex items-center space-x-2 px-3 font-normal" variant={'outline'}>

@@ -1,7 +1,7 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
-import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ProjectApis from '@/apis/project.apis';
+import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
@@ -11,23 +11,67 @@ import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBox
 import SheetbarSide from '@/pages/Playground/components/SheetbarSide';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import ProcessNode from '@/pages/Playground/customs/ProcessNode';
+import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
+import ProcessNode from '@/pages/Playground/nodes/ProcessNode';
+import TextNode from '@/pages/Playground/nodes/TextNode';
 import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
-import { Background, BackgroundVariant, MiniMap, Node, NodeTypes, Panel, ReactFlow, useNodesState, useReactFlow } from '@xyflow/react';
+
+import {
+	addEdge,
+	Background,
+	BackgroundVariant,
+	Connection,
+	Edge,
+	EdgeTypes,
+	MiniMap,
+	Node,
+	NodeTypes,
+	Panel,
+	ReactFlow,
+	useEdgesState,
+	useNodesState,
+	useReactFlow,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
 import React, { MouseEvent, useCallback, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-const customNode: NodeTypes = {
-	process: ProcessNode,
+const customEdge: EdgeTypes = {
+	process: ProcessEdge,
 };
 
+const customNode: NodeTypes = {
+	process: ProcessNode,
+	text: TextNode,
+};
+
+const initEdges: Edge[] = [
+	{
+		source: '4ee033d2-4744-472c-a5b6-1f3b93a0eda6',
+		sourceHandle: 'source1',
+		target: 'aa866a63-c19f-4d3a-82a1-48ecf8171538',
+		targetHandle: 'target1',
+		type: 'process',
+		data: {
+			value: 'minh',
+		},
+		id: 'xy-edge__4ee033d2-4744-472c-a5b6-1f3b93a0eda6source1-aa866a63-c19f-4d3a-82a1-48ecf8171538target1',
+		style: {
+			strokeWidth: 50,
+			strokeOpacity: 90,
+		},
+	},
+];
+
 export default function Playground() {
+	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
+	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initEdges);
+
 	const { playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
-	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const params = useParams<{ pid: string; wid: string }>();
 
@@ -35,13 +79,8 @@ export default function Playground() {
 		queryKey: ['projects', { pid: params.pid, wid: params.wid }],
 		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
 		enabled: Boolean(params.pid) && Boolean(params.wid),
-	});
-
-	useQuery({
-		queryKey: ['impact_categories', projectData?.data.data.method.id],
-		queryFn: () => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: projectData?.data.data.method.id as string }),
-		enabled: projectData?.data.data.method.id !== undefined,
-		staleTime: 60 * 1000 * 10,
+		staleTime: 0,
+		refetchOnMount: false,
 	});
 
 	useEffect(() => {
@@ -88,6 +127,13 @@ export default function Playground() {
 		socket.emit('gateway:node-update-position', data);
 	}, []);
 
+	const onConnect = useCallback(
+		(params: Connection) => {
+			setEdges((eds) => addEdge({ ...params, type: 'process', data: { value: 'minh' } }, eds));
+		},
+		[setEdges]
+	);
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -98,13 +144,20 @@ export default function Playground() {
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 					className="relative"
 					nodeTypes={customNode}
+					edgeTypes={customEdge}
 					nodes={nodes}
+					edges={edges}
+					onConnect={onConnect}
 					deleteKeyCode=""
 					onPaneClick={handlePaneClick}
 					onNodesChange={onNodesChange}
+					onEdgesChange={onEdgesChange}
+					onNodeDoubleClick={() => {
+						console.log('123');
+					}}
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background variant={BackgroundVariant.Lines} size={1.5} bgColor="#fafafa" color="#f4f4f5" />
+					<Background variant={BackgroundVariant.Dots} size={2} bgColor="#fafafa" color="#c3c3c3" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
@@ -113,6 +166,7 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
+					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

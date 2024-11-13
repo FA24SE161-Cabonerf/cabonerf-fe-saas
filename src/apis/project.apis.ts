@@ -2,7 +2,7 @@ import { CommonResponse } from '@/@types/common.type';
 import { CreateProjectResponse, GetProjectListResponse, Impact, Project } from '@/@types/project.type';
 import { PROJECT_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
-import httpService from '@/services/http';
+import httpService from '@/services/http.tsx';
 
 class ProjectApis {
 	public async getAllProjects() {
