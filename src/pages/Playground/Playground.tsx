@@ -1,7 +1,6 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
+import { eDispatchType, PlaygroundDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
-import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
@@ -68,9 +67,8 @@ const initEdges: Edge[] = [
 export default function Playground() {
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initEdges);
-
 	const { playgroundDispatch } = useContext(PlaygroundContext);
-	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const { sheetState } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const params = useParams<{ pid: string; wid: string }>();
@@ -88,7 +86,7 @@ export default function Playground() {
 			setNodes(projectData.data.data.processes as Node<CabonerfNodeData>[]);
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method.id });
 		}
-	}, [projectData, setNodes, playgroundDispatch]);
+	}, [playgroundDispatch, projectData?.data.data.method.id, projectData?.data.data.processes, setNodes]);
 
 	useEffect(() => {
 		socket.auth = { user_id: app.userProfile?.id };
@@ -105,35 +103,24 @@ export default function Playground() {
 	}, [app.userProfile?.id, deleteElements, appDispatch]);
 
 	useEffect(() => {
-		setMoreNodes((nodes) => {
-			const shouldHide = Boolean(sheetState.process?.id);
-			return nodes.map((item) => ({
+		setMoreNodes((nodes) =>
+			nodes.map((item) => ({
 				...item,
-				hidden: shouldHide ? item.id !== sheetState.process?.id : false,
-			}));
-		});
+				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
+			}))
+		);
 	}, [sheetState.process?.id, setViewport, setMoreNodes]);
 
-	const handlePaneClick = useCallback(() => {
-		sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
-
-		setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
-	}, [sheetDispatch, setViewport]);
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>, _nodes: Node<CabonerfNodeData>[]) => {
-		const data: { id: string; x: number; y: number } = { id: node.id, x: node.position.x, y: node.position.y };
-
-		socket.emit('gateway:node-update-position', data);
+	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>) => {
+		socket.emit('gateway:node-update-position', { id: node.id, x: node.position.x, y: node.position.y });
 	}, []);
 
 	const onConnect = useCallback(
-		(params: Connection) => {
-			setEdges((eds) => addEdge({ ...params, type: 'process', data: { value: 'minh' } }, eds));
-		},
+		(params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'process', data: { value: 'minh' } }, eds)),
 		[setEdges]
 	);
 
+	console.log('Playground');
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -149,15 +136,13 @@ export default function Playground() {
 					edges={edges}
 					onConnect={onConnect}
 					deleteKeyCode=""
-					onPaneClick={handlePaneClick}
 					onNodesChange={onNodesChange}
 					onEdgesChange={onEdgesChange}
-					onNodeDoubleClick={() => {
-						console.log('123');
-					}}
+					onlyRenderVisibleElements
+					onNodeDoubleClick={() => console.log('123')}
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background variant={BackgroundVariant.Dots} size={2} bgColor="#fafafa" color="#c3c3c3" />
+					<Background variant={BackgroundVariant.Dots} size={1.5} bgColor="#fafafa" color="#c1c1c1" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
@@ -166,7 +151,6 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
-					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

@@ -8,7 +8,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Check, Package, Trash2 } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type Props = {
@@ -18,15 +18,11 @@ type Props = {
 export default function ProductItem({ data }: Props) {
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	console.log('ExchangeItem');
 	const [unitExchange, setUnitExchange] = useState<Unit>(data.unit);
 	const [valueExchange, setValueExchange] = useState<string>(String(data.value));
 	const [nameProduct, setNameProduct] = useState<string>(data.name);
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
-
-	// Store base unit, not re-render
-	const basedValue = useRef<number>(data.value);
-	const basedUnit = useRef<Unit>(data.unit);
-	const basedName = useRef<string>(data.name);
 
 	const { data: unit } = useQuery({
 		queryKey: ['unit-group', data.unit.unitGroup.id],
@@ -34,7 +30,7 @@ export default function ProductItem({ data }: Props) {
 	});
 
 	const deleteExchangeMutations = useMutation({
-		mutationFn: (id: string) => ExchangeApis.prototype.deleteElementaryExchange({ id }),
+		mutationFn: (id: string) => ExchangeApis.prototype.deleteProductExchange({ id }),
 	});
 
 	const updateProductExchangeMutate = useMutation({
@@ -43,10 +39,8 @@ export default function ProductItem({ data }: Props) {
 	});
 
 	useEffect(() => {
-		setIsUpdate(
-			basedValue.current !== Number(valueExchange) || nameProduct !== basedName.current || unitExchange.id !== basedUnit.current.id
-		);
-	}, [valueExchange, nameProduct, unitExchange.id]);
+		setIsUpdate(data.value !== Number(valueExchange) || nameProduct !== data.name || unitExchange.id !== data.unit.id);
+	}, [data.name, data.unit.id, data.value, nameProduct, unitExchange.id, valueExchange]);
 
 	const handleChangeValueExchange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
@@ -61,7 +55,7 @@ export default function ProductItem({ data }: Props) {
 
 	const handleChangeUnit = ({ unit }: { unit: Unit }) => {
 		// Use initialValue as the base for recalculations
-		const calculatedValue = basedValue.current * (unit.conversionFactor / basedUnit.current.conversionFactor);
+		const calculatedValue = data.value * (unit.conversionFactor / data.unit.conversionFactor);
 
 		setValueExchange(String(calculatedValue));
 		setUnitExchange(unit);
@@ -75,14 +69,14 @@ export default function ProductItem({ data }: Props) {
 	const handleDeleteExchange = () => {
 		deleteExchangeMutations.mutate(data.id, {
 			onSuccess: (data) => {
-				const newProcess = data.data.data;
+				const newProductExchanges = data.data.data;
 
 				setNodes((nodes) => {
 					return nodes.map((node) => {
-						if (node.id === newProcess.id) {
+						if (node.id === sheetState.process?.id) {
 							const _newProcess = {
 								...node,
-								data: { ...node.data, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+								data: { ...node.data, exchanges: newProductExchanges },
 							};
 
 							sheetDispatch({
@@ -204,7 +198,7 @@ export default function ProductItem({ data }: Props) {
 										>
 											<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
 											<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
-											<div className="col-span-3 text-right text-gray-500">{basedUnit.current.name}</div>
+											<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
 										</DropdownMenuItem>
 									))}
 								</div>

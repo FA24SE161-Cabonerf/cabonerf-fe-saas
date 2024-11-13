@@ -8,7 +8,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Check, CloudOff, Leaf, Trash2 } from 'lucide-react';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 	isInput?: boolean;
 };
 
-export default function ExchangeItem({ data, isInput }: Props) {
+function ExchangeItem({ data, isInput }: Props) {
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const [unitExchange, setUnitExchange] = useState<Unit>(data.unit);
@@ -71,31 +71,44 @@ export default function ExchangeItem({ data, isInput }: Props) {
 	const handleDeleteExchange = () => {
 		deleteExchangeMutations.mutate(data.id, {
 			onSuccess: (data) => {
-				const newProcess = data.data.data;
+				const newData = data.data.data;
 
 				setNodes((nodes) => {
 					return nodes.map((node) => {
-						if (node.id === newProcess.id) {
-							const _newProcess = {
+						if (node.id === sheetState.process?.id) {
+							console.log('BEFORE', node.data.exchanges);
+							const updateExchanges = node.data.exchanges.filter((item) => {
+								if (item.id !== newData.exchange.id) {
+									return item;
+								}
+							});
+							console.log('AFTER', updateExchanges);
+
+							const newProcess: Node<CabonerfNodeData> = {
 								...node,
-								data: { ...node.data, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+								data: {
+									...node.data,
+									exchanges: updateExchanges,
+									impacts: newData.impacts,
+								},
 							};
 
 							sheetDispatch({
 								type: SheetBarDispatch.SET_NODE,
 								payload: {
-									id: _newProcess.id,
-									color: _newProcess.data.color,
-									description: _newProcess.data.description,
-									exchanges: _newProcess.data.exchanges,
-									impacts: _newProcess.data.impacts,
-									lifeCycleStage: _newProcess.data.lifeCycleStage,
-									name: _newProcess.data.name,
-									overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-									projectId: _newProcess.data.projectId,
+									id: sheetState.process.id,
+									name: sheetState.process.name,
+									description: sheetState.process.description,
+									projectId: sheetState.process.projectId,
+									color: sheetState.process.color,
+									overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
+									impacts: newProcess.data.impacts,
+									exchanges: newProcess.data.exchanges,
+									lifeCycleStage: sheetState.process.lifeCycleStage,
 								},
 							});
-							return _newProcess;
+
+							return newProcess;
 						}
 						return node;
 					});
@@ -119,32 +132,40 @@ export default function ExchangeItem({ data, isInput }: Props) {
 			},
 			{
 				onSuccess: (data) => {
-					const newProcess = data.data.data;
-					toast('UPDATE OKE ROI MINH OI');
+					const newData = data.data.data;
 
 					setNodes((nodes) => {
 						return nodes.map((node) => {
-							if (node.id === newProcess.id) {
-								const _newProcess = {
+							if (node.id === sheetState.process?.id) {
+								const updateExchanges = node.data.exchanges.map((item) =>
+									item.id === newData.exchange.id ? newData.exchange : item
+								);
+
+								const newProcess: Node<CabonerfNodeData> = {
 									...node,
-									data: { ...node.data, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+									data: {
+										...node.data,
+										exchanges: updateExchanges,
+										impacts: newData.impacts,
+									},
 								};
 
 								sheetDispatch({
 									type: SheetBarDispatch.SET_NODE,
 									payload: {
-										id: _newProcess.id,
-										color: _newProcess.data.color,
-										description: _newProcess.data.description,
-										exchanges: _newProcess.data.exchanges,
-										impacts: _newProcess.data.impacts,
-										lifeCycleStage: _newProcess.data.lifeCycleStage,
-										name: _newProcess.data.name,
-										overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-										projectId: _newProcess.data.projectId,
+										id: sheetState.process.id,
+										name: sheetState.process.name,
+										description: sheetState.process.description,
+										projectId: sheetState.process.projectId,
+										color: sheetState.process.color,
+										overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
+										impacts: newProcess.data.impacts,
+										exchanges: newProcess.data.exchanges,
+										lifeCycleStage: sheetState.process.lifeCycleStage,
 									},
 								});
-								return _newProcess;
+
+								return newProcess;
 							}
 							return node;
 						});
@@ -156,17 +177,17 @@ export default function ExchangeItem({ data, isInput }: Props) {
 
 	return (
 		<div className="relative rounded-md border border-gray-200 px-4 py-2.5">
-			<div className="exchange-substance before:bg-gray-200" />
+			<div className="before-exchange-substance after-exchange-substance before:bg-gray-200 after:bg-gray-200" />
 			{/* Name */}
 			<div className="flex items-center justify-between space-x-2">
 				<div className="flex w-[60%] max-w-[60%] items-center space-x-3">
-					<div className="rounded-sm border bg-white p-1 shadow">
+					<div className="rounded-sm bg-white p-1 shadow shadow-primary-green">
 						{isInput ? <Leaf size={22} fill="#166534" color="white" /> : <CloudOff size={21} color="#166534" fill="#166534" />}
 					</div>
 
 					<div className="flex flex-col">
-						<div className="break-all text-sm font-medium">{data.name}</div>
-						<div className="text-xs text-gray-500">Parasitamol</div>
+						<div className="break-all text-sm font-semibold">{data.name}</div>
+						<div className="text-xs text-gray-500">{data.emissionSubstance.emissionCompartment.name}</div>
 					</div>
 				</div>
 
@@ -241,3 +262,5 @@ export default function ExchangeItem({ data, isInput }: Props) {
 		</div>
 	);
 }
+
+export default React.memo(ExchangeItem);

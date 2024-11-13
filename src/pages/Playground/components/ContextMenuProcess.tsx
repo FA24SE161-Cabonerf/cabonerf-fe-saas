@@ -8,7 +8,7 @@ import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
-import { forwardRef, useContext, useEffect, useId } from 'react';
+import React, { forwardRef, useContext, useEffect, useId } from 'react';
 import { toast } from 'sonner';
 
 const colors = [
@@ -42,131 +42,133 @@ function lightenColor({ hex, amount }: { hex: string; amount: number }) {
 	return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
 }
 
-const ContextMenuProcess = forwardRef<HTMLDivElement, unknown>((_, ref) => {
-	const { setNodes } = useReactFlow();
-	const { deleteElements, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
-	const id = useId();
-	const { sheetDispatch } = useContext(SheetbarContext);
-	const { dispatch } = useContext(AppContext);
-	const { app, dispatch: contextDispatch } = useContext(contextMenu);
+const ContextMenuProcess = React.memo(
+	forwardRef<HTMLDivElement, unknown>((_, ref) => {
+		const { setNodes } = useReactFlow();
+		const { deleteElements, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
+		const id = useId();
+		const { sheetDispatch } = useContext(SheetbarContext);
+		const { dispatch } = useContext(AppContext);
+		const { app, dispatch: contextDispatch } = useContext(contextMenu);
 
-	useEffect(() => {
-		socket.on('nodebased:delete-process-success', (data: string) => {
-			deleteElements({
-				nodes: [{ id: data }],
+		useEffect(() => {
+			socket.on('nodebased:delete-process-success', (data: string) => {
+				deleteElements({
+					nodes: [{ id: data }],
+				});
+				toast.success('Delete success');
 			});
-			toast.success('Delete success');
-		});
-	}, [deleteElements]);
+		}, [deleteElements]);
 
-	const handleDeleteNodeProcess = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-		event.stopPropagation();
-		socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.process.id);
+		const handleDeleteNodeProcess = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+			event.stopPropagation();
+			socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.process.id);
 
-		dispatch({
-			type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
-			payload: app.contextMenuSelector?.process.id as string,
-		});
-		contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
-	};
-
-	const handleEditDetail = async () => {
-		if (app.contextMenuSelector?.process) {
-			sheetDispatch({
-				type: SheetBarDispatch.SET_NODE,
-				payload: { ...app.contextMenuSelector.process },
+			dispatch({
+				type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
+				payload: app.contextMenuSelector?.process.id as string,
 			});
 			contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
+		};
 
-			await fitView({ nodes: [{ id: app.contextMenuSelector.process.id }], maxZoom: 2.7, duration: 700, includeHiddenNodes: false });
-			const { x, y, zoom } = getViewport();
-			setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
-		}
-	};
+		const handleEditDetail = async () => {
+			if (app.contextMenuSelector?.process) {
+				sheetDispatch({
+					type: SheetBarDispatch.SET_NODE,
+					payload: { ...app.contextMenuSelector.process },
+				});
+				contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
 
-	const handleChangeColor = (backgroundColor: string, id: string) => {
-		socket.emit('gateway:node-update-color', {
-			id: id,
-			color: backgroundColor,
-		});
+				await fitView({ nodes: [{ id: app.contextMenuSelector.process.id }], maxZoom: 2.3, duration: 700, includeHiddenNodes: false });
+				const { x, y, zoom } = getViewport();
+				setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
+			}
+		};
 
-		socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
-			setNodes((nodes) => {
-				return nodes.map((node) => (node.id === dataColor.id ? { ...node, data: { ...node.data, color: dataColor.color } } : node));
+		const handleChangeColor = (backgroundColor: string, id: string) => {
+			socket.emit('gateway:node-update-color', {
+				id: id,
+				color: backgroundColor,
 			});
-		});
-	};
 
-	return (
-		<div
-			id={id}
-			ref={ref}
-			style={{
-				position: 'absolute',
-				top: app.contextMenuSelector?.clientY,
-				left: app.contextMenuSelector?.clientX,
-			}}
-			className="transition-all duration-300"
-		>
-			<div className="w-[250px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
-				<div className="px-3 py-2 text-sm font-medium">Edit process</div>
-				<Separator />
-				<div className="py-2 text-gray-400">
-					<div className="flex flex-col">
-						<span className="px-3 py-1 text-xs">Process color</span>
-						<div className="flex justify-between px-3">
-							{colors.map((item) => (
-								<button
-									onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
-									key={item.bg}
-									className="size-10 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
-									style={{
-										border: `1px solid ${item.border}`,
-										backgroundColor: item.bg,
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.backgroundColor = `${lightenColor({ hex: item.bg, amount: 0.09 })}`;
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.backgroundColor = item.bg;
-									}}
-								></button>
-							))}
+			socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
+				setNodes((nodes) => {
+					return nodes.map((node) => (node.id === dataColor.id ? { ...node, data: { ...node.data, color: dataColor.color } } : node));
+				});
+			});
+		};
+
+		return (
+			<div
+				id={id}
+				ref={ref}
+				style={{
+					position: 'absolute',
+					top: app.contextMenuSelector?.clientY,
+					left: app.contextMenuSelector?.clientX,
+				}}
+				className="transition-all duration-300"
+			>
+				<div className="w-[250px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
+					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
+					<Separator />
+					<div className="py-2 text-gray-400">
+						<div className="flex flex-col">
+							<span className="px-3 py-1 text-xs">Process color</span>
+							<div className="flex justify-between px-3">
+								{colors.map((item) => (
+									<button
+										onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
+										key={item.bg}
+										className="size-10 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
+										style={{
+											border: `1px solid ${item.border}`,
+											backgroundColor: item.bg,
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.backgroundColor = `${lightenColor({ hex: item.bg, amount: 0.09 })}`;
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.backgroundColor = item.bg;
+										}}
+									></button>
+								))}
+							</div>
 						</div>
-					</div>
-					<div className="mt-2 flex flex-col">
-						<span className="px-3 py-1 text-xs">Options</span>
-						<div className="p-1">
-							<Button variant="ghost" className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black">
-								<Pencil size={15} />
-								<span>Edit Process Details</span>
-							</Button>
-							<Button
-								onClick={handleEditDetail}
-								variant="ghost"
-								className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black"
-							>
-								<Leaf size={15} />
-								<span>Edit Elementary Exchanges</span>
-							</Button>
+						<div className="mt-2 flex flex-col">
+							<span className="px-3 py-1 text-xs">Options</span>
+							<div className="p-1">
+								<Button variant="ghost" className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black">
+									<Pencil size={15} />
+									<span>Edit Process Details</span>
+								</Button>
+								<Button
+									onClick={handleEditDetail}
+									variant="ghost"
+									className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black"
+								>
+									<Leaf size={15} />
+									<span>Edit Elementary Exchanges</span>
+								</Button>
+							</div>
 						</div>
-					</div>
-					<div className="mt-2 flex flex-col">
-						<div className="px-3 py-1 text-xs">
-							<Button
-								onClick={handleDeleteNodeProcess}
-								variant="destructive"
-								className="mx-auto flex h-fit w-fit justify-start space-x-1 rounded-sm bg-[#fef2f2] px-2 hover:bg-[#fee2e2]"
-							>
-								<Trash2 size={14} color="#ef4444" strokeWidth={2} />
-								<span className="text-xs text-[#ef4444]">Delete process</span>
-							</Button>
+						<div className="mt-2 flex flex-col">
+							<div className="px-3 py-1 text-xs">
+								<Button
+									onClick={handleDeleteNodeProcess}
+									variant="destructive"
+									className="mx-auto flex h-fit w-fit justify-start space-x-1 rounded-sm bg-[#fef2f2] px-2 hover:bg-[#fee2e2]"
+								>
+									<Trash2 size={14} color="#ef4444" strokeWidth={2} />
+									<span className="text-xs text-[#ef4444]">Delete process</span>
+								</Button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	);
-});
+		);
+	})
+);
 
 export default ContextMenuProcess;
