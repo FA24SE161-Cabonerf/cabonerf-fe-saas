@@ -1,7 +1,7 @@
 import { CommonResponse } from '@/@types/common.type';
 import { EmissionSubstanceSearch } from '@/@types/emissionSubstance.type';
 import { EMISSION_SUBSTANCES_ENDPOINT } from '@/constants/api.endpoint';
-import httpService from '@/services/http';
+import httpService from '@/services/http.tsx';
 
 interface QueryParams {
 	pageCurrent?: number;

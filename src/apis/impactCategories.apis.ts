@@ -1,7 +1,7 @@
 import { CommonResponse } from '@/@types/common.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { IMPACT_METHOD_CATEGORIES_ENDPOINT } from '@/constants/api.endpoint';
-import httpService from '@/services/http';
+import httpService from '@/services/http.tsx';
 
 class ImpactCategoryApis {
 	public getImpactCategoriesByImpactMethodID(payload: { id: string }) {

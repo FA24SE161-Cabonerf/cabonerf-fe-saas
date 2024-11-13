@@ -319,7 +319,14 @@ function SheetbarSearch() {
 								<React.Fragment key={index}>
 									{item.list.length > 0 ? (
 										item.list.map((item) => {
-											const isAdded = sheetState.process?.exchanges.some((ex) => ex.emissionSubstance.id === item.id);
+											const isAdded =
+												sheetState.process?.exchanges?.some((ex) => {
+													return (
+														ex.exchangesType.id === '723e4567-e89b-12d3-a456-426614174001' &&
+														ex.emissionSubstance.id === item.id
+													);
+												}) ?? false;
+
 											return (
 												<div
 													onClick={() => !isAdded && handleAddNewExchange({ substanceId: item.id })}

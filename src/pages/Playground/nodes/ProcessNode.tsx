@@ -8,7 +8,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { Handle, NodeProps, Node as NodeReactFlow, Position } from '@xyflow/react';
+import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect, useRef } from 'react';
@@ -17,6 +17,7 @@ import ReactDOM from 'react-dom';
 export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
+	const connection = useConnection();
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
@@ -40,10 +41,10 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		};
 
 		const handleClickEvent = (event: MouseEvent) => {
-			event.preventDefault();
-
 			if (app.contextMenuSelector && contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
 				dispatch({ type: ContextDispatch.CLEAR_CONTEXT_MENU });
+			} else {
+				return;
 			}
 		};
 
@@ -72,15 +73,27 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		});
 	};
 
+	const isTarget = connection.inProgress;
+
 	return (
 		<div
 			onContextMenu={handleTriggerContextMenu}
 			ref={triggerRef}
-			className={clsx(`relative w-[340px] rounded-3xl border-[1px] border-gray-200 bg-white shadow transition-transform`, {
+			className={clsx(`relative w-[340px] rounded-3xl border-[1px] border-gray-200 bg-white shadow-node transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
 			})}
 		>
+			{/* <Handle
+				position={Position.Left}
+				type="target"
+				id="target1"
+				className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
+					invisible: !isTarget,
+					'visible opacity-0': isTarget,
+				})}
+			/> */}
+
 			<div className="p-4">
 				<div className="flex items-center justify-between space-x-2">
 					{/* Logo */}
@@ -100,9 +113,9 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					</div>
 					{/* CTA */}
 				</div>
-				<div className="mt-3 break-words text-xl font-medium">{data.data.name}</div>
-				{data.data.impacts.length > 0 && (
-					<div className="mt-2">
+				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.data.name}</div>
+				<div className="mt-4">
+					{data.data.impacts.length > 0 && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
@@ -147,11 +160,15 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 								))}
 							</DropdownMenuContent>
 						</DropdownMenu>
+					)}
+				</div>
+				{/* <div className="flex min-h-[17px] justify-end">
+					<div className="rounded p-1 hover:bg-gray-100">
+						<LockKeyhole size={17} />
 					</div>
-				)}
+				</div> */}
 			</div>
 			{/* Handle */}
-			<Handle type="source" position={data.sourcePosition as Position}></Handle>
 
 			{/* Delete */}
 			{appContext.deleteProcessesIds.includes(data.id) && (

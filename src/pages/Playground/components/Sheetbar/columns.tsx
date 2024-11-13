@@ -10,18 +10,26 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Node, useReactFlow } from '@xyflow/react';
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Leaf, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export const columns: ColumnDef<Exchange>[] = [
 	{
 		accessorKey: 'name',
-		header: 'Name',
+		header: () => (
+			<div className="flex w-fit items-center space-x-2 rounded-sm px-2 py-1 text-sm">
+				<div className="rounded-sm border bg-white p-1 shadow">
+					<Leaf size={22} fill="#166534" color="white" />
+				</div>
+				<span className="text-[#166534]">Elementary Exchange Flow</span>
+			</div>
+		),
 		size: 250,
 		cell: ({ row }) => {
 			const { sheetDispatch } = useContext(SheetbarContext);
 			const value = row.getValue<string>('name');
+
 			useEffect(() => {
 				sheetDispatch({
 					type: SheetBarDispatch.SET_EXCHANGE,
@@ -46,8 +54,8 @@ export const columns: ColumnDef<Exchange>[] = [
 	},
 	{
 		accessorKey: 'value',
-		header: 'Value',
-		size: 100,
+		size: 75,
+		header: () => <div></div>,
 		cell: ({ row }) => {
 			const initialValue = row.getValue<number>('value');
 			const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -64,8 +72,6 @@ export const columns: ColumnDef<Exchange>[] = [
 					setValueExchange(String(exchange.value));
 				}
 			}, [exchange?.value]);
-
-			console.log('123');
 
 			// Xử lý thay đổi giá trị
 			const handleChangeValueExchange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +102,7 @@ export const columns: ColumnDef<Exchange>[] = [
 			};
 
 			return (
-				<div className="w-[100px] min-w-[100px]">
+				<div className="w-[75px] min-w-[75px]">
 					<input
 						type="number"
 						value={valueExchange}
@@ -111,14 +117,15 @@ export const columns: ColumnDef<Exchange>[] = [
 	},
 	{
 		accessorKey: 'unit',
-		header: () => <div className="text-center">Unit</div>,
-		size: 100,
+		header: () => <div className="text-center"></div>,
+		size: 75,
 
 		cell: ({ row }) => {
 			const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 			const exchange = sheetState.exchanges.find((item) => item.id === row.original.id);
 
 			const data = row.getValue<Unit>('unit');
+
 			const { data: unit } = useQuery({
 				queryKey: ['unit-group', data.unitGroup.id],
 				queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
@@ -153,7 +160,7 @@ export const columns: ColumnDef<Exchange>[] = [
 					<DropdownMenuTrigger asChild>
 						<Button
 							variant="ghost"
-							className="w-[100px] min-w-[100px] px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100"
+							className="w-[75px] min-w-[75px] px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100"
 							aria-label="Select unit"
 						>
 							{exchange?.unit?.name}

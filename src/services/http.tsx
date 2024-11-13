@@ -7,7 +7,8 @@ import {
 	insertUserToLocalStorage,
 	TOKEN_KEY_NAME,
 } from '@/utils/local_storage';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, HttpStatusCode, isAxiosError } from 'axios';
+import toast from 'react-hot-toast';
 
 const BASE_URL = import.meta.env.VITE_LOCAL_URL;
 const TEN_SECONDS = 1000 * 10;
@@ -35,6 +36,7 @@ class HttpService {
 					config.headers.authorization = `Bearer ${this.accessToken}`;
 					return config;
 				}
+
 				return config;
 			},
 			(error) => {
@@ -42,32 +44,43 @@ class HttpService {
 			}
 		);
 
-		this.axiosInstance.interceptors.response.use((response) => {
-			const { url } = response.config;
+		this.axiosInstance.interceptors.response.use(
+			(response) => {
+				const { url } = response.config;
 
-			const data = response.data as AuthenicationResponse;
-			const { access_token, refresh_token, user } = data.data;
+				const data = response.data as AuthenicationResponse;
+				const { access_token, refresh_token, user } = data.data;
 
-			switch (url) {
-				case AUTH_ENDPOINT.LOGIN:
-				case AUTH_ENDPOINT.REGISTER:
-				case AUTH_ENDPOINT.VERIFY_EMAIL:
-					this.accessToken = access_token;
-					this.refreshToken = refresh_token;
-					insertTokenToLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN, access_token);
-					insertTokenToLocalStorage(TOKEN_KEY_NAME.REFRESH_TOKEN, refresh_token);
-					insertUserToLocalStorage(user);
-					break;
-				case AUTH_ENDPOINT.LOGOUT:
+				switch (url) {
+					case AUTH_ENDPOINT.LOGIN:
+					case AUTH_ENDPOINT.REGISTER:
+					case AUTH_ENDPOINT.VERIFY_EMAIL:
+						this.accessToken = access_token;
+						this.refreshToken = refresh_token;
+						insertTokenToLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN, access_token);
+						insertTokenToLocalStorage(TOKEN_KEY_NAME.REFRESH_TOKEN, refresh_token);
+						insertUserToLocalStorage(user);
+						break;
+					case AUTH_ENDPOINT.LOGOUT:
+						this.accessToken = '';
+						this.refreshToken = '';
+						clearResouceInLocalStorage();
+						break;
+					default:
+						break;
+				}
+				return response;
+			},
+			(error) => {
+				if (isAxiosError(error) && error.status === HttpStatusCode.Unauthorized) {
+					toast.error('You will be log out');
 					this.accessToken = '';
 					this.refreshToken = '';
 					clearResouceInLocalStorage();
-					break;
-				default:
-					break;
+				}
+				return error;
 			}
-			return response;
-		});
+		);
 	}
 }
 
