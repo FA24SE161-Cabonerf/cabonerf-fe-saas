@@ -9,7 +9,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
+import { NodeProps, Node as NodeReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
@@ -18,7 +18,6 @@ import ReactDOM from 'react-dom';
 export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
-	const connection = useConnection();
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
@@ -74,8 +73,6 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		});
 	};
 
-	const isTarget = connection.inProgress && connection.fromNode.id !== data.id;
-
 	const productExchangeInput = useMemo(() => {
 		return data.data.exchanges.filter((item) => item.input === true && item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000');
 	}, [data.data.exchanges]);
@@ -93,7 +90,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
 			})}
 		>
-			<Handle
+			{/* <Handle
 				position={Position.Left}
 				type="target"
 				id="target1"
@@ -101,7 +98,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					invisible: !isTarget,
 					'visible opacity-0': isTarget,
 				})}
-			/>
+			/> */}
 
 			<div className="p-4">
 				<div className="flex items-center justify-between space-x-2">

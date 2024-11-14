@@ -1,6 +1,6 @@
 import { CommonResponse } from '@/@types/common.type';
 import { CreateProjectResponse, GetProjectListResponse, Impact, Project } from '@/@types/project.type';
-import { PROJECT_ENDPOINT } from '@/constants/api.endpoint';
+import { IMPACT_METHOD_ENDPOINT, PROJECT_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http.tsx';
 
@@ -18,6 +18,12 @@ class ProjectApis {
 
 	public async getProjectById(payload: { pid: string; wid: string }) {
 		return httpService.get<CommonResponse<Project<Impact>>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}/${payload.wid}`);
+	}
+
+	public async updateImpactMethodProject(payload: { pid: string; mid: string }) {
+		return httpService.patch<CommonResponse<Project<Impact>>>(
+			`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}${IMPACT_METHOD_ENDPOINT.IMPACT_METHODS}/${payload.mid}`
+		);
 	}
 
 	public async createProject(payload: CreateProjectSchema) {

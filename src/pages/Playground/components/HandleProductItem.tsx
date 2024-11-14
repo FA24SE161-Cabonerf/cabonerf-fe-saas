@@ -18,12 +18,16 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 	const [unitProduct, setUnitProduct] = useState<Unit>(data.unit);
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
-	console.log('HandleProductItem');
-
 	const { data: unit } = useQuery({
 		queryKey: ['unit-group', data.unit.unitGroup.id],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
+
+	useEffect(() => {
+		setNameProduct(data.name);
+		setUnitProduct(data.unit);
+		setValueProduct(String(data.value));
+	}, [data.name, data.unit, data.value]);
 
 	useEffect(() => {
 		setIsUpdate(data.value !== Number(valueProduct) || nameProduct !== data.name || unitProduct.id !== data.unit.id);

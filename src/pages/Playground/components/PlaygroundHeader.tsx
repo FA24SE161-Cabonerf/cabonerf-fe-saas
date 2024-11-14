@@ -9,7 +9,7 @@ export default function PlaygroundHeader() {
 	};
 
 	return (
-		<div className="w-full bg-backgroundBehide">
+		<div className="w-full bg-white">
 			<div className="flex justify-between border-b">
 				<div className="flex items-center px-4">
 					<button className="group flex items-center space-x-1" onClick={goBack}>
@@ -18,7 +18,7 @@ export default function PlaygroundHeader() {
 					</button>
 				</div>
 
-				<div className="flex items-center space-x-7 py-4 pr-4">
+				<div className="flex items-center space-x-7 py-3.5 pr-4">
 					<button className="">
 						<History size={17} />
 					</button>

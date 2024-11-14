@@ -1,5 +1,5 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { eDispatchType, PlaygroundDispatch } from '@/@types/dispatch.type';
+import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
@@ -18,8 +18,6 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
 	addEdge,
-	Background,
-	BackgroundVariant,
 	Connection,
 	Edge,
 	EdgeTypes,
@@ -34,7 +32,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { MouseEvent, useCallback, useContext, useEffect } from 'react';
+import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 const customEdge: EdgeTypes = {
@@ -68,7 +66,7 @@ export default function Playground() {
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initEdges);
 	const { playgroundDispatch } = useContext(PlaygroundContext);
-	const { sheetState } = useContext(SheetbarContext);
+	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const params = useParams<{ pid: string; wid: string }>();
@@ -78,7 +76,7 @@ export default function Playground() {
 		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
 		enabled: Boolean(params.pid) && Boolean(params.wid),
 		staleTime: 0,
-		refetchOnMount: false,
+		refetchOnMount: true,
 	});
 
 	useEffect(() => {
@@ -111,16 +109,34 @@ export default function Playground() {
 		);
 	}, [sheetState.process?.id, setViewport, setMoreNodes]);
 
+	useEffect(() => {
+		// Cập nhật thuộc tính draggable của các nodes dựa trên sheetState
+		setMoreNodes((prevNodes) =>
+			prevNodes.map((node) => ({
+				...node,
+				draggable: sheetState.process === undefined ? true : false, // Điều chỉnh theo sheetState
+			}))
+		);
+	}, [sheetState.process, setMoreNodes]);
+
 	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>) => {
 		socket.emit('gateway:node-update-position', { id: node.id, x: node.position.x, y: node.position.y });
 	}, []);
+
+	const handlePanelClick = useCallback(() => {
+		if (sheetState.process) {
+			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
+			setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
+		}
+	}, [setViewport, sheetDispatch, sheetState]);
 
 	const onConnect = useCallback(
 		(params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'process', data: { value: 'minh' } }, eds)),
 		[setEdges]
 	);
 
-	console.log('Playground');
+	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -129,20 +145,23 @@ export default function Playground() {
 			<div className="relative h-[calc(100vh-50px)]">
 				<ReactFlow
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-					className="relative"
+					className="relative bg-[#f0f0f0]"
 					nodeTypes={customNode}
 					edgeTypes={customEdge}
 					nodes={nodes}
 					edges={edges}
+					panOnDrag={canPaneScrollAndDrag}
+					zoomOnDoubleClick={false}
+					preventScrolling={canPaneScrollAndDrag}
 					onConnect={onConnect}
-					deleteKeyCode=""
+					onPaneClick={handlePanelClick}
+					proOptions={{ hideAttribution: true }}
 					onNodesChange={onNodesChange}
 					onEdgesChange={onEdgesChange}
 					onlyRenderVisibleElements
-					onNodeDoubleClick={() => console.log('123')}
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background variant={BackgroundVariant.Dots} size={1.5} bgColor="#fafafa" color="#c1c1c1" />
+					{/* <Background /> */}
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">

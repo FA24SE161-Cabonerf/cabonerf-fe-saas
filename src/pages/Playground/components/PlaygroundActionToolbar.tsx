@@ -2,14 +2,17 @@ import { PlaygroundDispatch } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
+import ProjectApis from '@/apis/project.apis';
 import ImpactCategoriesComboBox from '@/components/ImpactCategoriesComboBox';
 import ImpactMethodComboBox from '@/components/ImpactMethodComboBox';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 function PlaygroundActionToolbar() {
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
+	const params = useParams<{ pid: string; wid: string }>();
 
 	const { data: impactMethods, isLoading: impact_methods_loading } = useQuery({
 		queryKey: ['impact_methods'],
@@ -53,11 +56,16 @@ function PlaygroundActionToolbar() {
 		}
 	}, [impactCategories?.data.data, playgroundDispatch]);
 
+	const updateProjectMethod = useMutation({
+		mutationFn: ProjectApis.prototype.updateImpactMethodProject,
+	});
+
 	const updateSelectedImpactMethod = useCallback(
 		(id: string) => {
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: id });
+			updateProjectMethod.mutate({ pid: params.pid as string, mid: id });
 		},
-		[playgroundDispatch]
+		[playgroundDispatch, params.pid, updateProjectMethod]
 	);
 
 	const updateSelectedImpactCategories = useCallback(
