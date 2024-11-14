@@ -24,7 +24,7 @@ function ExchangeItem({ data, isInput }: Props) {
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
 	const { data: unit } = useQuery({
-		queryKey: ['unit-group', `623e4567-e89b-12d3-a456-426614174001`],
+		queryKey: ['unit-group', data.unit.unitGroup.id],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
 
@@ -76,13 +76,11 @@ function ExchangeItem({ data, isInput }: Props) {
 				setNodes((nodes) => {
 					return nodes.map((node) => {
 						if (node.id === sheetState.process?.id) {
-							console.log('BEFORE', node.data.exchanges);
 							const updateExchanges = node.data.exchanges.filter((item) => {
 								if (item.id !== newData.exchange.id) {
 									return item;
 								}
 							});
-							console.log('AFTER', updateExchanges);
 
 							const newProcess: Node<CabonerfNodeData> = {
 								...node,
@@ -176,8 +174,8 @@ function ExchangeItem({ data, isInput }: Props) {
 	};
 
 	return (
-		<div className="relative rounded-md border border-gray-200 px-4 py-2.5">
-			<div className="before-exchange-substance after-exchange-substance before:bg-gray-200 after:bg-gray-200" />
+		<div className="relative rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-2.5 shadow-sm">
+			<div className="before-exchange-substance before:bg-gray-200" />
 			{/* Name */}
 			<div className="flex items-center justify-between space-x-2">
 				<div className="flex w-[60%] max-w-[60%] items-center space-x-3">
@@ -186,7 +184,7 @@ function ExchangeItem({ data, isInput }: Props) {
 					</div>
 
 					<div className="flex flex-col">
-						<div className="break-all text-sm font-semibold">{data.name}</div>
+						<div className="break-all text-sm">{data.name}</div>
 						<div className="text-xs text-gray-500">{data.emissionSubstance.emissionCompartment.name}</div>
 					</div>
 				</div>
@@ -196,14 +194,14 @@ function ExchangeItem({ data, isInput }: Props) {
 						type="text"
 						value={valueExchange}
 						onChange={handleChangeValueExchange}
-						className="z-50 w-[60%] min-w-[60%] rounded-sm border px-2 py-2 text-xs outline-[0.5px] outline-green-700"
+						className="z-50 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-[0.5px] outline-green-700"
 					/>
 					<DropdownMenu>
-						<DropdownMenuTrigger className="ml-2 min-w-[60px] rounded p-1 text-xs font-semibold hover:bg-gray-50">
+						<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">
 							{unitExchange.name}
 						</DropdownMenuTrigger>
 
-						<DropdownMenuContent className="w-[270px] rounded-md border border-gray-200 p-0 shadow-lg">
+						<DropdownMenuContent className="mr-4 w-[270px] rounded-[8px] border p-0 shadow-lg">
 							<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
 								<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
 									<div className="col-span-4">Unit</div>
@@ -230,7 +228,7 @@ function ExchangeItem({ data, isInput }: Props) {
 				</div>
 
 				<div className="flex w-[20%] justify-end space-x-2">
-					{isUpdate && (
+					{isUpdate ? (
 						<button
 							onClick={() => handleUpdateExchange()}
 							className="flex items-center justify-center rounded-sm bg-green-100 p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -243,20 +241,20 @@ function ExchangeItem({ data, isInput }: Props) {
 								<Check className="h-4 w-4 text-green-600" />
 							)}
 						</button>
+					) : (
+						<button
+							onClick={handleDeleteExchange}
+							className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+							disabled={deleteExchangeMutations.isPending}
+							aria-label="Delete Exchange"
+						>
+							{deleteExchangeMutations.isPending ? (
+								<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
+							) : (
+								<Trash2 className="h-4 w-4 text-red-600" />
+							)}
+						</button>
 					)}
-
-					<button
-						onClick={handleDeleteExchange}
-						className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-						disabled={deleteExchangeMutations.isPending}
-						aria-label="Delete Exchange"
-					>
-						{deleteExchangeMutations.isPending ? (
-							<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
-						) : (
-							<Trash2 className="h-4 w-4 text-red-600" />
-						)}
-					</button>
 				</div>
 			</div>
 		</div>

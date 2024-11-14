@@ -18,7 +18,7 @@ type Props = {
 export default function ProductItem({ data }: Props) {
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
-	console.log('ExchangeItem');
+
 	const [unitExchange, setUnitExchange] = useState<Unit>(data.unit);
 	const [valueExchange, setValueExchange] = useState<string>(String(data.value));
 	const [nameProduct, setNameProduct] = useState<string>(data.name);
@@ -105,7 +105,13 @@ export default function ProductItem({ data }: Props) {
 		});
 	};
 
-	const handleUpdateExchange = () => {
+	const handleUpdateProduct = () => {
+		console.log({
+			processId: sheetState.process?.id as string,
+			unitId: unitExchange.id,
+			value: Number(valueExchange),
+			name: nameProduct,
+		});
 		updateProductExchangeMutate.mutate(
 			{
 				id: data.id,
@@ -118,14 +124,23 @@ export default function ProductItem({ data }: Props) {
 			},
 			{
 				onSuccess: (data) => {
-					const newProcess = data.data.data;
+					const newProcess = data.data.data; //Exchange[]
+					const newExchangesMap = new Map(newProcess.map((ex) => [ex.id, ex]));
 
 					setNodes((nodes) => {
 						return nodes.map((node) => {
-							if (node.id === newProcess.id) {
+							if (node.id === sheetState.process?.id) {
+								const updatedExchanges = node.data.exchanges.map((exchange) => {
+									// Tra cứu exchange mới từ Map
+									return newExchangesMap.get(exchange.id) || exchange;
+								});
+
 								const _newProcess = {
 									...node,
-									data: { ...node.data, impacts: newProcess.impacts, exchanges: newProcess.exchanges },
+									data: {
+										...node.data,
+										exchanges: updatedExchanges,
+									},
 								};
 
 								sheetDispatch({
@@ -163,21 +178,21 @@ export default function ProductItem({ data }: Props) {
 					</div>
 
 					<input
-						className="w-full max-w-full self-stretch break-all rounded border px-2 py-0.5 text-sm font-medium"
+						className="w-full max-w-full self-stretch break-all rounded-[8px] bg-[#f0f0f0] px-2 py-0.5 text-sm font-medium outline-green-700"
 						value={nameProduct}
 						onChange={handleChangeName}
 					/>
 				</div>
 
-				<div className="flex w-[30%] min-w-[30%] items-center rounded-sm">
+				<div className="flex w-[30%] min-w-[30%] rounded-sm">
 					<input
 						type="text"
 						value={valueExchange}
 						onChange={handleChangeValueExchange}
-						className="z-50 w-[60%] min-w-[60%] rounded-sm border px-2 py-2 text-xs outline-[0.5px] outline-green-700"
+						className="z-50 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-[0.5px] outline-green-700"
 					/>
 					<DropdownMenu>
-						<DropdownMenuTrigger className="ml-2 w-fit rounded p-1 text-xs font-semibold hover:bg-gray-50">
+						<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">
 							{unitExchange.name}
 						</DropdownMenuTrigger>
 
@@ -208,9 +223,9 @@ export default function ProductItem({ data }: Props) {
 				</div>
 
 				<div className="flex w-[20%] justify-end space-x-2">
-					{isUpdate && (
+					{isUpdate ? (
 						<button
-							onClick={() => handleUpdateExchange()}
+							onClick={() => handleUpdateProduct()}
 							className="flex items-center justify-center rounded-sm bg-green-100 p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
 							disabled={updateProductExchangeMutate.isPending}
 							aria-label="Update Exchange"
@@ -221,20 +236,20 @@ export default function ProductItem({ data }: Props) {
 								<Check className="h-4 w-4 text-green-600" />
 							)}
 						</button>
+					) : (
+						<button
+							onClick={handleDeleteExchange}
+							className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+							disabled={deleteExchangeMutations.isPending}
+							aria-label="Delete Exchange"
+						>
+							{deleteExchangeMutations.isPending ? (
+								<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
+							) : (
+								<Trash2 className="h-4 w-4 text-red-600" />
+							)}
+						</button>
 					)}
-
-					<button
-						onClick={handleDeleteExchange}
-						className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-						disabled={deleteExchangeMutations.isPending}
-						aria-label="Delete Exchange"
-					>
-						{deleteExchangeMutations.isPending ? (
-							<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
-						) : (
-							<Trash2 className="h-4 w-4 text-red-600" />
-						)}
-					</button>
 				</div>
 			</div>
 		</div>

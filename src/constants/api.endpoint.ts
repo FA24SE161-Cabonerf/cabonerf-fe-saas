@@ -56,7 +56,12 @@ class UNIT {
 	public static UNIT_GROUP = '/unit-groups';
 }
 
+class PROCESS {
+	public static PROCESS = '/process';
+}
+
 export {
+	PROCESS,
 	UNIT,
 	EMISSIONS,
 	EXCHANGE_ENDPOINT,

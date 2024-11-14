@@ -51,7 +51,7 @@ export class ExchangeApis {
 			processId: string;
 		}
 	) {
-		return httpService.patch<CommonResponse<CabonerfNodeData>>(
+		return httpService.patch<CommonResponse<Exchange[]>>(
 			`${EXCHANGE_ENDPOINT.EXCHANGE}${EXCHANGE_ENDPOINT.PRODUCT_EXCHANGE}/${id}`,
 			payload
 		);

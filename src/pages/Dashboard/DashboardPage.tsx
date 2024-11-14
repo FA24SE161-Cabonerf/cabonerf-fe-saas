@@ -25,7 +25,8 @@ export default function DashboardPage() {
 	const { data: projects, isFetching: projectsFetching } = useQuery({
 		queryKey: ['projects'],
 		queryFn: ProjectApis.prototype.getAllProjects,
-		staleTime: 60_000,
+		staleTime: 0,
+		refetchOnMount: true,
 	});
 
 	const _impactMethods = useMemo(() => {

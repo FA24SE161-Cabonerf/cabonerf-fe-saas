@@ -9,12 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { queryClient } from '@/queryClient';
 import { CreateProjectSchema, createProjectSchema } from '@/schemas/validation/project.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Check, ChevronsUpDown, Plus, Telescope, Workflow } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -39,6 +40,14 @@ export default function DashboardHeader() {
 		queryFn: ImpactMethodApis.prototype.getImpactMethods,
 		staleTime: 60_000,
 	});
+
+	useEffect(() => {
+		if (openDialogCreateProject === false) {
+			form.setValue('name', '');
+			form.setValue('description', '');
+			form.setValue('methodId', '');
+		}
+	}, [openDialogCreateProject, form]);
 
 	const createProjectMutate = useMutation({
 		mutationFn: (payload: CreateProjectSchema) => ProjectApis.prototype.createProject(payload),
@@ -65,6 +74,7 @@ export default function DashboardHeader() {
 						onClick: () => alert('Processing'),
 					},
 				});
+				queryClient.refetchQueries({ queryKey: ['projects'] });
 			},
 		});
 	};

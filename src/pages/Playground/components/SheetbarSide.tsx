@@ -2,29 +2,59 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { CreateProductExchange } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
+import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
+import ProcessApis from '@/apis/process.apis';
 import ScrollableList from '@/components/ScrollableList';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExchangeItem from '@/pages/Playground/components/ExchangeItem';
 import ProductItem from '@/pages/Playground/components/ProductItem';
 import SheetbarSearch from '@/pages/Playground/components/SheetbarSearch';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { useMutation } from '@tanstack/react-query';
+import { ProcessSchema, processSchema } from '@/schemas/validation/process.schema';
+import { updateSVGAttributes } from '@/utils/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
-import clsx from 'clsx';
-import { Package, Plus, X } from 'lucide-react';
-import React, { useContext, useMemo } from 'react';
+import DOMPurify from 'dompurify';
+import { ChevronsUpDown, Package, Pen, Plus } from 'lucide-react';
+import React, { useContext, useMemo, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 function SheetbarSide() {
-	console.log('SheetbarSide');
-	const { setViewport, setNodes } = useReactFlow<Node<CabonerfNodeData>>();
-
+	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
+	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+
+	const form = useForm<ProcessSchema>({
+		resolver: zodResolver(processSchema),
+		defaultValues: {
+			name: sheetState.process?.name,
+			description: sheetState.process?.description,
+			lifeCycleStage: sheetState.process?.lifeCycleStage,
+		},
+	});
+
+	const value = form.watch('lifeCycleStage');
 
 	const addNewProductExchangeMutate = useMutation({
 		mutationFn: ExchangeApis.prototype.createProductExchange,
+	});
+
+	const lifeCycleStagesQuery = useQuery({
+		queryKey: ['life-cycle-stage'],
+		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
+		staleTime: 60_000 * 60,
+	});
+
+	const updateProcessMutation = useMutation({
+		mutationFn: ({ id, payload }: { id: string; payload: { name: string; description: string; lifeCycleStagesId: string } }) =>
+			ProcessApis.prototype.updateProcess(id, payload),
 	});
 
 	const elementaryExchangeInput = useMemo(() => {
@@ -108,38 +138,197 @@ function SheetbarSide() {
 		});
 	};
 
-	const handleCloseSheetBar = () => {
-		sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
-		setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
+	console.log('render');
+
+	const onSubmit: SubmitHandler<ProcessSchema> = (data) => {
+		const newvalue = {
+			name: data.name,
+			description: data.description,
+			lifeCycleStagesId: data.lifeCycleStage.id,
+		};
+
+		updateProcessMutation.mutate(
+			{ id: sheetState.process?.id as string, payload: newvalue },
+			{
+				onSuccess: (data) => {
+					const newNodeInformation = data.data.data;
+
+					setNodes((nodes) => {
+						return nodes.map((item) => {
+							if (item.id === sheetState.process?.id) {
+								const newNode = {
+									...item,
+									data: {
+										...item.data,
+										name: newNodeInformation.name,
+										description: newNodeInformation.description,
+										lifeCycleStage: newNodeInformation.lifeCycleStage,
+									},
+								};
+
+								sheetDispatch({
+									type: SheetBarDispatch.SET_NODE,
+									payload: {
+										id: sheetState.process.id,
+										name: newNodeInformation.name,
+										description: newNodeInformation.description,
+										projectId: sheetState.process.projectId,
+										color: sheetState.process.color,
+										overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
+										impacts: sheetState.process.impacts,
+										exchanges: sheetState.process.exchanges,
+										lifeCycleStage: newNodeInformation.lifeCycleStage,
+									},
+								});
+								setIsUpdate(false);
+
+								return newNode;
+							}
+							return item;
+						});
+					});
+				},
+			}
+		);
 	};
 
 	return (
 		<Dialog modal={false}>
-			<div className="absolute right-0 top-0 my-3 mr-3 h-[calc(100%-50px)] w-[550px] overflow-auto rounded-2xl border-[1.8px] bg-white">
+			<div className="absolute right-0 top-0 h-full w-[470px] overflow-auto border-l bg-white">
 				{/* Header */}
-				<div className="px-4 py-2.5">
-					<div className="flex items-center justify-end">
-						<button onClick={handleCloseSheetBar} className="rounded-md border p-2 shadow-sm hover:bg-gray-50">
-							<X size={19} />
-						</button>
+				<div className="sticky left-0 right-0 top-0 z-50 mb-1 bg-white">
+					<div className="px-5 py-3 text-[13px] font-medium">Edit process detail</div>
+				</div>
+				<div className="relative px-5">
+					<div className="flex items-start space-x-2">
+						<div className="rounded-xl p-2" style={{ backgroundColor: sheetState.process?.color }}>
+							<div
+								dangerouslySetInnerHTML={{
+									__html: DOMPurify.sanitize(
+										updateSVGAttributes({
+											svgString: sheetState.process?.lifeCycleStage.iconUrl as string,
+											properties: { color: 'white', fill: 'white', height: 26, width: 26 },
+										})
+									),
+								}}
+							/>
+						</div>
+						<div>
+							<div className="text-xl font-semibold">{sheetState.process?.name}</div>
+							<div className="text-sm font-normal text-[#b0afaf]">{sheetState.process?.lifeCycleStage.name}</div>
+						</div>
 					</div>
-					<div className="mt-">
-						<Tabs defaultValue="account" className="w-full">
-							<TabsList className="w-full">
-								<TabsTrigger className="w-full" value="account">
-									Input line
+					{/* INformation */}
+					<form className="my-5" onSubmit={form.handleSubmit(onSubmit)}>
+						<div className="flex items-start gap-2">
+							<div className="w-1/2">
+								<div className="mb-1 text-[11px] font-semibold uppercase">Process name</div>
+
+								{isUpdate ? (
+									<input
+										className="w-full rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-[13px] outline-[0.5px] outline-green-700 transition-transform"
+										type="text"
+										{...form.register('name')}
+									/>
+								) : (
+									<div className="flex min-h-9 items-center justify-start text-[13px] text-[#444444D6]">
+										{form.getValues('name')}
+									</div>
+								)}
+							</div>
+							<div className="w-1/2">
+								<div className="mb-1 text-right text-[11px] font-semibold uppercase">Life cycle stage</div>
+
+								{isUpdate ? (
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button className="flex w-full items-center justify-between rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-[13px] font-normal text-black shadow-none hover:bg-[#e3e3e3]">
+												{value.name}
+												<ChevronsUpDown size={14} />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent>
+											{lifeCycleStagesQuery.data?.data.data.map((item) => (
+												<DropdownMenuItem
+													onClick={() => form.setValue('lifeCycleStage', item)}
+													key={item.id}
+													className="w-full px-2 py-1"
+												>
+													{item.name}
+												</DropdownMenuItem>
+											))}
+										</DropdownMenuContent>
+									</DropdownMenu>
+								) : (
+									<div className="min-h-9 break-words text-right text-[13px] text-[#444444D6]">
+										{form.getValues('lifeCycleStage.name')}
+									</div>
+								)}
+							</div>
+						</div>
+						<div className="mt-2">
+							<div className="mb-1 text-[11px] font-semibold uppercase">Description</div>
+							{isUpdate ? (
+								<textarea
+									{...form.register('description')}
+									className="h-fit w-full rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-[13px] outline-[0.5px] outline-green-700"
+								/>
+							) : (
+								<div className="min-h-6 break-words text-[13px] text-[#444444D6]">{form.getValues('description')}</div>
+							)}
+						</div>
+						<div className="mt-3 flex justify-end">
+							{isUpdate ? (
+								<div className="flex space-x-2">
+									<Button
+										onClick={() => setIsUpdate(false)}
+										type="button"
+										variant={'destructive'}
+										disabled={updateProcessMutation.isPending}
+										className="h-fit px-2 py-1.5 text-[13px]"
+									>
+										Cancel
+									</Button>
+
+									<Button type="submit" disabled={updateProcessMutation.isPending} className="h-fit px-2 py-1.5 text-[13px]">
+										{updateProcessMutation.isPending ? 'Saving...' : 'Save'}
+									</Button>
+								</div>
+							) : (
+								<Button variant={'ghost'} className="space-x-2 px-2 py-0.5" onClick={() => setIsUpdate(true)}>
+									<Pen size={14} />
+									<span className="text-[13px] font-semibold">Edit</span>
+								</Button>
+							)}
+						</div>
+					</form>
+				</div>
+				<Separator />
+				<div className="mt-5">
+					<Tabs defaultValue="account" className="w-full">
+						<div className="px-5">
+							<TabsList className="w-full bg-[#f0f0f0]">
+								<TabsTrigger className="w-full text-[13px] font-normal hover:bg-[#e3e3e3] focus:font-medium" value="account">
+									Input
 								</TabsTrigger>
-								<TabsTrigger className="w-full" value="password">
-									Output line
+								<TabsTrigger className="w-full text-[13px] font-normal hover:bg-[#e3e3e3] focus:font-medium" value="password">
+									Output
 								</TabsTrigger>
 							</TabsList>
-							<TabsContent value="account" className="mt-4">
-								<div className="space-y-4">
-									<div className="w-full">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-2 rounded-sm px-2 py-1 text-sm">
-												<div className="uppercase text-[#166534]">Elementary Exchange Flow (INPUT)</div>
-											</div>
+						</div>
+						<TabsContent value="account" className="mt-4">
+							<Accordion id="1" type="single" defaultValue="item-1" collapsible>
+								<AccordionItem value="item-1">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+										Elementary Exchange
+									</AccordionTrigger>
+									<AccordionContent>
+										<ScrollableList className="h-full space-y-2 overflow-scroll p-2" data={elementaryExchangeInput}>
+											{elementaryExchangeInput.length > 0 ? (
+												elementaryExchangeInput.map((item) => <ExchangeItem isInput data={item} key={item.id} />)
+											) : (
+												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
+											)}
 											<DialogTrigger
 												onClick={() =>
 													sheetDispatch({
@@ -150,62 +339,59 @@ function SheetbarSide() {
 													})
 												}
 												asChild
-												className="flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5 text-white"
+												className="ml-auto mr-2 flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5"
 												aria-label="Add a new exchange entry"
 											>
-												<Button>
-													<span className="text-xs">New Exchange</span>
-													<Plus size={14} />
+												<Button variant={'ghost'}>
+													<Plus size={20} />
+													<span className="text-[13px] font-semibold">Add elementary</span>
 												</Button>
 											</DialogTrigger>
-										</div>
-
-										<ScrollableList
-											className="mt-4 h-[400px] space-y-3 overflow-scroll border-b p-2"
-											data={elementaryExchangeInput}
-										>
-											{elementaryExchangeInput.length > 0 ? (
-												elementaryExchangeInput.map((item) => <ExchangeItem isInput data={item} key={item.id} />)
-											) : (
-												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
-											)}
 										</ScrollableList>
-									</div>
-
-									<div className="w-full">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-2 rounded-sm px-2 py-1 text-sm">
-												<div className="uppercase text-[#166534]">Product exchange (INPUT)</div>
-											</div>
-											{/* Add new product output */}
-											<Button
-												disabled={addNewProductExchangeMutate.isPending}
-												onClick={() => handleAddNewProductOutput({ input: true })}
-												className={clsx(
-													`flex h-fit items-center space-x-1 rounded-sm bg-[#0f766e] px-2.5 py-1.5 text-white hover:bg-[#22877f]`
-												)}
-											>
-												<span className="text-xs">{addNewProductExchangeMutate.isPending ? 'Adding...' : 'New Product'}</span>
-												<Package size={14} />
-											</Button>
-										</div>
-										<ScrollableList className="mt-4 h-[300px] space-y-3 overflow-scroll border-b p-2" data={productExchangeInput}>
+									</AccordionContent>
+								</AccordionItem>
+							</Accordion>
+							<Accordion id="2" type="single" collapsible>
+								<AccordionItem value="item-1">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+										Product Exchange
+									</AccordionTrigger>
+									<AccordionContent>
+										<ScrollableList className="h-full space-y-3 overflow-scroll p-2" data={productExchangeInput}>
 											{productExchangeInput.length > 0 ? (
 												productExchangeInput.map((item) => <ProductItem data={item} key={item.id} />)
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">No product input</div>
 											)}
+											<Button
+												variant={'ghost'}
+												disabled={addNewProductExchangeMutate.isPending}
+												onClick={() => handleAddNewProductOutput({ input: true })}
+												className="ml-auto mr-2 flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5"
+											>
+												<Package size={20} />
+												<span className="text-[13px] text-xs font-semibold">
+													{addNewProductExchangeMutate.isPending ? 'Adding...' : 'New Product'}
+												</span>
+											</Button>
 										</ScrollableList>
-									</div>
-								</div>
-							</TabsContent>
-							<TabsContent value="password" className="mt-4">
-								<div className="h-full space-y-4">
-									<div className="w-full">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-2 rounded-sm px-2 py-1 text-sm">
-												<div className="uppercase text-[#166534]">Elementary Exchange Flow (OUTPUT)</div>
-											</div>
+									</AccordionContent>
+								</AccordionItem>
+							</Accordion>
+						</TabsContent>
+						<TabsContent value="password" className="mt-4">
+							<Accordion id="3" type="single" defaultValue="item-3" collapsible>
+								<AccordionItem value="item-3">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+										Elementary Exchange
+									</AccordionTrigger>
+									<AccordionContent>
+										<ScrollableList className="h-full space-y-2 overflow-scroll p-2" data={elementaryExchangeOutput}>
+											{elementaryExchangeOutput.length > 0 ? (
+												elementaryExchangeOutput.map((item) => <ExchangeItem isInput data={item} key={item.id} />)
+											) : (
+												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
+											)}
 											<DialogTrigger
 												onClick={() =>
 													sheetDispatch({
@@ -216,57 +402,47 @@ function SheetbarSide() {
 													})
 												}
 												asChild
-												className="flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5 text-white"
+												className="ml-auto mr-2 flex h-fit items-center space-x-1 rounded-sm px-2.5 py-1.5"
 												aria-label="Add a new exchange entry"
 											>
-												<Button>
-													<span className="text-xs">New Exchange</span>
-													<Plus size={14} />
+												<Button variant={'ghost'}>
+													<Plus size={20} />
+													<span className="text-[13px] font-semibold">Add elementary</span>
 												</Button>
 											</DialogTrigger>
-										</div>
-
-										<ScrollableList
-											className="mt-4 h-[400px] space-y-3 overflow-scroll rounded-lg p-2"
-											data={elementaryExchangeOutput}
-										>
-											{elementaryExchangeOutput.length > 0 ? (
-												elementaryExchangeOutput.map((item) => <ExchangeItem isInput={false} data={item} key={item.id} />)
-											) : (
-												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
-											)}
 										</ScrollableList>
-									</div>
-
-									<div className="h-auto w-full">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-2 rounded-sm px-2 py-1 text-sm">
-												<div className="uppercase text-[#166534]">Product exchange (OUTPUT)</div>
-											</div>
-
-											<Button
-												disabled={addNewProductExchangeMutate.isPending || productExchangeOutput !== undefined}
-												onClick={() => handleAddNewProductOutput({ input: false })}
-												className={clsx(
-													`flex h-fit items-center space-x-1 rounded-sm bg-[#0f766e] px-2.5 py-1.5 text-white hover:bg-[#22877f]`
-												)}
-											>
-												<span className="text-xs">{addNewProductExchangeMutate.isPending ? 'Adding...' : 'New Product'}</span>
-												<Package size={14} />
-											</Button>
-										</div>
-										<div className="mt-3 h-full w-full">
+									</AccordionContent>
+								</AccordionItem>
+							</Accordion>
+							<Accordion id="4" type="single" collapsible>
+								<AccordionItem value="item-4">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+										Product Exchange
+									</AccordionTrigger>
+									<AccordionContent>
+										<div className="h-full w-full space-y-3 p-2">
 											{productExchangeOutput ? (
 												<ProductItem data={productExchangeOutput} />
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">Not product</div>
 											)}
 										</div>
-									</div>
-								</div>
-							</TabsContent>
-						</Tabs>
-					</div>
+										<Button
+											variant={'ghost'}
+											disabled={addNewProductExchangeMutate.isPending || productExchangeOutput !== undefined}
+											onClick={() => handleAddNewProductOutput({ input: false })}
+											className="ml-auto mr-2 flex h-fit items-center space-x-1 rounded-sm px-4 py-1.5"
+										>
+											<Package size={20} />
+											<span className="text-[13px] text-xs font-semibold">
+												{addNewProductExchangeMutate.isPending ? 'Adding...' : 'New Product'}
+											</span>
+										</Button>
+									</AccordionContent>
+								</AccordionItem>
+							</Accordion>
+						</TabsContent>
+					</Tabs>
 				</div>
 			</div>
 			<SheetbarSearch />
