@@ -9,7 +9,6 @@ import socket from '@/socket.io';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
-import { toast } from 'sonner';
 
 const colors = [
 	{
@@ -44,21 +43,20 @@ function lightenColor({ hex, amount }: { hex: string; amount: number }) {
 
 const ContextMenuProcess = React.memo(
 	forwardRef<HTMLDivElement, unknown>((_, ref) => {
-		const { setNodes } = useReactFlow();
-		const { deleteElements, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
+		const { deleteElements, setNodes, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
 		const id = useId();
 		const { sheetDispatch } = useContext(SheetbarContext);
 		const { dispatch } = useContext(AppContext);
 		const { app, dispatch: contextDispatch } = useContext(contextMenu);
 
 		useEffect(() => {
-			socket.on('nodebased:delete-process-success', (data: string) => {
+			socket.on('gateway:delete-process-success', async (data: string) => {
 				deleteElements({
 					nodes: [{ id: data }],
 				});
-				toast.success('Delete success');
+				sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
 			});
-		}, [deleteElements]);
+		}, [deleteElements, fitView, sheetDispatch]);
 
 		const handleDeleteNodeProcess = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 			event.stopPropagation();

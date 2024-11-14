@@ -156,7 +156,7 @@ function SheetbarSearch() {
 
 	const handleAddNewExchange = ({ substanceId }: { substanceId: string }) => {
 		const processId = sheetState.process?.id as string;
-		console.log(sheetState);
+
 		addNewExchangeMutate.mutate(
 			{
 				processId: processId,

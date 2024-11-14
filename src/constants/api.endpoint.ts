@@ -60,7 +60,12 @@ class PROCESS {
 	public static PROCESS = '/process';
 }
 
+class CONNECTOR {
+	public static CONNECTOR = '/connectors';
+}
+
 export {
+	CONNECTOR,
 	PROCESS,
 	UNIT,
 	EMISSIONS,

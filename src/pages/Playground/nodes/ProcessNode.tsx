@@ -9,7 +9,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { NodeProps, Node as NodeReactFlow } from '@xyflow/react';
+import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
@@ -18,6 +18,8 @@ import ReactDOM from 'react-dom';
 export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
+	const connection = useConnection();
+
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
@@ -25,6 +27,8 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 
 	const triggerRef = useRef<HTMLDivElement>(null);
 	const contextMenuRef = useRef<HTMLDivElement>(null);
+
+	const isTarget = connection.inProgress && connection.fromNode.id !== data.id;
 
 	// Handle context menu
 	useEffect(() => {
@@ -90,15 +94,27 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
 			})}
 		>
-			{/* <Handle
+			{/* Default Target */}
+			<Handle
 				position={Position.Left}
 				type="target"
-				id="target1"
+				id={undefined}
 				className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
 					invisible: !isTarget,
 					'visible opacity-0': isTarget,
 				})}
-			/> */}
+			/>
+
+			{/* Default Source */}
+			<Handle
+				position={Position.Left}
+				type="source"
+				id={undefined}
+				className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
+					invisible: !isTarget,
+					'visible opacity-0': isTarget,
+				})}
+			/>
 
 			<div className="p-4">
 				<div className="flex items-center justify-between space-x-2">

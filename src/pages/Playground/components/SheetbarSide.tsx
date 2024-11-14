@@ -138,8 +138,6 @@ function SheetbarSide() {
 		});
 	};
 
-	console.log('render');
-
 	const onSubmit: SubmitHandler<ProcessSchema> = (data) => {
 		const newvalue = {
 			name: data.name,
@@ -388,7 +386,7 @@ function SheetbarSide() {
 									<AccordionContent>
 										<ScrollableList className="h-full space-y-2 overflow-scroll p-2" data={elementaryExchangeOutput}>
 											{elementaryExchangeOutput.length > 0 ? (
-												elementaryExchangeOutput.map((item) => <ExchangeItem isInput data={item} key={item.id} />)
+												elementaryExchangeOutput.map((item) => <ExchangeItem isInput={false} data={item} key={item.id} />)
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">No elementary</div>
 											)}

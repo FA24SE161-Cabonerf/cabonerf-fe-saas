@@ -4,11 +4,15 @@ import SettingLayout from '@/layouts/SettingLayout';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import Playground from '@/pages/Playground';
+import ContextMenuProvider from '@/pages/Playground/contexts/contextmenu.context';
+import { PlaygroundProvider } from '@/pages/Playground/contexts/playground.context';
+import Sheetbar from '@/pages/Playground/contexts/sheetbar.context';
 import Profile from '@/pages/Profile';
 import RegisterPage from '@/pages/Register';
 import VerifyEmailPage from '@/pages/VerifyEmail';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import RejectedRoute from '@/routes/RejectedRoute';
+import { ReactFlowProvider } from '@xyflow/react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 export default function useRouteElements() {
@@ -47,7 +51,17 @@ export default function useRouteElements() {
 				},
 				{
 					path: 'playground/:pid/:wid',
-					element: <Playground />,
+					element: (
+						<ReactFlowProvider>
+							<ContextMenuProvider>
+								<PlaygroundProvider>
+									<Sheetbar>
+										<Playground />
+									</Sheetbar>
+								</PlaygroundProvider>
+							</ContextMenuProvider>
+						</ReactFlowProvider>
+					),
 				},
 			],
 		},

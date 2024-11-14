@@ -19,17 +19,9 @@ function App() {
 		<QueryClientProvider client={queryClient}>
 			<AppProvider>
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-					<ReactFlowProvider>
-						<ContextMenuProvider>
-							<PlaygroundProvider>
-								<Sheetbar>
-									<RouterProvider router={routers} />
-									<Toaster />
-									<ToastShadcnUI />
-								</Sheetbar>
-							</PlaygroundProvider>
-						</ContextMenuProvider>
-					</ReactFlowProvider>
+					<RouterProvider router={routers} />
+					<Toaster />
+					<ToastShadcnUI />
 				</ThemeProvider>
 			</AppProvider>
 			<ReactQueryDevtools initialIsOpen={false} />
