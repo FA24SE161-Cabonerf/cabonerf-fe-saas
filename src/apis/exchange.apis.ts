@@ -1,4 +1,3 @@
-import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CommonResponse } from '@/@types/common.type';
 import { CreateElementaryExchange, CreateProductExchange, Exchange, Unit } from '@/@types/exchange.type';
 import { Impact } from '@/@types/project.type';
@@ -51,7 +50,7 @@ export class ExchangeApis {
 			processId: string;
 		}
 	) {
-		return httpService.patch<CommonResponse<Exchange[]>>(
+		return httpService.patch<CommonResponse<{ processId: string; exchange: Exchange }[]>>(
 			`${EXCHANGE_ENDPOINT.EXCHANGE}${EXCHANGE_ENDPOINT.PRODUCT_EXCHANGE}/${id}`,
 			payload
 		);

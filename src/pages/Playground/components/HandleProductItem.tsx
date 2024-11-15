@@ -1,11 +1,12 @@
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
 import { Unplug } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 type Props = {
 	data: Exchange;
@@ -13,10 +14,32 @@ type Props = {
 };
 
 function HandleProductItem({ data, isReverse = false }: Props) {
+	const { fromNode, fromHandle, toNode, toHandle } = useConnection();
 	const [valueProduct, setValueProduct] = useState<string>(String(data.value));
 	const [nameProduct, setNameProduct] = useState<string>(data.name);
 	const [unitProduct, setUnitProduct] = useState<Unit>(data.unit);
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
+
+	const isValidUnitGroup = useMemo(() => {
+		if (!fromNode?.data || !toNode?.data || !fromHandle?.id || !toHandle?.id) {
+			return false;
+		}
+
+		const { exchanges: sourceExchanges } = fromNode.data as CabonerfNodeData;
+		const { exchanges: targetExchanges } = toNode.data as CabonerfNodeData;
+
+		const sourceExchange = sourceExchanges?.find(({ id }) => id === fromHandle.id);
+		const targetExchange = targetExchanges?.find(({ id }) => id === toHandle.id);
+
+		if (!sourceExchange || !targetExchange) {
+			return false;
+		}
+
+		const sameUnitGroup = sourceExchange.unit?.unitGroup?.id === targetExchange.unit?.unitGroup?.id;
+		const sameName = sourceExchange.name === targetExchange.name;
+
+		return sameUnitGroup && sameName;
+	}, [fromNode, fromHandle, toNode, toHandle]);
 
 	const { data: unit } = useQuery({
 		queryKey: ['unit-group', data.unit.unitGroup.id],
@@ -66,6 +89,7 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 			{isUpdate && <div>UPDATE DI</div>}
 
 			<Handle
+				isConnectableEnd={isValidUnitGroup}
 				className={clsx(`absolute h-[70%] w-[5px] rounded-none border-none bg-gray-200`, {
 					'left-[2px] rounded-br rounded-tr': isReverse === false,
 					'right-[2px] rounded-bl rounded-tl': isReverse === true,

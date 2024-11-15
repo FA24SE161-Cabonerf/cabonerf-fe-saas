@@ -7,6 +7,7 @@ import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
+import clsx from 'clsx';
 import { Check, CloudOff, Leaf, Trash2 } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -213,7 +214,12 @@ function ExchangeItem({ data, isInput }: Props) {
 										<DropdownMenuItem
 											onClick={() => handleChangeUnit({ unit: item })}
 											key={index}
-											className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
+											className={clsx(
+												`grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none`,
+												{
+													'rounded-sm bg-gray-100': data.unit.id === item.id,
+												}
+											)}
 											aria-label={`Select unit ${item.name}`}
 										>
 											<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
