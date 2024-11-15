@@ -89,7 +89,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		<div
 			onContextMenu={handleTriggerContextMenu}
 			ref={triggerRef}
-			className={clsx(`relative w-[370px] rounded-3xl border-[1px] border-gray-200 bg-white shadow-node transition-transform`, {
+			className={clsx(`relative w-[370px] rounded-3xl border-[1px] border-gray-500 bg-white shadow-node transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
 			})}

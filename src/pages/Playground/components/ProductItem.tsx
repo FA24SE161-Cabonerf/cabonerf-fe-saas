@@ -2,12 +2,13 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { UnitApis } from '@/apis/unit.apis';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
-import { Check, Package, Trash2 } from 'lucide-react';
+import { Check, ChevronLeft, Package, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -24,8 +25,16 @@ export default function ProductItem({ data }: Props) {
 	const [nameProduct, setNameProduct] = useState<string>(data.name);
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
-	const { data: unit } = useQuery({
-		queryKey: ['unit-group', data.unit.unitGroup.id],
+	const [defaultUnitGroup, setDefaultUnitGroup] = useState<string>(data.unit.unitGroup.id);
+
+	const { data: unitGroup } = useQuery({
+		queryKey: ['unit-groups'],
+		queryFn: UnitApis.prototype.getAllUnitGroup,
+		staleTime: 1_000 * 60 * 60,
+	});
+
+	const { data: unit, isFetching: isFetchingUnit } = useQuery({
+		queryKey: ['unit-group', defaultUnitGroup],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
 
@@ -124,39 +133,45 @@ export default function ProductItem({ data }: Props) {
 			},
 			{
 				onSuccess: (data) => {
-					const newProcess = data.data.data; //Exchange[]
-					const newExchangesMap = new Map(newProcess.map((ex) => [ex.id, ex]));
+					const newProcess = data.data.data; //{processId: string, exchange: Exchange}[]
+					const newExchangesMap = new Map(newProcess.map((ex) => [ex.processId, ex.exchange]));
 
 					setNodes((nodes) => {
 						return nodes.map((node) => {
-							if (node.id === sheetState.process?.id) {
-								const updatedExchanges = node.data.exchanges.map((exchange) => {
-									// Tra cứu exchange mới từ Map
-									return newExchangesMap.get(exchange.id) || exchange;
+							if (newExchangesMap.has(node.id)) {
+								const newExchange = newExchangesMap.get(node.id);
+
+								const updateExchange = node.data.exchanges.map((ex) => {
+									if (ex.id === newExchange?.id) {
+										return newExchange;
+									}
+									return ex;
 								});
 
 								const _newProcess = {
 									...node,
 									data: {
 										...node.data,
-										exchanges: updatedExchanges,
+										exchanges: updateExchange,
 									},
 								};
 
-								sheetDispatch({
-									type: SheetBarDispatch.SET_NODE,
-									payload: {
-										id: _newProcess.id,
-										color: _newProcess.data.color,
-										description: _newProcess.data.description,
-										exchanges: _newProcess.data.exchanges,
-										impacts: _newProcess.data.impacts,
-										lifeCycleStage: _newProcess.data.lifeCycleStage,
-										name: _newProcess.data.name,
-										overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-										projectId: _newProcess.data.projectId,
-									},
-								});
+								if (node.id === sheetState.process?.id) {
+									sheetDispatch({
+										type: SheetBarDispatch.SET_NODE,
+										payload: {
+											id: _newProcess.id,
+											color: _newProcess.data.color,
+											description: _newProcess.data.description,
+											exchanges: _newProcess.data.exchanges,
+											impacts: _newProcess.data.impacts,
+											lifeCycleStage: _newProcess.data.lifeCycleStage,
+											name: _newProcess.data.name,
+											overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
+											projectId: _newProcess.data.projectId,
+										},
+									});
+								}
 								return _newProcess;
 							}
 							return node;
@@ -204,19 +219,38 @@ export default function ProductItem({ data }: Props) {
 									<div className="col-span-3 text-right">Default</div>
 								</div>
 								<div className="p-2">
-									{unit?.data.data.map((item, index) => (
-										<DropdownMenuItem
-											onClick={() => handleChangeUnit({ unit: item })}
-											key={index}
-											className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
-											aria-label={`Select unit ${item.name}`}
-										>
-											<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
-											<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
-											<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
-										</DropdownMenuItem>
-									))}
+									{isFetchingUnit ? (
+										<div>Loading</div>
+									) : (
+										unit?.data.data.map((item, index) => (
+											<DropdownMenuItem
+												onClick={() => handleChangeUnit({ unit: item })}
+												key={index}
+												className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
+												aria-label={`Select unit ${item.name}`}
+											>
+												<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
+												<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
+												<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
+											</DropdownMenuItem>
+										))
+									)}
 								</div>
+								<DropdownMenu>
+									<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
+										<ChevronLeft size={15} />
+										<div className="text-[13px]">Select unit group</div>
+									</DropdownMenuTrigger>
+
+									<DropdownMenuContent side="left">
+										<DropdownMenuLabel className="text-[13px]">Select unit group</DropdownMenuLabel>
+										{unitGroup?.data.data.map((unit_group) => (
+											<DropdownMenuItem key={unit_group.id} onClick={() => setDefaultUnitGroup(unit_group.id)}>
+												<div className="col-span-4 font-medium text-gray-700">{unit_group.name}</div>
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</div>
 						</DropdownMenuContent>
 					</DropdownMenu>

@@ -19,7 +19,7 @@ import { ProcessSchema, processSchema } from '@/schemas/validation/process.schem
 import { updateSVGAttributes } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Node, useReactFlow } from '@xyflow/react';
+import { Node, useReactFlow, useUpdateNodeInternals } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import { ChevronsUpDown, Package, Pen, Plus } from 'lucide-react';
 import React, { useContext, useMemo, useState } from 'react';
@@ -30,6 +30,7 @@ function SheetbarSide() {
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const updateNodeInternals = useUpdateNodeInternals();
 
 	const form = useForm<ProcessSchema>({
 		resolver: zodResolver(processSchema),
@@ -131,6 +132,7 @@ function SheetbarSide() {
 						return node;
 					});
 				});
+				updateNodeInternals(sheetState.process?.id as string);
 			},
 			onError: (error) => {
 				toast(error.message);

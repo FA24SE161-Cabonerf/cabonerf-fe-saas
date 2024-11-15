@@ -1,7 +1,8 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { Connector, CreateConnectorRes } from '@/@types/connector.type';
+import { CreateConnectorRes } from '@/@types/connector.type';
 import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
+import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
@@ -32,8 +33,9 @@ import {
 import '@xyflow/react/dist/style.css';
 import _, { isNull } from 'lodash';
 
-import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { MouseEvent, useCallback, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // const customEdge: EdgeTypes = {
 // 	process: ProcessEdge,
@@ -45,12 +47,12 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
+	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 	const { playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
-	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const params = useParams<{ pid: string; wid: string }>();
 
 	const { data: projectData, isFetching } = useQuery({
@@ -68,9 +70,13 @@ export default function Playground() {
 		}
 	}, [playgroundDispatch, projectData?.data.data.method.id, projectData?.data.data.processes, setNodes]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		socket.auth = { user_id: app.userProfile?.id };
 		socket.connect();
+
+		socket.on('gateway:error-create-edge', (data) => {
+			toast.error(data.message);
+		});
 
 		socket.on('gateway:delete-process-success', (data) => {
 			deleteElements({ nodes: [{ id: data }] });
@@ -78,40 +84,42 @@ export default function Playground() {
 		});
 
 		socket.on('gateway:connector-created', (data: CreateConnectorRes) => {
-			const sanitizeData = _.omitBy<CreateConnectorRes>(data, isNull);
+			const sanitizedData = _.omitBy<CreateConnectorRes>(data, isNull);
 
-			console.log(sanitizeData);
+			console.log(data);
 
-			if (sanitizeData.updatedProcess) {
+			if (sanitizedData.updatedProcess) {
 				setNodes((nodes) =>
 					nodes.map((item) => {
-						if (item.id === sanitizeData.updatedProcess?.processId) {
-							const newNode: Node<CabonerfNodeData> = {
+						if (item.id === sanitizedData.updatedProcess?.processId) {
+							return {
 								...item,
 								data: {
 									...item.data,
-									exchanges: [...item.data.exchanges, sanitizeData.updatedProcess.exchange],
+									exchanges: [...item.data.exchanges, sanitizedData.updatedProcess.exchange],
 								},
 							};
-							return newNode;
 						}
 						return item;
 					})
 				);
 			}
 
-			setEdges((eds) =>
-				addEdge(
-					{
-						id: sanitizeData.connector?.id as string,
-						source: sanitizeData.connector?.startProcessId as string,
-						target: sanitizeData.connector?.endProcessId as string,
-						sourceHandle: sanitizeData.connector?.startExchangesId,
-						targetHandle: sanitizeData.connector?.endExchangesId,
-					},
-					eds
-				)
-			);
+			// Đợi cập nhật node hoàn tất, sau đó thêm edge
+			requestAnimationFrame(() => {
+				setEdges((eds) =>
+					addEdge(
+						{
+							id: sanitizedData.connector?.id as string,
+							source: sanitizedData.connector?.startProcessId as string,
+							target: sanitizedData.connector?.endProcessId as string,
+							sourceHandle: sanitizedData.connector?.startExchangesId,
+							targetHandle: sanitizedData.connector?.endExchangesId,
+						},
+						eds
+					)
+				);
+			});
 		});
 
 		return () => {
@@ -124,19 +132,10 @@ export default function Playground() {
 			nodes.map((item) => ({
 				...item,
 				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
+				draggable: sheetState.process === undefined ? true : false,
 			}))
 		);
-	}, [sheetState.process?.id, setViewport, setMoreNodes]);
-
-	useEffect(() => {
-		// Cập nhật thuộc tính draggable của các nodes dựa trên sheetState
-		setMoreNodes((prevNodes) =>
-			prevNodes.map((node) => ({
-				...node,
-				draggable: sheetState.process === undefined ? true : false, // Điều chỉnh theo sheetState
-			}))
-		);
-	}, [sheetState.process, setMoreNodes]);
+	}, [sheetState.process, setViewport, setMoreNodes]);
 
 	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>) => {
 		socket.emit('gateway:node-update-position', { id: node.id, x: node.position.x, y: node.position.y });
@@ -149,19 +148,25 @@ export default function Playground() {
 		}
 	}, [setViewport, sheetDispatch, sheetState]);
 
-	const onConnect = useCallback((params: Connection) => {
-		const value = _.omitBy(
-			{
-				startProcessId: params.source,
-				endProcessId: params.target,
-				startExchangesId: params.sourceHandle,
-				endExchangesId: params.targetHandle,
-			},
-			isNull
-		);
+	const onConnect = useCallback(
+		(param: Connection) => {
+			console.log(param);
 
-		socket.emit('gateway:connector-create', value);
-	}, []);
+			const value = _.omitBy(
+				{
+					projectId: params.pid,
+					startProcessId: param.source,
+					endProcessId: param.target,
+					startExchangesId: param.sourceHandle,
+					endExchangesId: param.targetHandle,
+				},
+				isNull
+			);
+
+			socket.emit('gateway:connector-create', value);
+		},
+		[params.pid]
+	);
 
 	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
 
@@ -197,6 +202,7 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
+					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>
