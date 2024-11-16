@@ -19,6 +19,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
 	addEdge,
+	Background,
+	BackgroundVariant,
 	Connection,
 	Edge,
 	MiniMap,
@@ -65,10 +67,18 @@ export default function Playground() {
 
 	useEffect(() => {
 		if (projectData?.data.data.processes) {
-			setNodes(projectData.data.data.processes as Node<CabonerfNodeData>[]);
+			setEdges(projectData.data.data.connectors);
+			setNodes(projectData.data.data.processes);
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method.id });
 		}
-	}, [playgroundDispatch, projectData?.data.data.method.id, projectData?.data.data.processes, setNodes]);
+	}, [
+		playgroundDispatch,
+		projectData?.data.data.method.id,
+		projectData?.data.data.processes,
+		projectData?.data.data.connectors,
+		setEdges,
+		setNodes,
+	]);
 
 	useLayoutEffect(() => {
 		socket.auth = { user_id: app.userProfile?.id };
@@ -178,7 +188,7 @@ export default function Playground() {
 			<div className="relative h-[calc(100vh-50px)]">
 				<ReactFlow
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-					className="relative bg-[#f0f0f0]"
+					className="relative"
 					nodeTypes={customNode}
 					nodes={nodes}
 					edges={edges}
@@ -193,7 +203,7 @@ export default function Playground() {
 					onlyRenderVisibleElements
 					onNodeDragStop={handleNodeDragStop}
 				>
-					{/* <Background /> */}
+					<Background bgColor="#f2f0eb" variant={BackgroundVariant.Dots} color="#86858f" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
