@@ -33,12 +33,12 @@ import {
 	useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import _, { isNull } from 'lodash';
 
-import React, { MouseEvent, useCallback, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { isNull, omitBy } from 'lodash';
 // const customEdge: EdgeTypes = {
 // 	process: ProcessEdge,
 // };
@@ -52,6 +52,7 @@ export default function Playground() {
 	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
 	const { playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
@@ -80,7 +81,7 @@ export default function Playground() {
 		setNodes,
 	]);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		socket.auth = { user_id: app.userProfile?.id };
 		socket.connect();
 
@@ -94,9 +95,7 @@ export default function Playground() {
 		});
 
 		socket.on('gateway:connector-created', (data: CreateConnectorRes) => {
-			const sanitizedData = _.omitBy<CreateConnectorRes>(data, isNull);
-
-			console.log(data);
+			const sanitizedData = omitBy<CreateConnectorRes>(data, isNull);
 
 			if (sanitizedData.updatedProcess) {
 				setNodes((nodes) =>
@@ -115,8 +114,7 @@ export default function Playground() {
 				);
 			}
 
-			// Đợi cập nhật node hoàn tất, sau đó thêm edge
-			requestAnimationFrame(() => {
+			setTimeout(() => {
 				setEdges((eds) =>
 					addEdge(
 						{
@@ -129,7 +127,7 @@ export default function Playground() {
 						eds
 					)
 				);
-			});
+			}, 0);
 		});
 
 		return () => {
@@ -162,7 +160,7 @@ export default function Playground() {
 		(param: Connection) => {
 			console.log(param);
 
-			const value = _.omitBy(
+			const value = omitBy(
 				{
 					projectId: params.pid,
 					startProcessId: param.source,
