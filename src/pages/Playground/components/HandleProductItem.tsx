@@ -81,7 +81,7 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 
 	return (
 		<div
-			className={clsx(`relative border-b-[0.5px] border-r-[0.5px] border-t-[0.5px] py-[1px] pl-3 pr-2`, {
+			className={clsx(`relative overflow-hidden border-b-[0.5px] border-r-[0.5px] border-t-[0.5px] py-[1px] pl-3 pr-2`, {
 				'rounded-r-xl border-[0.5px] border-l-0': isReverse === false,
 				'rounded-l-xl border-[0.5px] border-r-0': isReverse === true,
 			})}
