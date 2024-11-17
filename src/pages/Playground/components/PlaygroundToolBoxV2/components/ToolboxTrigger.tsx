@@ -65,12 +65,12 @@ function ToolboxTrigger({ id, iconRenderProps }: Props) {
 	return (
 		<>
 			{app.isLoading ? (
-				<Skeleton className="h-[44px] w-[44px] rounded-lg" />
+				<Skeleton className="h-[44px] w-[44px] rounded-full" />
 			) : (
 				<button
-					className={clsx(`items-cente flex rounded-sm p-2.5 transition duration-100`, {
-						'bg-[#16a34a]': id && app.selectedTriggerId === id,
-						'hover:bg-zinc-100': app.selectedTriggerId !== id,
+					className={clsx(`items-cente flex rounded-full p-3 transition duration-100`, {
+						'bg-[#EFEFEF] shadow': id && app.selectedTriggerId === id,
+						'hover:bg-[#EFEFEF]': app.selectedTriggerId !== id,
 					})}
 					ref={buttonRef}
 					onClick={selectTriggerId}

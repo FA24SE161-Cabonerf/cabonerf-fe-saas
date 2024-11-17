@@ -68,8 +68,7 @@
 
 	body {
 		@apply bg-background text-foreground;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
-			'Segoe UI Emoji', 'Segoe UI Symbol';
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji';
 	}
 
 	.before-exchange-substance {
@@ -78,6 +77,20 @@
 
 	.after-exchange-substance {
 		@apply after:absolute after:right-0 after:top-1/2 after:h-[60%] after:w-[5px] after:-translate-y-1/2 after:rounded-bl after:rounded-tl after:content-[''];
+	}
+
+	.grainy-effect {
+		position: relative;
+	}
+
+	.grainy-effect::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(rgba(0, 0, 0, 0.02) 0%, transparent 70%);
+		opacity: 0.5; /* Adjust the intensity */
+		pointer-events: none;
+		background-size: 3px 3px; /* Control grain size */
 	}
 
 	input[type='number']::-webkit-inner-spin-button,

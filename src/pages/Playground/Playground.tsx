@@ -2,12 +2,10 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CreateConnectorRes } from '@/@types/connector.type';
 import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
-import { DevTools } from '@/components/devtools';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
 import PlaygroundActionToolbar from '@/pages/Playground/components/PlaygroundActionToolbar';
 import PlaygroundControls from '@/pages/Playground/components/PlaygroundControls';
-import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundToolBoxV2 from '@/pages/Playground/components/PlaygroundToolBoxV2';
 import SheetbarSide from '@/pages/Playground/components/SheetbarSide';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
@@ -20,9 +18,9 @@ import { useQuery } from '@tanstack/react-query';
 import {
 	addEdge,
 	Background,
-	BackgroundVariant,
 	Connection,
 	Edge,
+	EdgeTypes,
 	MiniMap,
 	Node,
 	NodeTypes,
@@ -39,9 +37,12 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { isNull, omitBy } from 'lodash';
-// const customEdge: EdgeTypes = {
-// 	process: ProcessEdge,
-// };
+import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
+import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
+
+const customEdge: EdgeTypes = {
+	process: ProcessEdge,
+};
 
 const customNode: NodeTypes = {
 	process: ProcessNode,
@@ -115,18 +116,7 @@ export default function Playground() {
 			}
 
 			setTimeout(() => {
-				setEdges((eds) =>
-					addEdge(
-						{
-							id: sanitizedData.connector?.id as string,
-							source: sanitizedData.connector?.startProcessId as string,
-							target: sanitizedData.connector?.endProcessId as string,
-							sourceHandle: sanitizedData.connector?.startExchangesId,
-							targetHandle: sanitizedData.connector?.endExchangesId,
-						},
-						eds
-					)
-				);
+				setEdges((eds) => addEdge(sanitizedData.connector as Edge, eds));
 			}, 0);
 		});
 
@@ -158,8 +148,6 @@ export default function Playground() {
 
 	const onConnect = useCallback(
 		(param: Connection) => {
-			console.log(param);
-
 			const value = omitBy(
 				{
 					projectId: params.pid,
@@ -182,12 +170,12 @@ export default function Playground() {
 
 	return (
 		<React.Fragment>
-			<PlaygroundHeader />
-			<div className="relative h-[calc(100vh-50px)]">
+			<div className="relative h-[100vh]">
 				<ReactFlow
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 					className="relative"
 					nodeTypes={customNode}
+					edgeTypes={customEdge}
 					nodes={nodes}
 					edges={edges}
 					panOnDrag={canPaneScrollAndDrag}
@@ -197,11 +185,12 @@ export default function Playground() {
 					onPaneClick={handlePanelClick}
 					proOptions={{ hideAttribution: true }}
 					onNodesChange={onNodesChange}
+					connectionLineComponent={ConnectionLine}
 					onEdgesChange={onEdgesChange}
 					onlyRenderVisibleElements
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background bgColor="#f2f0eb" variant={BackgroundVariant.Dots} color="#86858f" />
+					<Background bgColor="#f4f2ee" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
@@ -210,7 +199,6 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
-					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

@@ -1,11 +1,12 @@
+import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 import { BaseEdge, Edge, EdgeProps, getSimpleBezierPath } from '@xyflow/react';
 
-type CustomEdge = Edge<{ value: number }, 'process'>;
+type CustomEdge = Edge<CabonerfEdgeData, 'process'>;
 
 export default function ProcessEdge(data: EdgeProps<CustomEdge>) {
-	console.log(data);
+	console.log(data.style);
 
-	const [path, labelX, labelY, offsetX, offsetY] = getSimpleBezierPath({
+	const [path] = getSimpleBezierPath({
 		sourceX: data.sourceX,
 		sourceY: data.sourceY,
 		sourcePosition: data.sourcePosition,
@@ -14,9 +15,5 @@ export default function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		targetPosition: data.targetPosition,
 	});
 
-	return (
-		<>
-			<BaseEdge className="opacity-85" id={data.id} path={path} />
-		</>
-	);
+	return <BaseEdge path={path} {...data} style={data.style} />;
 }
