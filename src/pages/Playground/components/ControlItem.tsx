@@ -12,7 +12,7 @@ function ControlItem({ children, duration, onAction, isActive }: Props) {
 	return (
 		<button
 			onClick={() => onAction && onAction({ duration: duration as number })}
-			className={clsx(`flex items-center rounded-sm p-2 transition duration-300 hover:bg-zinc-100`, {
+			className={clsx(`rounded-full p-2.5 text-gray-400 hover:bg-[#EFEFEF]`, {
 				'bg-zinc-100': isActive,
 			})}
 		>

@@ -1,50 +1,41 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import ControlItem from '@/pages/Playground/components/ControlItem';
-import MenuExport from '@/pages/Playground/components/MenuExport';
 import socket from '@/socket.io';
 import { useReactFlow } from '@xyflow/react';
-import { ArrowDownFromLine, ChartColumnBig, Pencil, Play, Scan, Share, ZoomIn, ZoomOut } from 'lucide-react';
-import React, { useState } from 'react';
+import { ChartColumnBig, Pencil, Play, Scan, ZoomIn, ZoomOut } from 'lucide-react';
+import React from 'react';
 
 const FIT_VIEW = 1000;
 const ZOOM = 150;
 
 function PlaygroundControls() {
-	const [isShareMenu, setIsShareMenu] = useState<boolean>(false);
-
 	const reactflow = useReactFlow();
 
-	const toggleShareMenu = () => setIsShareMenu((prevState) => !prevState);
-
 	return (
-		<div className="relative w-auto transform rounded-md border border-gray-100 bg-white shadow-lg duration-300">
-			<MenuExport isShareMenu={isShareMenu} />
+		<div className="relative w-auto transform rounded-full border border-gray-300 bg-white px-1 shadow-lg duration-300">
 			<div className="flex items-center space-x-2 p-2">
-				<div className="flex items-center space-x-2 rounded-sm bg-green-200 p-2">
+				<div className="flex items-center space-x-2 rounded-full bg-green-200 p-2">
 					<Pencil size={17} strokeWidth={2} color="green" />
 					<span className="text-[13px] font-medium text-green-700">Editing</span>
 				</div>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomIn}>
-					<ZoomIn size={19} strokeWidth={2} />
+					<ZoomIn size={19} strokeWidth={2} color="#6b7280" />
 				</ControlItem>
 				<ControlItem duration={ZOOM} onAction={reactflow.zoomOut}>
-					<ZoomOut size={19} strokeWidth={2} />
+					<ZoomOut size={19} strokeWidth={2} color="#6b7280" />
 				</ControlItem>
 				<ControlItem duration={FIT_VIEW} onAction={reactflow.fitView}>
-					<Scan size={19} strokeWidth={2} />
+					<Scan size={19} strokeWidth={2} color="#6b7280" />
 				</ControlItem>
 				<ControlItem>
-					<ChartColumnBig size={19} strokeWidth={2} />
-				</ControlItem>
-				<ControlItem isActive={!!isShareMenu} duration={18} onAction={toggleShareMenu}>
-					{isShareMenu ? <ArrowDownFromLine strokeWidth={2} size={19} /> : <Share strokeWidth={2} size={19} />}
+					<ChartColumnBig size={19} strokeWidth={2} color="#6b7280" />
 				</ControlItem>
 
 				<Separator orientation="vertical" className="h-6" color="black" />
 
 				<Button
-					className="back space-x-3 rounded-sm text-[13px] font-normal"
+					className="back space-x-3 rounded-full text-[13px] font-normal"
 					onClick={() => socket.emit('gateway:process-create', 'asd')}
 				>
 					<Play size={16} fill="white" color="white" /> <span>Calculate LCA</span>

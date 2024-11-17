@@ -8,14 +8,31 @@ import React from 'react';
 function PlaygroundToolBoxV2() {
 	return (
 		<Toolbox>
-			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-[12.5px] border-[0.5px] border-gray-200 bg-white p-2 shadow">
+			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-full border border-gray-300 bg-white px-2 py-3 shadow-md">
 				<div className="flex flex-col space-y-2">
-					<ToolboxTrigger iconRenderProps={(isActive) => <SquarePlus color={isActive ? 'white' : 'black'} />} />
-					<ToolboxTrigger id="2" iconRenderProps={(isActive) => <Blocks color={isActive ? 'white' : 'black'} />} />
-					<ToolboxTrigger id="3" iconRenderProps={(isActive) => <DatabaseZap color={isActive ? 'white' : 'black'} />} />
-					<ToolboxTrigger id="4" iconRenderProps={(isActive) => <Package color={isActive ? 'white' : 'black'} />} />
-					<ToolboxTrigger id="5" iconRenderProps={(isActive) => <Type color={isActive ? 'white' : 'black'} />} />
-					<ToolboxTrigger id="6" iconRenderProps={(isActive) => <StickyNote color={isActive ? 'white' : 'black'} />} />
+					<ToolboxTrigger
+						iconRenderProps={(isActive) => <SquarePlus className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
+					<ToolboxTrigger
+						id="2"
+						iconRenderProps={(isActive) => <Blocks className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
+					<ToolboxTrigger
+						id="3"
+						iconRenderProps={(isActive) => <DatabaseZap className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
+					<ToolboxTrigger
+						id="4"
+						iconRenderProps={(isActive) => <Package className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
+					<ToolboxTrigger
+						id="5"
+						iconRenderProps={(isActive) => <Type className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
+					<ToolboxTrigger
+						id="6"
+						iconRenderProps={(isActive) => <StickyNote className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
+					/>
 				</div>
 				<ToolboxMenu id="2">
 					<ToolboxLifeCycleStages />

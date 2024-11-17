@@ -7,7 +7,7 @@ import ProcessApis from '@/apis/process.apis';
 import ScrollableList from '@/components/ScrollableList';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogOverlay, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -193,7 +193,7 @@ function SheetbarSide() {
 	};
 
 	return (
-		<Dialog modal={false}>
+		<Dialog modal={true}>
 			<div className="absolute right-0 top-0 h-full w-[470px] overflow-auto border-l bg-white">
 				{/* Header */}
 				<div className="sticky left-0 right-0 top-0 z-50 mb-1 bg-white">
@@ -446,6 +446,7 @@ function SheetbarSide() {
 				</div>
 			</div>
 			<SheetbarSearch />
+			<DialogOverlay className="bg-black/40 backdrop-blur-[2px]" />
 		</Dialog>
 	);
 }

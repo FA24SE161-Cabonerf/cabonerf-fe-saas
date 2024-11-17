@@ -1,3 +1,4 @@
+import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ContextDispatch, eDispatchType, SheetBarDispatch } from '@/@types/dispatch.type';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { AppContext } from '@/contexts/app.context';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
-import { Node, useReactFlow } from '@xyflow/react';
+import { Edge, Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
 
@@ -43,7 +44,10 @@ function lightenColor({ hex, amount }: { hex: string; amount: number }) {
 
 const ContextMenuProcess = React.memo(
 	forwardRef<HTMLDivElement, unknown>((_, ref) => {
-		const { deleteElements, setNodes, setViewport, getViewport, fitView } = useReactFlow<Node<CabonerfNodeData>>();
+		const { deleteElements, setNodes, setViewport, getViewport, setEdges, fitView } = useReactFlow<
+			Node<CabonerfNodeData>,
+			Edge<CabonerfEdgeData>
+		>();
 		const id = useId();
 		const { sheetDispatch } = useContext(SheetbarContext);
 		const { dispatch } = useContext(AppContext);
@@ -92,6 +96,12 @@ const ContextMenuProcess = React.memo(
 			socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
 				setNodes((nodes) => {
 					return nodes.map((node) => (node.id === dataColor.id ? { ...node, data: { ...node.data, color: dataColor.color } } : node));
+				});
+
+				setEdges((edges) => {
+					return edges.map((edge) =>
+						edge.source === dataColor.id ? { ...edge, style: { ...edge.style, stroke: dataColor.color } } : edge
+					);
 				});
 			});
 		};

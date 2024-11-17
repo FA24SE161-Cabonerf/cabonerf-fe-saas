@@ -1,4 +1,5 @@
 import { Exchange } from '@/@types/exchange.type';
+import { Edge } from '@xyflow/react';
 
 interface CreateConnectorReqBody {
 	startProcessId: string; // source: đầu ra
@@ -16,7 +17,7 @@ interface Connector {
 }
 
 interface CreateConnectorRes {
-	connector: Connector;
+	connector: Edge;
 	updatedProcess: {
 		processId: string;
 		exchange: Exchange;
