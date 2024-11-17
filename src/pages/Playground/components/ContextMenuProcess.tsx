@@ -7,7 +7,7 @@ import { AppContext } from '@/contexts/app.context';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
-import { Edge, Node, useReactFlow } from '@xyflow/react';
+import { Edge, MarkerType, Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Pencil, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
 
@@ -100,7 +100,16 @@ const ContextMenuProcess = React.memo(
 
 				setEdges((edges) => {
 					return edges.map((edge) =>
-						edge.source === dataColor.id ? { ...edge, style: { ...edge.style, stroke: dataColor.color } } : edge
+						edge.source === dataColor.id
+							? {
+									...edge,
+									style: { ...edge.style, stroke: dataColor.color },
+									markerEnd: {
+										...(typeof edge.markerEnd === 'object' ? edge.markerEnd : {}),
+										color: dataColor.color,
+									} as unknown as MarkerType,
+								}
+							: edge
 					);
 				});
 			});
