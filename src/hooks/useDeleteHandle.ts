@@ -12,7 +12,6 @@ export default function useDeleteHandle() {
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { setNodes, setEdges } = useReactFlow<Node<CabonerfNodeData>>();
 
-	// Hàm để đợi socket hoàn thành
 	const waitForSocket = (event: string): Promise<string[]> =>
 		new Promise((resolve) => {
 			socket.once(event, (data) => {
@@ -22,20 +21,16 @@ export default function useDeleteHandle() {
 
 	const deleteExchangeMutations = useMutation({
 		mutationFn: async (id: string) => {
-			// Gửi yêu cầu HTTP để xóa product exchange
 			const httpResponse = await ExchangeApis.prototype.deleteProductExchange({ id });
-			// Đợi socket event hoàn thành
+
 			const socketResponse = await waitForSocket('gateway:delete-connector-ids');
 
-			// Trả về kết quả tổng hợp
 			return { httpResponse, socketResponse };
 		},
 		onSuccess: async ({ httpResponse, socketResponse }) => {
 			const newProductExchanges = httpResponse.data.data;
 
 			setEdges((edges) => edges.filter((edge) => !(socketResponse as string[]).includes(edge.id)));
-
-			// Cập nhật nodes với dữ liệu mới
 
 			setNodes((nodes) => {
 				return nodes.map((node) => {
