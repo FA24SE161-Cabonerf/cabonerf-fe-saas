@@ -55,6 +55,7 @@ function SheetbarSearch() {
 			sheetState.queryParams.keyword,
 			sheetState.queryParams.emissionCompartmentId,
 			sheetState.queryParams.impactCategoryId,
+			sheetState.queryParams.methodId,
 		],
 		queryFn: ({ pageParam, queryKey }) => {
 			const sanitizeQueryParam = omitBy(sheetState.queryParams, isUndefined);
@@ -74,10 +75,19 @@ function SheetbarSearch() {
 		},
 		enabled: !!sheetState.queryParams.input && !!sheetState.queryParams.methodId,
 		placeholderData: (previousData) => previousData,
-		retry: 0,
 	});
 
-	console.log(sheetState);
+	useEffect(() => {
+		sheetDispatch({
+			type: SheetBarDispatch.MODIFY_QUERY_PARAMS,
+			payload: {
+				pageSize: LIMIT_SIZE_PAGE,
+				keyword: searchTextDebounced,
+				methodId: playgroundState.impactMethod,
+			},
+		});
+		console.log(playgroundState.impactMethod);
+	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
 
 	// Fetch emission compartment
 	const { data: emissionCompartment } = useQuery({
@@ -137,17 +147,6 @@ function SheetbarSearch() {
 			console.log(err.message);
 		},
 	});
-
-	useEffect(() => {
-		sheetDispatch({
-			type: SheetBarDispatch.MODIFY_QUERY_PARAMS,
-			payload: {
-				pageSize: LIMIT_SIZE_PAGE,
-				keyword: searchTextDebounced,
-				methodId: playgroundState.impactMethod,
-			},
-		});
-	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
 
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
