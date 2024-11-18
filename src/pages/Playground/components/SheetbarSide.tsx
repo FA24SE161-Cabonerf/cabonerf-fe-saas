@@ -7,7 +7,7 @@ import ProcessApis from '@/apis/process.apis';
 import ScrollableList from '@/components/ScrollableList';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogOverlay, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogOverlay, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -445,7 +445,9 @@ function SheetbarSide() {
 					</Tabs>
 				</div>
 			</div>
-			<SheetbarSearch />
+			<DialogContent className="border-none p-0 shadow-2xl [&>button]:hidden" style={{ maxWidth: 670, width: 670, borderRadius: 16 }}>
+				<SheetbarSearch />
+			</DialogContent>
 			<DialogOverlay className="bg-black/40 backdrop-blur-[2px]" />
 		</Dialog>
 	);

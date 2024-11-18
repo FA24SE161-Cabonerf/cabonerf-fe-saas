@@ -5,7 +5,6 @@ import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
 import { BaseEdge, Edge, EdgeLabelRenderer, EdgeProps, getSimpleBezierPath, useReactFlow } from '@xyflow/react';
 import { Ellipsis } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 type CustomEdge = Edge<CabonerfEdgeData, 'process'>;
 

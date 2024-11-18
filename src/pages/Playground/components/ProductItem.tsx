@@ -4,19 +4,20 @@ import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import useDeleteHandle from '@/hooks/useDeleteHandle';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Check, ChevronLeft, Package, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 type Props = {
 	data: Exchange;
 };
 
 export default function ProductItem({ data }: Props) {
+	const deleteHandle = useDeleteHandle();
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 
@@ -76,42 +77,43 @@ export default function ProductItem({ data }: Props) {
 	};
 
 	const handleDeleteExchange = () => {
-		deleteExchangeMutations.mutate(data.id, {
-			onSuccess: (data) => {
-				const newProductExchanges = data.data.data;
+		deleteHandle(data.id);
+		// deleteExchangeMutations.mutate(data.id, {
+		// 	onSuccess: (data) => {
+		// 		const newProductExchanges = data.data.data;
 
-				setNodes((nodes) => {
-					return nodes.map((node) => {
-						if (node.id === sheetState.process?.id) {
-							const _newProcess = {
-								...node,
-								data: { ...node.data, exchanges: newProductExchanges },
-							};
+		// 		setNodes((nodes) => {
+		// 			return nodes.map((node) => {
+		// 				if (node.id === sheetState.process?.id) {
+		// 					const _newProcess = {
+		// 						...node,
+		// 						data: { ...node.data, exchanges: newProductExchanges },
+		// 					};
 
-							sheetDispatch({
-								type: SheetBarDispatch.SET_NODE,
-								payload: {
-									id: _newProcess.id,
-									color: _newProcess.data.color,
-									description: _newProcess.data.description,
-									exchanges: _newProcess.data.exchanges,
-									impacts: _newProcess.data.impacts,
-									lifeCycleStage: _newProcess.data.lifeCycleStage,
-									name: _newProcess.data.name,
-									overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-									projectId: _newProcess.data.projectId,
-								},
-							});
-							return _newProcess;
-						}
-						return node;
-					});
-				});
-			},
-			onError: (error) => {
-				toast(error.message);
-			},
-		});
+		// 					sheetDispatch({
+		// 						type: SheetBarDispatch.SET_NODE,
+		// 						payload: {
+		// 							id: _newProcess.id,
+		// 							color: _newProcess.data.color,
+		// 							description: _newProcess.data.description,
+		// 							exchanges: _newProcess.data.exchanges,
+		// 							impacts: _newProcess.data.impacts,
+		// 							lifeCycleStage: _newProcess.data.lifeCycleStage,
+		// 							name: _newProcess.data.name,
+		// 							overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
+		// 							projectId: _newProcess.data.projectId,
+		// 						},
+		// 					});
+		// 					return _newProcess;
+		// 				}
+		// 				return node;
+		// 			});
+		// 		});
+		// 	},
+		// 	onError: (error) => {
+		// 		toast(error.message);
+		// 	},
+		// });
 	};
 
 	const handleUpdateProduct = () => {
