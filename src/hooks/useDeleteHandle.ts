@@ -14,21 +14,23 @@ export default function useDeleteHandle() {
 
 	const waitForSocket = (event: string): Promise<string[]> =>
 		new Promise((resolve) => {
-			socket.once(event, (data) => {
+			socket.on(event, (data) => {
 				resolve(data);
 			});
 		});
 
 	const deleteExchangeMutations = useMutation({
 		mutationFn: async (id: string) => {
-			const httpResponse = await ExchangeApis.prototype.deleteProductExchange({ id });
-
-			const socketResponse = await waitForSocket('gateway:delete-connector-ids');
-
+			const [httpResponse, socketResponse] = await Promise.all([
+				ExchangeApis.prototype.deleteProductExchange({ id }),
+				waitForSocket('gateway:delete-connector-ids'),
+			]);
 			return { httpResponse, socketResponse };
 		},
 		onSuccess: async ({ httpResponse, socketResponse }) => {
 			const newProductExchanges = httpResponse.data.data;
+
+			console.log(httpResponse, socketResponse);
 
 			setEdges((edges) => edges.filter((edge) => !(socketResponse as string[]).includes(edge.id)));
 
@@ -65,5 +67,5 @@ export default function useDeleteHandle() {
 		},
 	});
 
-	return deleteExchangeMutations.mutate;
+	return deleteExchangeMutations;
 }
