@@ -29,7 +29,10 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const contextMenuRef = useRef<HTMLDivElement>(null);
 
 	const isTarget = connection.inProgress && connection.fromNode.id !== data.id;
-
+	const unitValue = useMemo(
+		() => data.data.impacts.find((item) => item.impactCategory.id === playgroundState.impactCategory?.id)?.unitLevel,
+		[data.data.impacts, playgroundState.impactCategory?.id]
+	);
 	// Handle context menu
 	useEffect(() => {
 		const handleContextMenuEvent = (event: MouseEvent) => {
@@ -140,7 +143,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					{data.data.impacts.length > 0 && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="flex items-center space-x-1 rounded p-0.5 text-xs hover:bg-gray-100">
+								<button className="flex items-center space-x-2 rounded p-0.5 text-xs hover:bg-gray-100">
 									<div
 										dangerouslySetInnerHTML={{
 											__html: DOMPurify.sanitize(
@@ -152,7 +155,10 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 											),
 										}}
 									/>
-									<div>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</div>
+									<div className="flex items-center space-x-1">
+										<span className="font-bold">{unitValue}</span>
+										<span>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</span>
+									</div>
 								</button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">

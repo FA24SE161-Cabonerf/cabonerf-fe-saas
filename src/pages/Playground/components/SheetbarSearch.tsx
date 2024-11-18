@@ -7,7 +7,7 @@ import { ExchangeApis } from '@/apis/exchange.apis';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import { EmissionSubstancesApis } from '@/apis/substance.api';
 import ChemicalFormula from '@/components/ChemicalFormula';
-import { DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -60,7 +60,7 @@ function SheetbarSearch() {
 			const sanitizeQueryParam = omitBy(sheetState.queryParams, isUndefined);
 
 			return EmissionSubstancesApis.prototype.getEmissionSubstances({
-				pageCurrent: pageParam,
+				pageCurrent: pageParam ?? 1,
 				input: String(queryKey[1]),
 				...sanitizeQueryParam,
 			});
@@ -72,10 +72,12 @@ function SheetbarSearch() {
 			}
 			return lastPage.pageCurrent + 1;
 		},
-		enabled: sheetState.queryParams.input !== undefined,
-		staleTime: 1000 * 60 * 2,
+		enabled: !!sheetState.queryParams.input && !!sheetState.queryParams.methodId,
 		placeholderData: (previousData) => previousData,
+		retry: 0,
 	});
+
+	console.log(sheetState);
 
 	// Fetch emission compartment
 	const { data: emissionCompartment } = useQuery({
@@ -141,8 +143,8 @@ function SheetbarSearch() {
 			type: SheetBarDispatch.MODIFY_QUERY_PARAMS,
 			payload: {
 				pageSize: LIMIT_SIZE_PAGE,
-				methodId: playgroundState.impactMethod as string,
 				keyword: searchTextDebounced,
+				methodId: playgroundState.impactMethod,
 			},
 		});
 	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
@@ -173,8 +175,15 @@ function SheetbarSearch() {
 		);
 	};
 
+	useEffect(() => {
+		console.log('mount');
+		return () => {
+			setSearchText('');
+		};
+	}, []);
+
 	return (
-		<DialogContent className="border-none p-0 shadow-2xl [&>button]:hidden" style={{ maxWidth: 670, width: 670, borderRadius: 16 }}>
+		<>
 			<DialogTitle className="hidden"></DialogTitle>
 			<DialogDescription className="hidden"></DialogDescription>
 			<div className="h-full w-[670px]">
@@ -417,7 +426,7 @@ function SheetbarSearch() {
 					</InfiniteScroll>
 				)}
 			</div>
-		</DialogContent>
+		</>
 	);
 }
 

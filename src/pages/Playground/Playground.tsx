@@ -50,7 +50,7 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
-	const { deleteElements, setViewport, setNodes: setMoreNodes } = useReactFlow<Node<CabonerfNodeData>>();
+	const { deleteElements, setViewport, setNodes: setMoreNodes, setEdges: setMoreEdges } = useReactFlow<Node<CabonerfNodeData>>();
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -133,7 +133,14 @@ export default function Playground() {
 				draggable: sheetState.process === undefined ? true : false,
 			}))
 		);
-	}, [sheetState.process, setViewport, setMoreNodes]);
+		setMoreEdges((edge) =>
+			edge.map((item) => ({
+				...item,
+				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
+				draggable: sheetState.process === undefined ? true : false,
+			}))
+		);
+	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
 
 	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>) => {
 		socket.emit('gateway:node-update-position', { id: node.id, x: node.position.x, y: node.position.y });
