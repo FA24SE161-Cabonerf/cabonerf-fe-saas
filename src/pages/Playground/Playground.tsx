@@ -16,7 +16,6 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 
 import {
-	addEdge,
 	Background,
 	Connection,
 	Edge,
@@ -29,6 +28,7 @@ import {
 	useEdgesState,
 	useNodesState,
 	useReactFlow,
+	useUpdateNodeInternals,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -36,9 +36,11 @@ import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from '
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { isNull, omitBy } from 'lodash';
-import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
+import { DevTools } from '@/components/devtools';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
+import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
+import { isNull, omitBy } from 'lodash';
+import { flushSync } from 'react-dom';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -50,9 +52,11 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
-	const { deleteElements, setViewport, setNodes: setMoreNodes, setEdges: setMoreEdges } = useReactFlow<Node<CabonerfNodeData>>();
+	const { deleteElements, setViewport, addEdges, setNodes: setMoreNodes, setEdges: setMoreEdges } = useReactFlow<Node<CabonerfNodeData>>();
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+	const updateNodeInternal = useUpdateNodeInternals();
 
 	const { playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -83,7 +87,6 @@ export default function Playground() {
 	]);
 
 	useEffect(() => {
-		socket.auth = { user_id: app.userProfile?.id };
 		socket.connect();
 
 		socket.on('gateway:error-create-edge', (data) => {
@@ -99,31 +102,54 @@ export default function Playground() {
 			const sanitizedData = omitBy<CreateConnectorRes>(data, isNull);
 
 			if (sanitizedData.updatedProcess) {
-				setNodes((nodes) =>
-					nodes.map((item) => {
-						if (item.id === sanitizedData.updatedProcess?.processId) {
-							return {
-								...item,
-								data: {
-									...item.data,
-									exchanges: [...item.data.exchanges, sanitizedData.updatedProcess.exchange],
-								},
-							};
-						}
-						return item;
-					})
+				flushSync(() =>
+					setNodes((nodes) =>
+						nodes.map((item) => {
+							if (item.id === sanitizedData.updatedProcess?.processId) {
+								return {
+									...item,
+									data: {
+										...item.data,
+										exchanges: [...item.data.exchanges, sanitizedData.updatedProcess.exchange],
+									},
+								};
+							}
+							return item;
+						})
+					)
 				);
-			}
+				updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
 
-			setTimeout(() => {
-				setEdges((eds) => addEdge(sanitizedData.connector as Edge, eds));
-			}, 0);
+				setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
+			}
+		});
+
+		socket.on('connect_error', (err) => {
+			console.error('Connection error:', err.message);
 		});
 
 		return () => {
 			socket.disconnect();
 		};
-	}, [app.userProfile?.id, appDispatch, deleteElements, setEdges, setNodes]);
+	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal]);
+
+	const onConnect = useCallback(
+		(param: Connection) => {
+			const value = omitBy(
+				{
+					projectId: params.pid,
+					startProcessId: param.source,
+					endProcessId: param.target,
+					startExchangesId: param.sourceHandle,
+					endExchangesId: param.targetHandle,
+				},
+				isNull
+			);
+
+			socket.emit('gateway:connector-create', value);
+		},
+		[params.pid]
+	);
 
 	useEffect(() => {
 		setMoreNodes((nodes) =>
@@ -152,24 +178,6 @@ export default function Playground() {
 			setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
 		}
 	}, [setViewport, sheetDispatch, sheetState]);
-
-	const onConnect = useCallback(
-		(param: Connection) => {
-			const value = omitBy(
-				{
-					projectId: params.pid,
-					startProcessId: param.source,
-					endProcessId: param.target,
-					startExchangesId: param.sourceHandle,
-					endExchangesId: param.targetHandle,
-				},
-				isNull
-			);
-
-			socket.emit('gateway:connector-create', value);
-		},
-		[params.pid]
-	);
 
 	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
 
@@ -206,6 +214,7 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
+					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

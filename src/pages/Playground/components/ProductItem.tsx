@@ -39,10 +39,6 @@ export default function ProductItem({ data }: Props) {
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
 
-	const deleteExchangeMutations = useMutation({
-		mutationFn: (id: string) => ExchangeApis.prototype.deleteProductExchange({ id }),
-	});
-
 	const updateProductExchangeMutate = useMutation({
 		mutationFn: ({ id, payload }: { id: string; payload: { processId: string; unitId: string; value: number; name: string } }) =>
 			ExchangeApis.prototype.updateProductExchange(id, payload),
@@ -77,7 +73,7 @@ export default function ProductItem({ data }: Props) {
 	};
 
 	const handleDeleteExchange = () => {
-		deleteHandle(data.id);
+		deleteHandle.mutate(data.id);
 		// deleteExchangeMutations.mutate(data.id, {
 		// 	onSuccess: (data) => {
 		// 		const newProductExchanges = data.data.data;
@@ -276,10 +272,10 @@ export default function ProductItem({ data }: Props) {
 						<button
 							onClick={handleDeleteExchange}
 							className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-							disabled={deleteExchangeMutations.isPending}
+							disabled={deleteHandle.isPending}
 							aria-label="Delete Exchange"
 						>
-							{deleteExchangeMutations.isPending ? (
+							{deleteHandle.isPending ? (
 								<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
 							) : (
 								<Trash2 className="h-4 w-4 text-red-600" />
