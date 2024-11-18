@@ -5,45 +5,37 @@ import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
 import { useMutation } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { toast } from 'sonner';
 
 export default function useDeleteHandle() {
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
-	const { setNodes, deleteElements } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes, setEdges } = useReactFlow<Node<CabonerfNodeData>>();
 
-	const [isHttpDone, setIsHttpDone] = useState<boolean>(false);
-	const [buffer, setBuffer] = useState<string[]>([]);
-
-	useEffect(() => {
-		const deleteEdges = (ids: string[]) => {
-			const idsDelete = ids.map((item) => ({ id: item }));
-			deleteElements({
-				edges: idsDelete,
+	// Hàm để đợi socket hoàn thành
+	const waitForSocket = (event: string): Promise<string[]> =>
+		new Promise((resolve) => {
+			socket.once(event, (data) => {
+				resolve(data);
 			});
-		};
-
-		const handleSocketEvent = (data: string[]) => {
-			if (isHttpDone) {
-				deleteEdges(data);
-			} else {
-				setBuffer((prevBuffer) => [...prevBuffer, ...data]);
-			}
-		};
-
-		socket.on('abc', handleSocketEvent);
-
-		return () => {
-			socket.off('abc', handleSocketEvent);
-		};
-	}, [deleteElements, isHttpDone]);
+		});
 
 	const deleteExchangeMutations = useMutation({
-		mutationFn: (id: string) => ExchangeApis.prototype.deleteProductExchange({ id }),
-		onSuccess: (data) => {
-			const newProductExchanges = data.data.data;
+		mutationFn: async (id: string) => {
+			// Gửi yêu cầu HTTP để xóa product exchange
+			const httpResponse = await ExchangeApis.prototype.deleteProductExchange({ id });
+			// Đợi socket event hoàn thành
+			const socketResponse = await waitForSocket('gateway:delete-connector-ids');
 
-			setIsHttpDone(true);
+			// Trả về kết quả tổng hợp
+			return { httpResponse, socketResponse };
+		},
+		onSuccess: async ({ httpResponse, socketResponse }) => {
+			const newProductExchanges = httpResponse.data.data;
+
+			setEdges((edges) => edges.filter((edge) => !(socketResponse as string[]).includes(edge.id)));
+
+			// Cập nhật nodes với dữ liệu mới
 
 			setNodes((nodes) => {
 				return nodes.map((node) => {
@@ -55,21 +47,23 @@ export default function useDeleteHandle() {
 
 						sheetDispatch({
 							type: SheetBarDispatch.SET_NODE,
-							payload: { ..._newProcess.data },
+							payload: {
+								id: _newProcess.id,
+								color: _newProcess.data.color,
+								description: _newProcess.data.description,
+								exchanges: _newProcess.data.exchanges,
+								impacts: _newProcess.data.impacts,
+								lifeCycleStage: _newProcess.data.lifeCycleStage,
+								name: _newProcess.data.name,
+								overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
+								projectId: _newProcess.data.projectId,
+							},
 						});
 						return _newProcess;
 					}
 					return node;
 				});
 			});
-
-			if (buffer.length > 0) {
-				const idsDelete = buffer.map((item) => ({ id: item }));
-				deleteElements({
-					edges: idsDelete,
-				});
-				setBuffer([]);
-			}
 		},
 		onError: (error) => {
 			toast(error.message);
