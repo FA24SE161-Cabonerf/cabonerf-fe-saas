@@ -94,7 +94,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			ref={triggerRef}
 			className={clsx(`relative w-[370px] rounded-3xl border-[1px] border-gray-500 bg-white shadow-node transition-transform`, {
 				'scale-105': data.dragging,
-				'outline-dashed outline-offset-2 outline-gray-400': data.id === sheetState.process?.id,
+				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.id === sheetState.process?.id,
 			})}
 		>
 			{/* Default Target */}

@@ -6,7 +6,7 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react';
 
 type Props = {
 	id?: string;
-	iconRenderProps: (isActive: boolean) => JSX.Element;
+	iconRenderProps: React.ReactNode;
 };
 
 function ToolboxTrigger({ id, iconRenderProps }: Props) {
@@ -68,14 +68,14 @@ function ToolboxTrigger({ id, iconRenderProps }: Props) {
 				<Skeleton className="h-[44px] w-[44px] rounded-full" />
 			) : (
 				<button
-					className={clsx(`items-cente flex rounded-full p-3 transition duration-100`, {
+					className={clsx(`flex items-center rounded-[9px] p-2 text-[#888888] hover:text-black focus:text-black`, {
 						'bg-[#EFEFEF] shadow': id && app.selectedTriggerId === id,
 						'hover:bg-[#EFEFEF]': app.selectedTriggerId !== id,
 					})}
 					ref={buttonRef}
 					onClick={selectTriggerId}
 				>
-					{iconRenderProps(app.selectedTriggerId === id)}
+					{iconRenderProps}
 				</button>
 			)}
 		</>

@@ -16,7 +16,6 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 
 import {
-	Background,
 	Connection,
 	Edge,
 	EdgeTypes,
@@ -204,11 +203,11 @@ export default function Playground() {
 
 	return (
 		<React.Fragment>
-			<div className="relative h-[calc(100vh-51px)]">
+			<div className="relative h-[calc(100vh-59px)] text-[#333333]">
 				<PlaygroundHeader id={project?.id as string} />
 				<ReactFlow
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-					className="relative"
+					className="relative bg-[#eeeeee]"
 					nodeTypes={customNode}
 					edgeTypes={customEdge}
 					nodes={nodes}
@@ -225,12 +224,12 @@ export default function Playground() {
 					onlyRenderVisibleElements
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background bgColor="#eeeeee" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
-					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
 						<PlaygroundActionToolbar />
 					</Panel>
+					<PlaygroundToolBoxV2 />
+
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>

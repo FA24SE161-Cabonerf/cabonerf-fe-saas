@@ -6,6 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
@@ -24,9 +25,10 @@ type Props = {
 	onSelected: (payload: ImpactCategory) => void;
 	isLoading?: boolean;
 	selectedId: ImpactCategory;
+	isRounded?: boolean;
 };
 
-function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selectedId }: Props) {
+function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, isRounded = false, selectedId }: Props) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [value, setValue] = useState<string>('');
 
@@ -44,12 +46,24 @@ function ImpactCategoriesComboBox({ data, onSelected, isLoading = true, selected
 			) : (
 				<Popover open={open} onOpenChange={setOpen}>
 					<PopoverTrigger asChild>
-						<Button variant="outline" role="combobox" aria-expanded={open} className="w-[300px] justify-between font-normal">
+						<Button
+							variant="outline"
+							role="combobox"
+							aria-expanded={open}
+							className={clsx(`min-w-[280px] justify-between font-normal text-[#888888] shadow-none`, {
+								'justify-start border-none text-xs font-bold text-[#888888] hover:text-[#333333]': isRounded,
+							})}
+						>
 							<div className="flex items-center space-x-2">
-								<div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedId?.iconUrl as string) }} />
+								<div
+									className="text-[#888888] hover:text-[#333333]"
+									dangerouslySetInnerHTML={{
+										__html: DOMPurify.sanitize(selectedId?.iconUrl as string),
+									}}
+								/>
 								<span>{selectedId?.name}</span>
 							</div>
-							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+							{!isRounded && <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />}
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent className="min-w-[430px] p-0">
