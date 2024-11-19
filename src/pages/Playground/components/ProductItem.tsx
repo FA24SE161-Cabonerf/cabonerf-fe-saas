@@ -191,18 +191,20 @@ export default function ProductItem({ data }: Props) {
 					</div>
 
 					<input
-						className="w-full max-w-full self-stretch break-all rounded-[8px] bg-[#f0f0f0] px-2 py-0.5 text-sm font-medium outline-green-700"
+						className="w-full max-w-full self-stretch break-all rounded-[8px] bg-[#f0f0f0] px-2 py-0.5 text-[12px] font-medium outline-none focus:ring-1 focus:ring-green-700"
 						value={nameProduct}
+						id={`name2${data.id}`}
 						onChange={handleChangeName}
 					/>
 				</div>
 
-				<div className="flex w-[30%] min-w-[30%] rounded-sm">
+				<div className="flex w-[30%] min-w-[30%] space-x-1 rounded-sm">
 					<input
 						type="text"
+						id={`value2${data.id}`}
 						value={valueExchange}
 						onChange={handleChangeValueExchange}
-						className="z-50 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-[0.5px] outline-green-700"
+						className="z-40 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-none focus:ring-1 focus:ring-green-700"
 					/>
 					<DropdownMenu>
 						<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">

@@ -8,31 +8,14 @@ import React from 'react';
 function PlaygroundToolBoxV2() {
 	return (
 		<Toolbox>
-			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-full bg-white px-2 py-3 shadow-md">
-				<div className="flex flex-col space-y-2">
-					<ToolboxTrigger
-						iconRenderProps={(isActive) => <SquarePlus className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
-					<ToolboxTrigger
-						id="2"
-						iconRenderProps={(isActive) => <Blocks className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
-					<ToolboxTrigger
-						id="3"
-						iconRenderProps={(isActive) => <DatabaseZap className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
-					<ToolboxTrigger
-						id="4"
-						iconRenderProps={(isActive) => <Package className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
-					<ToolboxTrigger
-						id="5"
-						iconRenderProps={(isActive) => <Type className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
-					<ToolboxTrigger
-						id="6"
-						iconRenderProps={(isActive) => <StickyNote className="h-5 w-5" color={isActive ? '#6b7280' : '#6b7280'} />}
-					/>
+			<div className="absolute top-1/2 z-50 ml-[15px] -translate-y-1/2 rounded-[15px] bg-white px-1.5 py-3 shadow-md">
+				<div className="flex flex-col items-center space-y-2">
+					<ToolboxTrigger iconRenderProps={<SquarePlus size={20} />} />
+					<ToolboxTrigger id="2" iconRenderProps={<Blocks />} />
+					<ToolboxTrigger id="3" iconRenderProps={<DatabaseZap />} />
+					<ToolboxTrigger id="4" iconRenderProps={<Package size={20} />} />
+					<ToolboxTrigger id="5" iconRenderProps={<Type size={20} />} />
+					<ToolboxTrigger id="6" iconRenderProps={<StickyNote size={20} />} />
 				</div>
 				<ToolboxMenu id="2">
 					<ToolboxLifeCycleStages />

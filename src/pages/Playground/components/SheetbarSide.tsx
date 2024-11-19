@@ -27,7 +27,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 function SheetbarSide() {
-	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes, fitView, getViewport, setViewport } = useReactFlow<Node<CabonerfNodeData>>();
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const updateNodeInternals = useUpdateNodeInternals();
@@ -132,8 +132,23 @@ function SheetbarSide() {
 						return node;
 					});
 				});
-				updateNodeInternals(sheetState.process?.id as string);
+
+				const productExchangeLength = productExchangeInput.length;
+				const dynamicZoom = 2.2 - (productExchangeLength + 1) * 0.09;
+
+				console.log('Product Exchange Length:', productExchangeLength, 'Add Zoom:', dynamicZoom);
+
+				setTimeout(() => {
+					updateNodeInternals(sheetState.process?.id as string);
+					fitView({
+						nodes: [{ id: sheetState.process?.id as string }],
+						maxZoom: dynamicZoom, // Use the incremental zoom level
+						duration: 700,
+						includeHiddenNodes: false,
+					});
+				}, 0);
 			},
+
 			onError: (error) => {
 				toast(error.message);
 			},
@@ -194,7 +209,7 @@ function SheetbarSide() {
 
 	return (
 		<Dialog modal={true}>
-			<div className="absolute right-0 top-0 mt-[51px] h-full w-[470px] overflow-auto border-l border-[#eeeeee] bg-white">
+			<div className="absolute right-0 top-0 mt-[59px] h-full w-[420px] overflow-auto border-l border-[#eeeeee] bg-white">
 				{/* Header */}
 				<div className="sticky left-0 right-0 top-0 z-50 mb-1 bg-white">
 					<div className="px-5 py-3 text-[13px] font-medium">Edit process detail</div>
@@ -222,7 +237,7 @@ function SheetbarSide() {
 					<form className="my-5" onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="flex items-start gap-2">
 							<div className="w-1/2">
-								<div className="mb-1 text-[11px] font-semibold uppercase">Process name</div>
+								<div className="mb-1 text-xs font-semibold">Process name</div>
 
 								{isUpdate ? (
 									<input
@@ -237,7 +252,7 @@ function SheetbarSide() {
 								)}
 							</div>
 							<div className="w-1/2">
-								<div className="mb-1 text-right text-[11px] font-semibold uppercase">Life cycle stage</div>
+								<div className="mb-1 text-right text-xs font-semibold">Life cycle stage</div>
 
 								{isUpdate ? (
 									<DropdownMenu>
@@ -267,7 +282,7 @@ function SheetbarSide() {
 							</div>
 						</div>
 						<div className="mt-2">
-							<div className="mb-1 text-[11px] font-semibold uppercase">Description</div>
+							<div className="mb-1 text-xs font-semibold">Description</div>
 							{isUpdate ? (
 								<textarea
 									{...form.register('description')}
@@ -306,20 +321,27 @@ function SheetbarSide() {
 				<Separator />
 				<div className="mt-5">
 					<Tabs defaultValue="account" className="w-full">
-						<div className="px-5">
-							<TabsList className="w-full bg-[#f0f0f0]">
-								<TabsTrigger className="w-full text-[13px] font-normal hover:bg-[#e3e3e3] focus:font-medium" value="account">
+						<div className="px-2">
+							<TabsList className="h-fit w-full rounded-md bg-[#f0f0f0] px-[3px]">
+								<TabsTrigger
+									className="w-full rounded-[6px] py-1 text-[12px] font-normal hover:bg-[#e3e3e3] focus:font-bold"
+									value="account"
+								>
 									Input
 								</TabsTrigger>
-								<TabsTrigger className="w-full text-[13px] font-normal hover:bg-[#e3e3e3] focus:font-medium" value="password">
+								<TabsTrigger
+									className="w-full rounded-[6px] py-1 text-[12px] font-normal hover:bg-[#e3e3e3] focus:font-bold"
+									value="password"
+								>
 									Output
 								</TabsTrigger>
 							</TabsList>
 						</div>
+
 						<TabsContent value="account" className="mt-4">
 							<Accordion id="1" type="single" defaultValue="item-1" collapsible>
 								<AccordionItem value="item-1">
-									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-xs">
 										Elementary Exchange
 									</AccordionTrigger>
 									<AccordionContent>
@@ -353,7 +375,7 @@ function SheetbarSide() {
 							</Accordion>
 							<Accordion id="2" type="single" collapsible>
 								<AccordionItem value="item-1">
-									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-xs">
 										Product Exchange
 									</AccordionTrigger>
 									<AccordionContent>
@@ -382,7 +404,7 @@ function SheetbarSide() {
 						<TabsContent value="password" className="mt-4">
 							<Accordion id="3" type="single" defaultValue="item-3" collapsible>
 								<AccordionItem value="item-3">
-									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-xs">
 										Elementary Exchange
 									</AccordionTrigger>
 									<AccordionContent>
@@ -416,7 +438,7 @@ function SheetbarSide() {
 							</Accordion>
 							<Accordion id="4" type="single" collapsible>
 								<AccordionItem value="item-4">
-									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-[11px] uppercase">
+									<AccordionTrigger style={{ textDecoration: 'none' }} className="px-4 text-xs">
 										Product Exchange
 									</AccordionTrigger>
 									<AccordionContent>

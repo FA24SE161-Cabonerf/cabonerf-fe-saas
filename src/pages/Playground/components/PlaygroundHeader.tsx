@@ -5,6 +5,7 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
 	DropdownMenuPortal,
 	DropdownMenuSeparator,
 	DropdownMenuSub,
@@ -17,7 +18,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { areObjectsDifferent } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { ChevronDown, History, Share } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -113,8 +114,8 @@ function PlaygroundHeader({ id }: Props) {
 
 	return (
 		<div className="z-50 w-full bg-white">
-			<div className="flex items-center justify-between border-b border-[#eeeeee]">
-				<div className="flex items-center px-4 py-2">
+			<div className="flex border-b border-[#eeeeee]">
+				<div className="flex w-1/2 items-center px-4 py-3">
 					<DropdownMenu>
 						<DropdownMenuTrigger className="outline-none" autoFocus={false} asChild>
 							<button className="flex items-center justify-center space-x-2 rounded-[8px] border-[1px] border-gray-50 px-2 py-2 shadow-md hover:bg-gray-50">
@@ -144,49 +145,78 @@ function PlaygroundHeader({ id }: Props) {
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
-
-				<Popover open={isOpenEditProject}>
-					<PopoverTrigger ref={buttonRef} asChild onClick={() => setIsOpenEditProject(true)}>
-						<button className="flex max-w-[430px] items-center space-x-2 rounded-md px-2 py-1.5 duration-150 hover:bg-gray-50">
-							<span className="truncate text-[12px] font-semibold">{playgroundState.projectInformation?.name}</span>
-							<kbd className="rounded bg-[#8888881a] p-0.5 text-[10px] font-bold text-[#888888]">name</kbd>
-						</button>
-					</PopoverTrigger>
-					<PopoverContent ref={popoverRef} className="relative mt-5 rounded-[15px] border-[0.5px] shadow-xl" asChild>
-						<div className="w-fit p-4 text-[12px]">
-							<div className="absolute -top-[8px] left-1/2 -translate-x-1/2">
-								<div className="h-0 w-0 border-b-[8px] border-l-[8px] border-r-[8px] border-b-white border-l-transparent border-r-transparent"></div>
+				<div className="flex w-1/2 items-center justify-between">
+					<Popover open={isOpenEditProject}>
+						<PopoverTrigger ref={buttonRef} asChild onClick={() => setIsOpenEditProject(true)}>
+							<button className="flex max-w-[430px] -translate-x-1/2 items-center space-x-2 rounded-md px-2 py-1.5 duration-150 hover:bg-gray-50">
+								<span className="truncate text-[12px] font-semibold">{playgroundState.projectInformation?.name}</span>
+								<kbd className="rounded bg-[#8888881a] px-1 text-[12px] font-semibold text-[#888888]">LCA</kbd>
+							</button>
+						</PopoverTrigger>
+						<PopoverContent ref={popoverRef} className="relative mt-5 rounded-[20px] border-[0.5px] shadow-xl" asChild>
+							<div className="w-fit p-4 text-[12px]">
+								<div className="absolute -top-[7px] left-1/2 -translate-x-1/2">
+									<div className="h-0 w-0 border-b-[8px] border-l-[8px] border-r-[8px] border-b-white border-l-transparent border-r-transparent"></div>
+								</div>
+								<form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-12 items-center gap-3">
+									<div className="col-span-4 font-medium text-gray-500">Name</div>
+									<div className="col-span-8">
+										<input
+											id="name"
+											autoComplete="off"
+											{...form.register('name')}
+											className="w-full rounded-[8px] bg-[#f3f3f3] px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-green-700"
+										/>
+									</div>
+									<div className="col-span-4 font-medium text-gray-500">Description</div>
+									<div className="col-span-8">
+										<textarea
+											id="description"
+											autoComplete="off"
+											{...form.register('description')}
+											className="max-h-[200px] min-h-[60px] w-full min-w-[200px] max-w-[400px] resize rounded-[8px] bg-[#f3f3f3] px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-green-700"
+										/>
+									</div>
+									<div className="col-span-4 font-medium text-gray-500">Location</div>
+									<div className="col-span-8">Vietnam </div>
+								</form>
 							</div>
-							<form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-12 items-center gap-3">
-								<div className="col-span-4 font-medium text-gray-500">Name</div>
-								<div className="col-span-8">
-									<input
-										{...form.register('name')}
-										className="w-full rounded-[5px] bg-[#f3f3f3] px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-green-700"
-									/>
-								</div>
-								<div className="col-span-4 font-medium text-gray-500">Description</div>
-								<div className="col-span-8">
-									<textarea
-										{...form.register('description')}
-										className="max-h-[200px] min-h-[50px] w-full min-w-[180px] max-w-[400px] resize rounded-[5px] bg-[#f3f3f3] px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-green-700"
-									/>
-								</div>
-								<div className="col-span-4 font-medium text-gray-500">Location</div>
-								<div className="col-span-8">Vietnam </div>
-							</form>
-						</div>
-					</PopoverContent>
-				</Popover>
-				<div className="flex items-center space-x-7 py-3.5 pr-4">
-					<button className="">
-						<History size={17} />
-					</button>
-					<button className="">
-						<Share size={17} />
-					</button>
-
-					{/* Caculate Button */}
+						</PopoverContent>
+					</Popover>
+					<div className="mr-3 flex items-center space-x-2">
+						<button className="rounded-sm bg-[#f3f3f3] px-2.5 py-1.5 text-xs font-medium text-[#333333] hover:bg-gray-200">
+							Invite
+						</button>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<button className="flex items-center space-x-2 rounded-sm bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-md shadow-green-200 hover:bg-opacity-90">
+									<span>Publish</span>
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={16} height={16} color={'#fff'} fill={'none'}>
+										<path
+											d="M12 14.5L12 4.5M12 14.5C11.2998 14.5 9.99153 12.5057 9.5 12M12 14.5C12.7002 14.5 14.0085 12.5057 14.5 12"
+											stroke="currentColor"
+											strokeWidth="1.5"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+										<path
+											d="M20 16.5C20 18.982 19.482 19.5 17 19.5H7C4.518 19.5 4 18.982 4 16.5"
+											stroke="currentColor"
+											strokeWidth="1.5"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
+								</button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="mr-2">
+								<DropdownMenuLabel className="text-xs">Publish options</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem className="text-xs">Export to Excel</DropdownMenuItem>
+								<DropdownMenuItem className="text-xs">Export to PNG</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -76,7 +76,7 @@ function PlaygroundActionToolbar() {
 	);
 
 	return (
-		<div className="rounded-[12.5px] border-gray-100 bg-white p-2 shadow">
+		<div className="rounded-[15px] border-[0.5px] border-gray-100 bg-white p-1.5 shadow">
 			<div className="flex items-center space-x-2">
 				{/* Method  */}
 				<ImpactMethodComboBox
@@ -85,6 +85,7 @@ function PlaygroundActionToolbar() {
 					title="Select impact method"
 					onSelected={updateSelectedImpactMethod}
 					data={_impactMethods}
+					isRounded
 				/>
 
 				<ImpactCategoriesComboBox
@@ -92,6 +93,7 @@ function PlaygroundActionToolbar() {
 					isLoading={!impact_categories_success}
 					onSelected={updateSelectedImpactCategories}
 					data={_impactCategories}
+					isRounded
 				/>
 				{/* Category of method */}
 			</div>

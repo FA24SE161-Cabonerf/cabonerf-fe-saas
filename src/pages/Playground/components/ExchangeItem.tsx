@@ -175,7 +175,7 @@ function ExchangeItem({ data, isInput }: Props) {
 	};
 
 	return (
-		<div className="relative rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-2.5 shadow-sm">
+		<div className="relative rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-1 shadow-sm">
 			<div className="before-exchange-substance before:bg-gray-200" />
 			{/* Name */}
 			<div className="flex items-center justify-between space-x-2">
@@ -185,17 +185,18 @@ function ExchangeItem({ data, isInput }: Props) {
 					</div>
 
 					<div className="flex flex-col">
-						<div className="break-all text-sm">{data.name}</div>
+						<div className="break-all text-[12px]">{data.name}</div>
 						<div className="text-xs text-gray-500">{data.emissionSubstance.emissionCompartment.name}</div>
 					</div>
 				</div>
 
-				<div className="flex w-[30%] min-w-[30%] rounded-sm">
+				<div className="flex w-[30%] min-w-[30%] space-x-1 rounded-sm">
 					<input
 						type="text"
+						id={`value3${data.id}`}
 						value={valueExchange}
 						onChange={handleChangeValueExchange}
-						className="z-50 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-[0.5px] outline-green-700"
+						className="z-40 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-green-700"
 					/>
 					<DropdownMenu>
 						<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">
@@ -204,7 +205,7 @@ function ExchangeItem({ data, isInput }: Props) {
 
 						<DropdownMenuContent className="mr-4 w-[270px] rounded-[8px] border p-0 shadow-lg">
 							<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
-								<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+								<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
 									<div className="col-span-4">Unit</div>
 									<div className="col-span-5">Value</div>
 									<div className="col-span-3 text-right">Default</div>
@@ -215,7 +216,7 @@ function ExchangeItem({ data, isInput }: Props) {
 											onClick={() => handleChangeUnit({ unit: item })}
 											key={index}
 											className={clsx(
-												`grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none`,
+												`grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-xs text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none`,
 												{
 													'rounded-sm bg-gray-100': data.unit.id === item.id,
 												}

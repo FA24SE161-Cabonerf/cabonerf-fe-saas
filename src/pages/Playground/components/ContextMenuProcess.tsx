@@ -44,10 +44,7 @@ function lightenColor({ hex, amount }: { hex: string; amount: number }) {
 
 const ContextMenuProcess = React.memo(
 	forwardRef<HTMLDivElement, unknown>((_, ref) => {
-		const { deleteElements, setNodes, setViewport, getViewport, setEdges, fitView } = useReactFlow<
-			Node<CabonerfNodeData>,
-			Edge<CabonerfEdgeData>
-		>();
+		const { deleteElements, setNodes, setEdges, fitView } = useReactFlow<Node<CabonerfNodeData>, Edge<CabonerfEdgeData>>();
 		const id = useId();
 		const { sheetDispatch } = useContext(SheetbarContext);
 		const { dispatch } = useContext(AppContext);
@@ -81,9 +78,21 @@ const ContextMenuProcess = React.memo(
 				});
 				contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
 
-				await fitView({ nodes: [{ id: app.contextMenuSelector.process.id }], maxZoom: 2.3, duration: 700, includeHiddenNodes: false });
-				const { x, y, zoom } = getViewport();
-				setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
+				const length = app.contextMenuSelector.process?.exchanges.filter(
+					(item) => item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000' && item.input === true
+				).length;
+
+				console.log('First zoom:.', 2.2 - 0.09 * length);
+
+				await fitView({
+					nodes: [{ id: app.contextMenuSelector.process.id }],
+					maxZoom: 2.2 - 0.09 * length,
+					duration: 700,
+					includeHiddenNodes: false,
+				});
+
+				// const { x, y, zoom } = getViewport();
+				// setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
 			}
 		};
 

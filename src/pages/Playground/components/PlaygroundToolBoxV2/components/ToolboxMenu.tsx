@@ -31,7 +31,7 @@ export default function ToolboxMenu({ id, children }: Props) {
 	return (
 		<div
 			ref={toolboxRef}
-			className={clsx('absolute top-1/2 ml-16 -translate-y-1/2 duration-300', {
+			className={clsx('absolute top-1/2 ml-14 -translate-y-1/2 duration-300', {
 				'pointer-events-none opacity-0': !isVisible,
 				'opacity-100': isVisible,
 			})}
