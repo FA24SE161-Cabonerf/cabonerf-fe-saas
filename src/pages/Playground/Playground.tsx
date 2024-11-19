@@ -36,8 +36,8 @@ import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from '
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { DevTools } from '@/components/devtools';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
+import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
@@ -58,7 +58,7 @@ export default function Playground() {
 
 	const updateNodeInternal = useUpdateNodeInternals();
 
-	const { playgroundDispatch } = useContext(PlaygroundContext);
+	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string; wid: string }>();
@@ -71,19 +71,38 @@ export default function Playground() {
 		refetchOnMount: true,
 	});
 
+	const project = projectData?.data.data;
+
 	useEffect(() => {
-		if (projectData?.data.data.processes) {
-			setEdges(projectData.data.data.connectors);
-			setNodes(projectData.data.data.processes);
-			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: projectData.data.data.method.id });
+		const projectName = playgroundState.projectInformation?.name ?? 'Loading...';
+
+		document.title = `${projectName} — Cabonerf`;
+	}, [playgroundState.projectInformation?.name]);
+
+	useEffect(() => {
+		if (project?.processes) {
+			setEdges(project.connectors);
+			setNodes(project.processes);
+			playgroundDispatch({
+				type: PlaygroundDispatch.SET_PROJECT_INFOR,
+				payload: {
+					name: project.name,
+					description: project.description,
+					location: project.location,
+				},
+			});
+			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: project.method.id });
 		}
 	}, [
 		playgroundDispatch,
-		projectData?.data.data.method.id,
-		projectData?.data.data.processes,
-		projectData?.data.data.connectors,
+		project?.method.id,
+		project?.processes,
+		project?.connectors,
 		setEdges,
 		setNodes,
+		project?.name,
+		project?.description,
+		project?.location,
 	]);
 
 	useEffect(() => {
@@ -185,7 +204,8 @@ export default function Playground() {
 
 	return (
 		<React.Fragment>
-			<div className="relative h-[100vh]">
+			<div className="relative h-[calc(100vh-51px)]">
+				<PlaygroundHeader id={project?.id as string} />
 				<ReactFlow
 					defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 					className="relative"
@@ -205,7 +225,7 @@ export default function Playground() {
 					onlyRenderVisibleElements
 					onNodeDragStop={handleNodeDragStop}
 				>
-					<Background bgColor="#f4f2ee" />
+					<Background bgColor="#eeeeee" />
 					<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 					<PlaygroundToolBoxV2 />
 					<Panel position="top-left">
@@ -214,7 +234,6 @@ export default function Playground() {
 					<Panel position="bottom-center">
 						<PlaygroundControls />
 					</Panel>
-					<DevTools />
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
 			</div>

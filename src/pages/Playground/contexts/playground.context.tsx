@@ -12,11 +12,27 @@ interface SetImpactCategory {
 	payload: ImpactCategory;
 }
 
-type Action = SetImpactMethod | SetImpactCategory;
+interface SetProjectInformation {
+	type: PlaygroundDispatch.SET_PROJECT_INFOR;
+	payload: {
+		name: string;
+		description: string;
+		location: string;
+	};
+}
+
+type Action = SetImpactMethod | SetImpactCategory | SetProjectInformation;
 
 interface State {
 	impactMethod: string | undefined;
 	impactCategory: ImpactCategory | undefined;
+	projectInformation:
+		| {
+				name: string;
+				description: string;
+				location: string;
+		  }
+		| undefined;
 }
 
 interface PlaygroundContext {
@@ -28,6 +44,7 @@ const initialContext: PlaygroundContext = {
 	playgroundState: {
 		impactMethod: undefined,
 		impactCategory: undefined,
+		projectInformation: undefined,
 	},
 	playgroundDispatch: () => {},
 };
@@ -38,6 +55,8 @@ const reducer = (state: State, action: Action) => {
 			return { ...state, impactMethod: action.payload };
 		case PlaygroundDispatch.SET_IMPACT_CATEGORY:
 			return { ...state, impactCategory: action.payload };
+		case PlaygroundDispatch.SET_PROJECT_INFOR:
+			return { ...state, projectInformation: action.payload };
 		default:
 			return state;
 	}
@@ -53,6 +72,7 @@ export const PlaygroundProvider = ({ children }: Props) => {
 	const [playgroundState, playgroundDispatch] = useReducer(reducer, {
 		impactMethod: initialContext.playgroundState.impactMethod,
 		impactCategory: initialContext.playgroundState.impactCategory,
+		projectInformation: initialContext.playgroundState.projectInformation,
 	});
 
 	const state = useMemo(() => {

@@ -30,6 +30,7 @@ class PROJECT_ENDPOINT {
 	public static PROJECT = '/projects';
 
 	public static CREATE_NEW_PROJECT = this.PROJECT;
+	public static UPDATE_PROJECT = this.PROJECT;
 }
 
 class LIFE_CYCLE_STAGES_ENDPOINT {

@@ -106,6 +106,8 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 			>
 				<div className="flex w-[80%] flex-col space-y-0">
 					<input
+						id={`name${data.id}`}
+						name="nameproduct"
 						type="text"
 						value={nameProduct}
 						onChange={handleChangeName}
@@ -113,6 +115,8 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 					/>
 					<div className="flex w-full items-center space-x-2">
 						<input
+							id={`value${data.id}`}
+							name="value"
 							value={valueProduct}
 							onChange={handleChangeValueProduct}
 							type="text"
