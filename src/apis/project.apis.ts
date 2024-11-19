@@ -38,6 +38,13 @@ class ProjectApis {
 	public async deleteProject(payload: { id: string }) {
 		return httpService.delete<CommonResponse<[]>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.id}`);
 	}
+
+	public async updateProject(id: string, payload: { name: string; description: string; location: string }) {
+		return httpService.put<CommonResponse<Pick<Project, 'id' | 'description' | 'location' | 'name' | 'method'>>>(
+			`${PROJECT_ENDPOINT.UPDATE_PROJECT}/${id}`,
+			payload
+		);
+	}
 }
 
 export default ProjectApis;

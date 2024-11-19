@@ -13,8 +13,8 @@ function PlaygroundControls() {
 	const reactflow = useReactFlow();
 
 	return (
-		<div className="relative w-auto transform rounded-full border border-gray-300 bg-white px-1 shadow-lg duration-300">
-			<div className="flex items-center space-x-2 p-2">
+		<div className="relative w-auto transform rounded-full bg-white px-1 shadow-lg duration-300">
+			<div className="flex items-center space-x-2 p-1.5">
 				<div className="flex items-center space-x-2 rounded-full bg-green-200 p-2">
 					<Pencil size={17} strokeWidth={2} color="green" />
 					<span className="text-[13px] font-medium text-green-700">Editing</span>
@@ -35,7 +35,7 @@ function PlaygroundControls() {
 				<Separator orientation="vertical" className="h-6" color="black" />
 
 				<Button
-					className="back space-x-3 rounded-full text-[13px] font-normal"
+					className="space-x-3 rounded-full text-[13px] font-normal shadow-md shadow-green-300"
 					onClick={() => socket.emit('gateway:process-create', 'asd')}
 				>
 					<Play size={16} fill="white" color="white" /> <span>Calculate LCA</span>

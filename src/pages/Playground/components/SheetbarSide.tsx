@@ -194,7 +194,7 @@ function SheetbarSide() {
 
 	return (
 		<Dialog modal={true}>
-			<div className="absolute right-0 top-0 h-full w-[470px] overflow-auto border-l bg-white">
+			<div className="absolute right-0 top-0 mt-[51px] h-full w-[470px] overflow-auto border-l border-[#eeeeee] bg-white">
 				{/* Header */}
 				<div className="sticky left-0 right-0 top-0 z-50 mb-1 bg-white">
 					<div className="px-5 py-3 text-[13px] font-medium">Edit process detail</div>

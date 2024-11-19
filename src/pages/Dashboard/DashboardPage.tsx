@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import TAB_TITLES from '@/constants/tab.titles';
 import { AppContext } from '@/contexts/app.context';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
+import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
 import FilterProject from '@/pages/Dashboard/components/FilterProject';
 import { columns } from '@/pages/Dashboard/components/Project/columns';
 import { useQuery } from '@tanstack/react-query';
@@ -29,7 +30,7 @@ export default function DashboardPage() {
 		refetchOnMount: true,
 	});
 
-	const _impactMethods = useMemo(() => {
+	const projectsData = useMemo(() => {
 		if (deleteIds.length > 0) {
 			return projects?.data.data.projects.filter((item) => !deleteIds.includes(item.id));
 		}
@@ -81,7 +82,13 @@ export default function DashboardPage() {
 			{/* Table */}
 			<div className="mx-6 flex h-full space-x-3">
 				<div className="my-2 w-full">
-					<DataTable isLoading={projectsFetching} data={_impactMethods ?? []} columns={columns} />
+					{layoutView === 'layout-grid' ? (
+						<div className="flex flex-wrap gap-4">
+							<DashboardProductItem />
+						</div>
+					) : (
+						<DataTable isLoading={projectsFetching} data={projectsData ?? []} columns={columns} />
+					)}
 				</div>
 
 				<PreviewProject />
