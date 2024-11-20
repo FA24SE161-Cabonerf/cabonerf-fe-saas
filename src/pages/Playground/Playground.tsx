@@ -200,8 +200,6 @@ export default function Playground() {
 
 	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
 
-	console.log(project);
-
 	if (isFetching) return <LoadingProject />;
 
 	return (

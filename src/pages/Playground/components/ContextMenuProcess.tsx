@@ -82,17 +82,12 @@ const ContextMenuProcess = React.memo(
 					(item) => item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000' && item.input === true
 				).length;
 
-				console.log('First zoom:.', 2.2 - 0.09 * length);
-
 				await fitView({
 					nodes: [{ id: app.contextMenuSelector.process.id }],
 					maxZoom: 2.2 - 0.09 * length,
 					duration: 700,
 					includeHiddenNodes: false,
 				});
-
-				// const { x, y, zoom } = getViewport();
-				// setViewport({ x: x - 230, y: y, zoom: zoom }, { duration: 700 });
 			}
 		};
 

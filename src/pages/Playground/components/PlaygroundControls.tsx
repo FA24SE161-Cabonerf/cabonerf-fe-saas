@@ -4,17 +4,21 @@ import tutorial from '@/assets/images/tutorial.png';
 import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
 import ImpactResult from '@/common/icons/ImpactResult';
-import { Popover, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ControlItem from '@/pages/Playground/components/ControlItem';
-import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
+import { isBadRequestError } from '@/utils/error';
+import { updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
+import { isAxiosError } from 'axios';
 import clsx from 'clsx';
+import DOMPurify from 'dompurify';
 import { Play } from 'lucide-react';
-import React, { useContext, useState } from 'react';
+import React from 'react';
+import { toast } from 'sonner';
 
 const FIT_VIEW = 1000;
 const ZOOM = 150;
@@ -33,8 +37,20 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 		enabled: false,
 	});
 
-	const handleCalculateProject = () => {
-		calculate.refetch();
+	const handleCalculateProject = async () => {
+		try {
+			const data = await calculate.refetch();
+
+			if (isAxiosError(data.data)) {
+				throw data.data;
+			} else {
+				toast('SUCCESS');
+			}
+		} catch (error) {
+			if (isBadRequestError<{ data: unknown; message: string; status: string }>(error)) {
+				toast.error(error.response?.data.message);
+			}
+		}
 	};
 
 	return (
@@ -100,7 +116,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					<Popover>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<PopoverTrigger asChild>
+								<PopoverTrigger disabled={impacts.length === 0} asChild>
 									<button
 										className={clsx(`rounded-[9px] p-2`, {
 											'cursor-not-allowed text-[#EFEFEF]': impacts.length === 0,
@@ -127,9 +143,79 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 							)}
 						</Tooltip>
 
-						{/* <PopoverContent>
-							<div>123</div>
-						</PopoverContent> */}
+						<PopoverContent asChild className="mb-2 h-[400px] w-[550px] overflow-y-scroll rounded-[15px] p-0">
+							<div className="bg-white">
+								{/* Title */}
+								<div className="sticky left-0 right-0 top-0 bg-white py-3 text-center text-sm font-medium">
+									Impact Assessment Result
+								</div>
+								{/* Table List */}
+								<div className="grid-c flex flex-col space-y-1 px-3 py-1">
+									{impacts.map((item) => (
+										<div key={item.id} className="grid grid-cols-12 items-center gap-3 p-1">
+											<div className="col-span-1 flex justify-center">
+												<div
+													dangerouslySetInnerHTML={{
+														__html: DOMPurify.sanitize(
+															updateSVGAttributes({
+																svgString: item.impactCategory.iconUrl,
+																properties: {
+																	height: 25,
+																	width: 25,
+																	color: '#000',
+																	fill: 'none',
+																},
+															})
+														),
+													}}
+												/>
+											</div>
+											<div className="col-span-8">
+												<div className="text-base font-medium">{item.impactCategory.name}</div>
+												<div className="text-xs text-gray-600">
+													{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
+												</div>
+											</div>
+											<div className="col-span-3 flex items-center justify-end space-x-2 text-xs">
+												<div className="text-sm font-semibold">{item.value}</div>
+												<div className="font-medium">{item.impactCategory.midpointImpactCategory.unit.name}</div>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						</PopoverContent>
+					</Popover>
+
+					<Popover>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<PopoverTrigger asChild>
+									<button
+										className={clsx(`rounded-[9px] p-2`, {
+											'cursor-not-allowed text-[#EFEFEF]': impacts.length === 0,
+											'text-[#888888] hover:bg-[#EFEFEF] hover:text-black': impacts.length > 0,
+										})}
+									>
+										<ContributeResult />
+									</button>
+								</PopoverTrigger>
+							</TooltipTrigger>
+							{impacts.length === 0 && (
+								<TooltipContent className="relative mb-3 w-[200px] overflow-visible rounded-2xl border-none bg-white p-2.5 text-[#333333] shadow-sm">
+									<div className="flex flex-col space-y-3">
+										<img src={tutorial} className="rounded-md object-contain" />
+										<div>
+											<div className="mb-1 text-[12px] font-semibold">Turorial</div>
+											<div className="text-[11px] text-gray-700">
+												To view the results of this project, please perform the calculation.
+											</div>
+										</div>
+										<div className="absolute -bottom-[6px] left-1/2 z-50 h-0 w-0 -translate-x-[calc(50%+7px)] border-l-[6px] border-r-[6px] border-t-[7px] border-l-transparent border-r-transparent border-t-white"></div>
+									</div>
+								</TooltipContent>
+							)}
+						</Tooltip>
 					</Popover>
 
 					<Popover>
@@ -165,37 +251,6 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 						{/* <PopoverContent>
 							<div>123</div>
 						</PopoverContent> */}
-					</Popover>
-
-					<Popover>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<PopoverTrigger asChild>
-									<button
-										className={clsx(`rounded-[9px] p-2`, {
-											'cursor-not-allowed text-[#EFEFEF]': impacts.length === 0,
-											'text-[#888888] hover:bg-[#EFEFEF] hover:text-black': impacts.length > 0,
-										})}
-									>
-										<ContributeResult />
-									</button>
-								</PopoverTrigger>
-							</TooltipTrigger>
-							{impacts.length === 0 && (
-								<TooltipContent className="relative mb-3 w-[200px] overflow-visible rounded-2xl border-none bg-white p-2.5 text-[#333333] shadow-sm">
-									<div className="flex flex-col space-y-3">
-										<img src={tutorial} className="rounded-md object-contain" />
-										<div>
-											<div className="mb-1 text-[12px] font-semibold">Turorial</div>
-											<div className="text-[11px] text-gray-700">
-												To view the results of this project, please perform the calculation.
-											</div>
-										</div>
-										<div className="absolute -bottom-[6px] left-1/2 z-50 h-0 w-0 -translate-x-[calc(50%+7px)] border-l-[6px] border-r-[6px] border-t-[7px] border-l-transparent border-r-transparent border-t-white"></div>
-									</div>
-								</TooltipContent>
-							)}
-						</Tooltip>
 					</Popover>
 
 					<Separator orientation="vertical" className="h-6" color="black" />

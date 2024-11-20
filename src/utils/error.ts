@@ -7,3 +7,7 @@ export function isUnauthorization<T>(error: unknown): error is AxiosError<T> {
 export function isUnprocessableEntity<T>(error: unknown): error is AxiosError<T> {
 	return isAxiosError(error) && error.response?.status === HttpStatusCode.UnprocessableEntity;
 }
+
+export function isBadRequestError<T>(error: unknown): error is AxiosError<T> {
+	return isAxiosError(error) && error.response?.status === HttpStatusCode.BadRequest;
+}
