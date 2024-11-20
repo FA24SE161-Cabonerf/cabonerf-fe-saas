@@ -40,6 +40,7 @@ import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
+import { Impact } from '@/@types/project.type';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -199,6 +200,8 @@ export default function Playground() {
 
 	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
 
+	console.log(project);
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -231,7 +234,7 @@ export default function Playground() {
 					<PlaygroundToolBoxV2 />
 
 					<Panel position="bottom-center">
-						<PlaygroundControls />
+						<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
 					</Panel>
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
