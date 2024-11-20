@@ -31,6 +31,7 @@ class PROJECT_ENDPOINT {
 
 	public static CREATE_NEW_PROJECT = this.PROJECT;
 	public static UPDATE_PROJECT = this.PROJECT;
+	public static CALCULATE_PROJECT = '/calculation';
 }
 
 class LIFE_CYCLE_STAGES_ENDPOINT {

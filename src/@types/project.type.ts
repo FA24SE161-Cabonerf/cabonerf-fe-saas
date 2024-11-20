@@ -20,7 +20,7 @@ interface Impact {
 	impactCategory: Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>;
 }
 
-interface Project<IData = unknown, PData = unknown, CData = unknown> {
+interface Project<IData = Impact[], PData = unknown, CData = unknown> {
 	id: string;
 	name: string;
 	description: string;

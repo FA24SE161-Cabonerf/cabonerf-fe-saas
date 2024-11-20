@@ -27,7 +27,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 function SheetbarSide() {
-	const { setNodes, fitView, getViewport, setViewport } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes, fitView } = useReactFlow<Node<CabonerfNodeData>>();
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const updateNodeInternals = useUpdateNodeInternals();
@@ -135,8 +135,6 @@ function SheetbarSide() {
 
 				const productExchangeLength = productExchangeInput.length;
 				const dynamicZoom = 2.2 - (productExchangeLength + 1) * 0.09;
-
-				console.log('Product Exchange Length:', productExchangeLength, 'Add Zoom:', dynamicZoom);
 
 				setTimeout(() => {
 					updateNodeInternals(sheetState.process?.id as string);

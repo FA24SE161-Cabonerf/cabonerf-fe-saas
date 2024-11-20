@@ -86,7 +86,6 @@ function SheetbarSearch() {
 				methodId: playgroundState.impactMethod,
 			},
 		});
-		console.log(playgroundState.impactMethod);
 	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
 
 	// Fetch emission compartment

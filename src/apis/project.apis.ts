@@ -20,7 +20,7 @@ class ProjectApis {
 	}
 
 	public async getProjectById(payload: { pid: string; wid: string }) {
-		return httpService.get<CommonResponse<Project<Impact, Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]>>>(
+		return httpService.get<CommonResponse<Project<Impact[], Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]>>>(
 			`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}/${payload.wid}`
 		);
 	}
@@ -44,6 +44,10 @@ class ProjectApis {
 			`${PROJECT_ENDPOINT.UPDATE_PROJECT}/${id}`,
 			payload
 		);
+	}
+
+	public async calculateProject(id: string) {
+		return httpService.get<CommonResponse<any>>(`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.CALCULATE_PROJECT}/${id}`);
 	}
 }
 

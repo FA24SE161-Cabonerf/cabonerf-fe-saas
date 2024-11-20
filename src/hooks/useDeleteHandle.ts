@@ -25,12 +25,11 @@ export default function useDeleteHandle() {
 				ExchangeApis.prototype.deleteProductExchange({ id }),
 				waitForSocket('gateway:delete-connector-ids'),
 			]);
+
 			return { httpResponse, socketResponse };
 		},
 		onSuccess: async ({ httpResponse, socketResponse }) => {
 			const newProductExchanges = httpResponse.data.data;
-
-			console.log(httpResponse, socketResponse);
 
 			setEdges((edges) => edges.filter((edge) => !(socketResponse as string[]).includes(edge.id)));
 
