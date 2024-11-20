@@ -113,6 +113,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					</ControlItem>
 					<Separator orientation="vertical" className="h-6" color="black" />
 
+					{/* Impact Assessment Result */}
 					<Popover>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -187,6 +188,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 						</PopoverContent>
 					</Popover>
 
+					{/* Contributor Assessment View */}
 					<Popover>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -216,6 +218,9 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 								</TooltipContent>
 							)}
 						</Tooltip>
+						<PopoverContent asChild className="mb-2 h-[400px] w-[550px] overflow-y-scroll rounded-[15px] p-0">
+							<div>123</div>
+						</PopoverContent>
 					</Popover>
 
 					<Popover>

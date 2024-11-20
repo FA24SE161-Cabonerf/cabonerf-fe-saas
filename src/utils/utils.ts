@@ -82,3 +82,41 @@ export function areObjectsDifferent(obj1, obj2) {
 
 	return false;
 }
+
+type Contributor = {
+	processId: string;
+	net: number;
+	subProcesses: Contributor[];
+};
+
+type TransformContributor = {
+	processId: string;
+	net?: number;
+	total?: number;
+	subProcesses: TransformContributor[];
+};
+
+export function transformProcesses(contributor: Contributor): TransformContributor {
+	const hasSubProcesses = contributor.subProcesses.length > 0;
+
+	const newProcess: TransformContributor = {
+		processId: contributor.processId,
+		subProcesses: [],
+	};
+
+	if (hasSubProcesses) {
+		newProcess.total = contributor.net;
+
+		newProcess.subProcesses.push({
+			processId: contributor.processId,
+			net: contributor.net,
+			subProcesses: [],
+		});
+
+		newProcess.subProcesses.push(...contributor.subProcesses.map((subProcess) => transformProcesses(subProcess)));
+	} else {
+		newProcess.net = contributor.net;
+	}
+
+	return newProcess;
+}
