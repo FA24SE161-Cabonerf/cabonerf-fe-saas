@@ -1,6 +1,8 @@
 import { Impact } from '@/@types/project.type';
+import ImpactResult from '@/common/icons/ImpactResult';
 import { updateSVGAttributes } from '@/utils/utils';
 import DOMPurify from 'dompurify';
+import { Info } from 'lucide-react';
 
 type Props = {
 	impacts: Impact[];
@@ -9,10 +11,15 @@ type Props = {
 export default function ImpactAssessmentView({ impacts }: Props) {
 	return (
 		<div className="">
-			<div className="sticky left-0 right-0 top-0 border-b bg-white py-3 text-center text-sm font-medium">Impact Assessment Result</div>
-			<div className="flex h-[400px] w-[670px] flex-col space-y-1 overflow-y-scroll px-2 py-1">
+			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 bg-white p-4">
+				<ImpactResult one="#0284c7" two="#075985" three="#0c4a6e" four="#0284c7" five="#0369a1" six="#0c4a6e" seven="#0c4a6e" />
+				<span className="text-base font-semibold">Impact Assessment Result</span>
+				<Info size={17} fill="#aeaeae" color="#fff" />
+			</div>
+
+			<div className="flex h-[400px] w-[670px] flex-col space-y-1 overflow-y-scroll px-2 py-2">
 				{impacts.map((item) => (
-					<div key={item.id} className="grid grid-cols-12 items-center gap-3 p-1">
+					<div key={item.id} className="grid grid-cols-12 items-center gap-3 px-1 py-1.5">
 						<div className="col-span-1 flex justify-center">
 							<div
 								dangerouslySetInnerHTML={{
