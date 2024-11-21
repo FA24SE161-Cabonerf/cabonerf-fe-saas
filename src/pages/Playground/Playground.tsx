@@ -41,6 +41,7 @@ import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
 import { Impact } from '@/@types/project.type';
+import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -232,7 +233,9 @@ export default function Playground() {
 					<PlaygroundToolBoxV2 />
 
 					<Panel position="bottom-center">
-						<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
+						<PlaygroundControlContextProvider>
+							<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
+						</PlaygroundControlContextProvider>
 					</Panel>
 				</ReactFlow>
 				{sheetState.process && <SheetbarSide />}
