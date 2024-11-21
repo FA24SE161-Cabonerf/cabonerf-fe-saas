@@ -31,12 +31,25 @@ interface Project<IData = Impact[], PData = unknown, CData = unknown> {
 	connectors: CData;
 }
 
+type TransformContributor = {
+	processId: string;
+	net?: number;
+	total?: number;
+	subProcesses: TransformContributor[];
+};
+
 type GetProject = Omit<Project<Impact[]>, 'processes' | 'connectors'> & {
 	value: number;
 };
 
 type CreateProjectResponse = {
 	projectId: string;
+};
+
+type Contributor = {
+	processId: string;
+	net: number;
+	subProcesses: Contributor[];
 };
 
 type UpdateProjectResponse = Omit<Project, 'processes' | 'connectors' | 'impacts'> & {
@@ -49,4 +62,25 @@ type GetProjectListResponse = Omit<Project<Impact[]>, 'processes' | 'connectors'
 	workspace: Workspace;
 };
 
-export type { CreateProjectResponse, GetProject, GetProjectListResponse, Impact, Owner, Project, UpdateProjectResponse, Workspace };
+type Insensity = {
+	id: string;
+	category: string;
+	value: number;
+	unit: string;
+	description: string;
+	icon: string;
+};
+
+export type {
+	Insensity,
+	Contributor,
+	CreateProjectResponse,
+	GetProject,
+	GetProjectListResponse,
+	Impact,
+	Owner,
+	TransformContributor,
+	Project,
+	UpdateProjectResponse,
+	Workspace,
+};
