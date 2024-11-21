@@ -2,7 +2,7 @@ import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CommonResponse } from '@/@types/common.type';
 import { CreateProjectResponse, GetProjectListResponse, Impact, Project, TransformContributor } from '@/@types/project.type';
-import { IMPACT_METHOD_ENDPOINT, PROJECT_ENDPOINT } from '@/constants/api.endpoint';
+import { IMPACT_METHOD_ENDPOINT, PROJECT_ENDPOINT, WORKSPACE_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http.tsx';
 import { Edge, Node } from '@xyflow/react';
@@ -21,7 +21,7 @@ class ProjectApis {
 
 	public async getProjectById(payload: { pid: string; wid: string }) {
 		return httpService.get<CommonResponse<Project<Impact[], Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]>>>(
-			`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}/${payload.wid}`
+			`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}${WORKSPACE_ENDPOINT.WORKSPACE}/${payload.wid}`
 		);
 	}
 
@@ -46,9 +46,10 @@ class ProjectApis {
 		);
 	}
 
-	public async calculateProject(id: string) {
-		const response = await httpService.get<CommonResponse<Project & { contributionBreakdown: TransformContributor }>>(
-			`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.CALCULATE_PROJECT}/${id}`
+	public async calculateProject(payload: { projectId: string }) {
+		const response = await httpService.post<CommonResponse<Project & { contributionBreakdown: TransformContributor }>>(
+			`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.CALCULATE_PROJECT}`,
+			payload
 		);
 		return response.data.data;
 	}

@@ -34,7 +34,7 @@ export default function PlaygroundControlMenu({ impacts, contributionBreakdown }
 	return (
 		playgroundControlState.selectedTriggerId && (
 			<div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full rounded-[15px] shadow">
-				<div className="h-full w-full overflow-hidden rounded-[15px] bg-white">{renderMenuContent()}</div>
+				<div className="h-full w-full overflow-hidden rounded-[15px] border-[0.5px] bg-white">{renderMenuContent()}</div>
 			</div>
 		)
 	);

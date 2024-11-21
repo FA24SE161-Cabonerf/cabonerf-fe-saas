@@ -1,6 +1,11 @@
-export default function ContributeResult() {
+type Props = {
+	w?: number;
+	h?: number;
+};
+
+export default function ContributeResult({ w = 20, h = 20 }: Props) {
 	return (
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20} color={'currentColor'} fill={'currentColor'}>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={w} height={h} color={'currentColor'} fill={'currentColor'}>
 			<path
 				d="M11.024 22C15.3242 22 18.9218 18.9922 19.8279 14.9657C20.0135 14.141 20.1063 13.7286 19.8052 13.3523C19.5042 12.976 19.017 12.976 18.0427 12.976H11.024M11.024 22C6.04018 22 2 17.9598 2 12.976C2 8.67584 5.00779 5.07818 9.03431 4.17208C9.85901 3.9865 10.2714 3.89371 10.6477 4.19475C11.024 4.4958 11.024 4.98298 11.024 5.95734V12.976M11.024 22V12.976"
 				stroke="currentColor"

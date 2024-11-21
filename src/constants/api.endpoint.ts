@@ -34,6 +34,10 @@ class PROJECT_ENDPOINT {
 	public static CALCULATE_PROJECT = '/calculation';
 }
 
+class WORKSPACE_ENDPOINT {
+	public static WORKSPACE = '/workspaces';
+}
+
 class LIFE_CYCLE_STAGES_ENDPOINT {
 	public static LIFE_CYCLE_STAGES = '/life-cycle-stages';
 }
@@ -67,6 +71,7 @@ class CONNECTOR {
 }
 
 export {
+	WORKSPACE_ENDPOINT,
 	CONNECTOR,
 	PROCESS,
 	UNIT,

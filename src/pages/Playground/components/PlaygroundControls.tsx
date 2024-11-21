@@ -1,4 +1,4 @@
-import { Contributor, Impact } from '@/@types/project.type';
+import { Contributor, Impact, TransformContributor } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
@@ -8,15 +8,13 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import ControlItem from '@/pages/Playground/components/ControlItem';
 import PlaygroundControlMenu from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlMenu';
 import PlaygroundControlTrigger from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlTrigger';
-import { isBadRequestError } from '@/utils/error';
 import { transformProcesses } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
-import { isAxiosError } from 'axios';
 import clsx from 'clsx';
 import { Play } from 'lucide-react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 const FIT_VIEW = 1000;
@@ -27,44 +25,36 @@ type Props = {
 	impacts: Impact[];
 };
 
+type CalculateData = {
+	impacts: Impact[];
+	contribution: TransformContributor;
+};
+
 function PlaygroundControls({ projectId, impacts }: Props) {
+	const [calculateData, setCalculateData] = useState<CalculateData | undefined>(undefined);
 	const reactflow = useReactFlow();
 
-	const {
-		data: calculatedData,
-		refetch,
-		isFetching,
-	} = useQuery({
-		queryKey: ['calculate'],
-		queryFn: () => ProjectApis.prototype.calculateProject(projectId),
-		enabled: false,
-		retry: 0,
+	const calculateMutate = useMutation({
+		mutationFn: (payload: { projectId: string }) => ProjectApis.prototype.calculateProject(payload),
 	});
 
 	const impactsData = useMemo(() => {
-		return calculatedData?.impacts ?? impacts;
-	}, [calculatedData?.impacts, impacts]);
-
-	const contributionBreakdownTransform = useMemo(() => {
-		if (calculatedData?.contributionBreakdown) {
-			return transformProcesses(calculatedData.contributionBreakdown as Contributor);
-		}
-	}, [calculatedData?.contributionBreakdown]);
+		return calculateData?.impacts ?? impacts;
+	}, [calculateData?.impacts, impacts]);
 
 	const handleCalculateProject = async () => {
-		try {
-			const data = await refetch();
-			console.log(data);
-			if (isAxiosError(data.data)) {
-				throw data.data;
-			} else {
-				toast('SUCCESS');
+		calculateMutate.mutate(
+			{ projectId },
+			{
+				onSuccess: (data) => {
+					setCalculateData({
+						impacts: data.impacts,
+						contribution: transformProcesses(data.contributionBreakdown as Contributor),
+					});
+					toast('SUCCESS');
+				},
 			}
-		} catch (error) {
-			if (isBadRequestError<{ data: unknown; message: string; status: string }>(error)) {
-				toast.error(error.response?.data.message);
-			}
-		}
+		);
 	};
 
 	return (
@@ -143,12 +133,12 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 
 					{/* Contributor Assessment View */}
 					<PlaygroundControlTrigger
-						isOpenTooltip={Boolean(calculatedData?.contributionBreakdown) === false}
-						disabled={calculatedData?.contributionBreakdown === undefined ? true : false}
+						isOpenTooltip={Boolean(calculateData?.contribution) === false}
+						disabled={calculateData?.contribution === undefined ? true : false}
 						id="2"
 						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': calculatedData?.contributionBreakdown === undefined ? true : false,
-							'text-[#888888] hover:text-black': calculatedData?.contributionBreakdown === undefined ? false : true,
+							'cursor-not-allowed text-[#EFEFEF]': calculateData?.contribution === undefined ? true : false,
+							'text-[#888888] hover:text-black': calculateData?.contribution === undefined ? false : true,
 						})}
 					>
 						<ContributeResult />
@@ -156,12 +146,12 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 
 					{/* Compare Assessment to world */}
 					<PlaygroundControlTrigger
-						isOpenTooltip={Boolean(calculatedData?.contributionBreakdown) === false}
-						disabled={calculatedData?.contributionBreakdown === undefined ? true : false}
+						isOpenTooltip={Boolean(calculateData?.contribution) === false}
+						disabled={calculateData?.contribution === undefined ? true : false}
 						id="3"
 						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': calculatedData?.contributionBreakdown === undefined ? true : false,
-							'text-[#888888] hover:text-black': calculatedData?.contributionBreakdown === undefined ? false : true,
+							'cursor-not-allowed text-[#EFEFEF]': calculateData?.contribution === undefined ? true : false,
+							'text-[#888888] hover:text-black': calculateData?.contribution === undefined ? false : true,
 						})}
 					>
 						<CompareResult />
@@ -173,14 +163,14 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 						className={clsx(
 							`flex min-w-[145px] transform items-center justify-center space-x-3 rounded-[9px] p-2 text-[13px] font-medium transition-all duration-300 active:scale-95`,
 							{
-								'bg-gray-300 text-white': isFetching,
-								'bg-green-500 text-white shadow-md shadow-green-200 hover:bg-green-600/90': !isFetching,
+								'bg-gray-300 text-white': calculateMutate.isPending,
+								'bg-green-500 text-white shadow-md shadow-green-200 hover:bg-green-600/90': !calculateMutate.isPending,
 							}
 						)}
-						disabled={isFetching}
+						disabled={calculateMutate.isPending}
 						onClick={handleCalculateProject}
 					>
-						{isFetching ? (
+						{calculateMutate.isPending ? (
 							<>
 								<ReloadIcon className="h-4 w-4 animate-spin" /> <span>Calculating...</span>
 							</>
@@ -192,7 +182,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					</button>
 				</div>
 
-				<PlaygroundControlMenu impacts={impactsData} contributionBreakdown={contributionBreakdownTransform} />
+				<PlaygroundControlMenu impacts={impactsData} contributionBreakdown={calculateData?.contribution} />
 			</div>
 		</TooltipProvider>
 	);
