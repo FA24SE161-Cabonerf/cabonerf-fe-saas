@@ -1,4 +1,5 @@
-import { Contributor, Impact, TransformContributor } from '@/@types/project.type';
+import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
+import { Impact } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
@@ -8,13 +9,14 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import ControlItem from '@/pages/Playground/components/ControlItem';
 import PlaygroundControlMenu from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlMenu';
 import PlaygroundControlTrigger from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlTrigger';
+import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { transformProcesses } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import { Play } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { toast } from 'sonner';
 
 const FIT_VIEW = 1000;
@@ -25,13 +27,11 @@ type Props = {
 	impacts: Impact[];
 };
 
-type CalculateData = {
-	impacts: Impact[];
-	contribution: TransformContributor;
-};
-
 function PlaygroundControls({ projectId, impacts }: Props) {
-	const [calculateData, setCalculateData] = useState<CalculateData | undefined>(undefined);
+	const {
+		playgroundControlState: { impacts: impactStateData, contributionBreakdown },
+		playgroundControlDispatch,
+	} = useContext(PlaygroundControlContext);
 	const reactflow = useReactFlow();
 
 	const calculateMutate = useMutation({
@@ -39,17 +39,27 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 	});
 
 	const impactsData = useMemo(() => {
-		return calculateData?.impacts ?? impacts;
-	}, [calculateData?.impacts, impacts]);
+		return impactStateData ?? impacts;
+	}, [impactStateData, impacts]);
+
+	const contributionBreakdownResult = useMemo(() => {
+		if (contributionBreakdown) {
+			return transformProcesses(contributionBreakdown);
+		}
+	}, [contributionBreakdown]);
 
 	const handleCalculateProject = async () => {
 		calculateMutate.mutate(
 			{ projectId },
 			{
 				onSuccess: (data) => {
-					setCalculateData({
-						impacts: data.impacts,
-						contribution: transformProcesses(data.contributionBreakdown as Contributor),
+					playgroundControlDispatch({
+						type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,
+						payload: {
+							contributionBreakdown: data.contributionBreakdown,
+							impacts: data.impacts,
+							processes: data.processes,
+						},
 					});
 					toast('SUCCESS');
 				},
@@ -133,12 +143,12 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 
 					{/* Contributor Assessment View */}
 					<PlaygroundControlTrigger
-						isOpenTooltip={Boolean(calculateData?.contribution) === false}
-						disabled={calculateData?.contribution === undefined ? true : false}
+						isOpenTooltip={Boolean(contributionBreakdown) === false}
+						disabled={contributionBreakdown === null ? true : false}
 						id="2"
 						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': calculateData?.contribution === undefined ? true : false,
-							'text-[#888888] hover:text-black': calculateData?.contribution === undefined ? false : true,
+							'cursor-not-allowed text-[#EFEFEF]': contributionBreakdown === null ? true : false,
+							'text-[#888888] hover:text-black': contributionBreakdown === null ? false : true,
 						})}
 					>
 						<ContributeResult />
@@ -146,12 +156,12 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 
 					{/* Compare Assessment to world */}
 					<PlaygroundControlTrigger
-						isOpenTooltip={Boolean(calculateData?.contribution) === false}
-						disabled={calculateData?.contribution === undefined ? true : false}
+						isOpenTooltip={Boolean(contributionBreakdown) === false}
+						disabled={contributionBreakdown === null ? true : false}
 						id="3"
 						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': calculateData?.contribution === undefined ? true : false,
-							'text-[#888888] hover:text-black': calculateData?.contribution === undefined ? false : true,
+							'cursor-not-allowed text-[#EFEFEF]': contributionBreakdown === null ? true : false,
+							'text-[#888888] hover:text-black': contributionBreakdown === null ? false : true,
 						})}
 					>
 						<CompareResult />
@@ -182,7 +192,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					</button>
 				</div>
 
-				<PlaygroundControlMenu impacts={impactsData} contributionBreakdown={calculateData?.contribution} />
+				<PlaygroundControlMenu impacts={impactsData} contributionBreakdown={contributionBreakdownResult} />
 			</div>
 		</TooltipProvider>
 	);

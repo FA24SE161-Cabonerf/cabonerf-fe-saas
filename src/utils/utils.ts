@@ -49,17 +49,22 @@ export const updateSVGAttributes = ({ svgString, properties }: CustomSVG) => {
 };
 
 export function formatWithExponential(value, decimalPlaces = 2) {
-	// Ngưỡng cho khi nào sử dụng ký hiệu số mũ
-	const largeThreshold = 1e5; // Cho các số >= 100,000
-	const smallThreshold = 1e-3; // Cho các số < 0.001
+	const largeThreshold = 1e5;
+	const smallThreshold = 1e-3;
 
-	// Chuyển đổi sang ký hiệu số mũ nếu giá trị quá lớn hoặc quá nhỏ
 	if (Math.abs(value) >= largeThreshold || (Math.abs(value) < smallThreshold && Math.abs(value) !== 0)) {
 		return value.toExponential(decimalPlaces);
 	}
 
-	// Làm tròn số đến 2 chữ số thập phân cuối nếu nằm trong phạm vi thông thường
 	return parseFloat(value.toFixed(decimalPlaces));
+}
+
+export function formatPercentage(value: number) {
+	if (value % 1 === 0) return value;
+
+	if (value >= 100) return Math.round(value);
+
+	return Math.round(value * 10) / 10;
 }
 
 export function areObjectsDifferent(obj1, obj2) {
@@ -105,7 +110,7 @@ export function transformProcesses(contributor: Contributor): TransformContribut
 	};
 
 	if (hasSubProcesses) {
-		newProcess.total = contributor.net;
+		newProcess.total = 0;
 
 		newProcess.subProcesses.push({
 			processId: contributor.processId,

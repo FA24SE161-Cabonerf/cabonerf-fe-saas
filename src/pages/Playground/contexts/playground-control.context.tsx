@@ -1,10 +1,15 @@
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
+import { Contributor, Impact } from '@/@types/project.type';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 type State = {
 	selectedTriggerId: string | null;
 	isMinimizeMenu: boolean;
 	triggerIds: string[];
+	impacts: Impact[] | null;
+	contributionBreakdown: Contributor | null;
+	processes: CabonerfNodeData[] | null;
 };
 
 type Action =
@@ -18,6 +23,14 @@ type Action =
 	  }
 	| {
 			type: PlaygroundControlDispatch.CLEAR_TRIGGER_IDS;
+	  }
+	| {
+			type: PlaygroundControlDispatch.ADD_CALCULATED_DATA;
+			payload: {
+				contributionBreakdown: Contributor;
+				impacts: Impact[];
+				processes: CabonerfNodeData[];
+			};
 	  };
 
 type PlaygroundControlContext = {
@@ -30,6 +43,9 @@ const initialPlaygroundControlContext: PlaygroundControlContext = {
 		selectedTriggerId: null,
 		isMinimizeMenu: false,
 		triggerIds: [],
+		contributionBreakdown: null,
+		impacts: null,
+		processes: [],
 	},
 	playgroundControlDispatch: () => {},
 };
@@ -55,6 +71,14 @@ const reducer = (state: State, action: Action) => {
 		case PlaygroundControlDispatch.CLEAR_TRIGGER_IDS:
 			return { ...state, selectedTriggerId: null };
 
+		case PlaygroundControlDispatch.ADD_CALCULATED_DATA:
+			return {
+				...state,
+				contributionBreakdown: action.payload.contributionBreakdown,
+				impacts: action.payload.impacts,
+				processes: action.payload.processes,
+			};
+
 		default:
 			return state;
 	}
@@ -65,6 +89,9 @@ export default function PlaygroundControlContextProvider({ children }: Props) {
 		selectedTriggerId: initialPlaygroundControlContext.playgroundControlState.selectedTriggerId,
 		triggerIds: initialPlaygroundControlContext.playgroundControlState.triggerIds,
 		isMinimizeMenu: initialPlaygroundControlContext.playgroundControlState.isMinimizeMenu,
+		contributionBreakdown: initialPlaygroundControlContext.playgroundControlState.contributionBreakdown,
+		impacts: initialPlaygroundControlContext.playgroundControlState.impacts,
+		processes: initialPlaygroundControlContext.playgroundControlState.processes,
 	});
 
 	const context = useMemo(
