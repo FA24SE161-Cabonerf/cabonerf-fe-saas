@@ -53,6 +53,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 			{ projectId },
 			{
 				onSuccess: (data) => {
+					console.log(data.contributionBreakdown);
 					playgroundControlDispatch({
 						type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,
 						payload: {

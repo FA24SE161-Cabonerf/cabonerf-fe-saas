@@ -11,7 +11,7 @@ type Props = {
 export default function ImpactAssessmentView({ impacts }: Props) {
 	return (
 		<div className="">
-			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 bg-white p-4">
+			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 border-[0.5px] border-b bg-white p-4">
 				<ImpactResult one="#0284c7" two="#075985" three="#0c4a6e" four="#0284c7" five="#0369a1" six="#0c4a6e" seven="#0c4a6e" />
 				<span className="text-base font-semibold">Impact Assessment Result</span>
 				<Info size={17} fill="#aeaeae" color="#fff" />

@@ -5,7 +5,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { formatPercentage } from '@/utils/utils';
 import clsx from 'clsx';
 import { Info, Triangle } from 'lucide-react';
-import { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 type TransformContributor = {
 	processId: string;
@@ -55,8 +55,7 @@ const ValueContribute = ({ value, percentage }: { value: number; percentage: num
 	</div>
 );
 
-// Recursive component to display the tree structure
-export const TreeView = ({ data, depth }: Props) => {
+const TreeView = ({ data, depth }: Props) => {
 	const {
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
@@ -74,8 +73,9 @@ export const TreeView = ({ data, depth }: Props) => {
 		const calculateNodeContribution = (
 			node: TransformContributor,
 			rootTotal: number
-		): { name: string; value: number; percentage: number; subProcesses: any[] } => {
+		): { name: string; value: number; percentage: number; subProcesses: unknown[] } => {
 			const process = processes.find((p) => p.id === node.processId);
+
 			const valueByImpactCategory = process?.impacts.find((i) => i.impactCategory.id === impactCategory.id)?.unitLevel;
 
 			const currentContribution = node.net && valueByImpactCategory ? node.net * valueByImpactCategory : 0;
@@ -170,6 +170,8 @@ export const TreeView = ({ data, depth }: Props) => {
 	);
 };
 
+const Tree = React.memo(TreeView);
+
 // Main component
 export default function ContributionBreakdownView({ data }: { data: TransformContributor }) {
 	const {
@@ -177,8 +179,8 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 	} = useContext(PlaygroundContext);
 
 	return (
-		<div className="h-[500px] w-[700px] overflow-scroll">
-			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 bg-white p-4">
+		<div className="h-[600px] w-[700px] overflow-scroll pb-3">
+			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 border-[0.5px] border-b bg-white p-4">
 				<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
 				<span className="text-base font-semibold">Unit contribution analysis</span>
 				<Info size={17} fill="#aeaeae" color="#fff" />
@@ -191,7 +193,7 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 				</div>
 			</div>
 			<div className="mt-3 px-2">
-				<TreeView data={data} depth={1} />
+				<Tree data={data} depth={1} />
 			</div>
 		</div>
 	);
