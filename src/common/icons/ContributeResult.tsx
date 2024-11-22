@@ -1,9 +1,11 @@
 type Props = {
 	w?: number;
 	h?: number;
+	one?: string;
+	two?: string;
 };
 
-export default function ContributeResult({ w = 20, h = 20 }: Props) {
+export default function ContributeResult({ w = 20, h = 20, one = 'none', two = 'none' }: Props) {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={w} height={h} color={'currentColor'} fill={'currentColor'}>
 			<path
@@ -11,12 +13,14 @@ export default function ContributeResult({ w = 20, h = 20 }: Props) {
 				stroke="currentColor"
 				strokeWidth="1.5"
 				strokeLinejoin="round"
+				color={one}
 			/>
 			<path
 				d="M21.5541 7.02647C20.7305 4.93588 19.0641 3.26953 16.9735 2.44595C15.8783 2.01448 15.3307 1.79874 14.6653 2.25173C14 2.70472 14 3.44563 14 4.92747V6.95648C14 8.39121 14 9.10857 14.4457 9.55429C14.8914 10 15.6088 10 17.0435 10H19.0725C20.5544 10 21.2953 10 21.7483 9.33467C22.2013 8.66935 21.9855 8.12172 21.5541 7.02647Z"
 				stroke="currentColor"
 				strokeWidth="1.5"
 				strokeLinejoin="round"
+				color={two}
 			/>
 		</svg>
 	);

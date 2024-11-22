@@ -1,7 +1,7 @@
 import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CommonResponse } from '@/@types/common.type';
-import { CreateProjectResponse, GetProjectListResponse, Impact, Project, TransformContributor } from '@/@types/project.type';
+import { Contributor, CreateProjectResponse, GetProjectListResponse, Impact, Project, TransformContributor } from '@/@types/project.type';
 import { IMPACT_METHOD_ENDPOINT, PROJECT_ENDPOINT, WORKSPACE_ENDPOINT } from '@/constants/api.endpoint';
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http.tsx';
@@ -47,7 +47,7 @@ class ProjectApis {
 	}
 
 	public async calculateProject(payload: { projectId: string }) {
-		const response = await httpService.post<CommonResponse<Project & { contributionBreakdown: TransformContributor }>>(
+		const response = await httpService.post<CommonResponse<Project & { contributionBreakdown: Contributor }>>(
 			`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.CALCULATE_PROJECT}`,
 			payload
 		);
