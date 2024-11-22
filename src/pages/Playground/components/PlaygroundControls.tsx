@@ -131,12 +131,12 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					{/* Impact Assessment Result */}
 
 					<PlaygroundControlTrigger
-						isOpenTooltip={impacts.length === 0}
-						disabled={impacts.length === 0}
+						isOpenTooltip={impactsData.length === 0}
+						disabled={impactsData.length === 0}
 						id="1"
 						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': impacts.length === 0,
-							'text-[#888888] hover:text-black': impacts.length > 0,
+							'cursor-not-allowed text-[#EFEFEF]': impactsData.length === 0,
+							'text-[#888888] hover:text-black': impactsData.length > 0,
 						})}
 					>
 						<ImpactResult />

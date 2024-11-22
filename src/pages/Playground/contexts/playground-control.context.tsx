@@ -10,6 +10,7 @@ type State = {
 	impacts: Impact[] | null;
 	contributionBreakdown: Contributor | null;
 	processes: CabonerfNodeData[] | null;
+	edgeContributions: Contributor[];
 };
 
 type Action =
@@ -46,6 +47,7 @@ const initialPlaygroundControlContext: PlaygroundControlContext = {
 		contributionBreakdown: null,
 		impacts: null,
 		processes: [],
+		edgeContributions: [],
 	},
 	playgroundControlDispatch: () => {},
 };
@@ -71,13 +73,29 @@ const reducer = (state: State, action: Action) => {
 		case PlaygroundControlDispatch.CLEAR_TRIGGER_IDS:
 			return { ...state, selectedTriggerId: null };
 
-		case PlaygroundControlDispatch.ADD_CALCULATED_DATA:
+		case PlaygroundControlDispatch.ADD_CALCULATED_DATA: {
+			function flattenContributor(contributor: Contributor): Contributor[] {
+				const result: Contributor[] = [];
+
+				const traverse = (current: Contributor) => {
+					result.push({ ...current, subProcesses: [] });
+
+					current.subProcesses.forEach((sub) => traverse(sub));
+				};
+
+				traverse(contributor);
+
+				return result;
+			}
+
 			return {
 				...state,
 				contributionBreakdown: action.payload.contributionBreakdown,
 				impacts: action.payload.impacts,
 				processes: action.payload.processes,
+				edgeContributions: flattenContributor(action.payload.contributionBreakdown),
 			};
+		}
 
 		default:
 			return state;
@@ -92,6 +110,7 @@ export default function PlaygroundControlContextProvider({ children }: Props) {
 		contributionBreakdown: initialPlaygroundControlContext.playgroundControlState.contributionBreakdown,
 		impacts: initialPlaygroundControlContext.playgroundControlState.impacts,
 		processes: initialPlaygroundControlContext.playgroundControlState.processes,
+		edgeContributions: initialPlaygroundControlContext.playgroundControlState.edgeContributions,
 	});
 
 	const context = useMemo(
