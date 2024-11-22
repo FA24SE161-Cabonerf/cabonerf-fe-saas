@@ -19,82 +19,100 @@ type Props = {
 	depth: number;
 };
 
-function getEmissionColor(percentage: number) {
-	percentage = Math.min(100, Math.max(0, percentage));
+// Function to calculate gradient colors for percentages
+const getEmissionColor = (percentage: number): string => {
+	const clampedPercentage = Math.min(100, Math.max(0, percentage));
 
-	if (percentage <= 50) {
-		const green = Math.round(168 + (percentage / 50) * (255 - 168));
-		const red = Math.round(72 + (percentage / 50) * (255 - 72));
-		const blue = Math.round(72 + (percentage / 50) * (143 - 72));
-		return `rgb(${red}, ${green}, ${blue})`;
-	} else {
-		const red = 255;
-		const green = Math.round(229 - ((percentage - 50) / 50) * (229 - 127));
-		const blue = Math.round(143 - ((percentage - 50) / 50) * (143 - 127));
+	if (clampedPercentage <= 50) {
+		const green = Math.round(168 + (clampedPercentage / 50) * (255 - 168));
+		const red = Math.round(72 + (clampedPercentage / 50) * (255 - 72));
+		const blue = Math.round(72 + (clampedPercentage / 50) * (143 - 72));
 		return `rgb(${red}, ${green}, ${blue})`;
 	}
-}
 
-const ValueContribute = ({ value, percentage }: { value: number; percentage: number }) => {
-	return (
-		<div className="flex w-1/2 justify-end text-base">
-			<div className="mr-12 text-[13px] font-bold">{value}</div>
-			<div className="flex items-center space-x-1 text-[13px]">
-				<div className="relative h-[25px] w-[200px] overflow-hidden rounded-sm bg-gray-200 shadow-sm">
-					<div className="h-full shadow" style={{ width: `${percentage}%`, backgroundColor: `${getEmissionColor(percentage)}` }} />
-					<div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">{percentage}</div>
-				</div>
-			</div>
-		</div>
-	);
+	const red = 255;
+	const green = Math.round(229 - ((clampedPercentage - 50) / 50) * (229 - 127));
+	const blue = Math.round(143 - ((clampedPercentage - 50) / 50) * (143 - 127));
+	return `rgb(${red}, ${green}, ${blue})`;
 };
 
+// Component to display value and percentage contribution
+const ValueContribute = ({ value, percentage }: { value: number; percentage: number }) => (
+	<div className="flex w-1/2 justify-end text-base">
+		<div className="mr-12 text-[13px] font-bold">{value}</div>
+		<div className="flex items-center space-x-1 text-[13px]">
+			<div className="relative h-[25px] w-[200px] overflow-hidden rounded-sm bg-gray-200 shadow-sm">
+				<div
+					className="h-full shadow"
+					style={{
+						width: `${percentage}%`,
+						backgroundColor: `${getEmissionColor(percentage)}`,
+					}}
+				/>
+				<div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">{percentage}%</div>
+			</div>
+		</div>
+	</div>
+);
+
+// Recursive component to display the tree structure
 export const TreeView = ({ data, depth }: Props) => {
 	const {
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
-
 	const {
 		playgroundControlState: { processes, impacts },
 	} = useContext(PlaygroundControlContext);
-
 	const [isOpen, setIsOpen] = useState<boolean>(true);
 
+	// Calculate contributions recursively
 	const calculateRecursiveTotal = useMemo(() => {
-		const totalValueByImpactCategoryId = impacts?.find((i) => i.impactCategory.id === impactCategory?.id)?.value;
+		if (!impactCategory || !impacts || !processes) return null;
 
-		const getTotalWithPercentage = (data: TransformContributor, rootTotal: number): any => {
-			const findUnitProcess = processes?.find((p) => p.id === data.processId);
+		const totalValueByImpactCategoryId = impacts.find((i) => i.impactCategory.id === impactCategory.id)?.value;
 
-			const valueByImpactCategory = findUnitProcess?.impacts.find((i) => i.impactCategory.id === impactCategory?.id)?.unitLevel;
+		const calculateNodeContribution = (
+			node: TransformContributor,
+			rootTotal: number
+		): { name: string; value: number; percentage: number; subProcesses: any[] } => {
+			const process = processes.find((p) => p.id === node.processId);
+			const valueByImpactCategory = process?.impacts.find((i) => i.impactCategory.id === impactCategory.id)?.unitLevel;
 
-			const currentContribution = data.net && valueByImpactCategory ? data.net * valueByImpactCategory : 0;
+			const currentContribution = node.net && valueByImpactCategory ? node.net * valueByImpactCategory : 0;
 
-			const subProcesses = data.subProcesses.map((subProcess) => getTotalWithPercentage(subProcess, rootTotal));
+			const subProcesses = node.subProcesses.map((sub) => calculateNodeContribution(sub, rootTotal));
 
 			const totalForNode = currentContribution + subProcesses.reduce((acc, sub) => acc + sub.value, 0);
 
 			return {
-				name: findUnitProcess?.name || 'Unknown Process',
+				name: process?.name || 'Unknown Process',
 				value: totalForNode,
-				percentage: formatPercentage((totalForNode / (totalValueByImpactCategoryId as number)) * 100),
-				subProcesses: subProcesses,
+				percentage:
+					totalValueByImpactCategoryId && totalValueByImpactCategoryId !== 0
+						? formatPercentage((totalForNode / totalValueByImpactCategoryId) * 100)
+						: 0,
+				subProcesses,
 			};
 		};
 
 		const rootTotal = (() => {
-			const getRootTotal = (data: TransformContributor): number => {
-				const findUnitProcess = processes?.find((p) => p.id === data.processId);
-				const valueByImpactCategory = findUnitProcess?.impacts.find((i) => i.impactCategory.id === impactCategory?.id)?.unitLevel;
-				const currentContribution = data.net && valueByImpactCategory ? data.net * valueByImpactCategory : 0;
-				const subProcessesTotal = data.subProcesses.reduce((acc, subProcess) => acc + getRootTotal(subProcess), 0);
+			const getTotal = (node: TransformContributor): number => {
+				const process = processes.find((p) => p.id === node.processId);
+				const valueByImpactCategory = process?.impacts.find((i) => i.impactCategory.id === impactCategory.id)?.unitLevel;
+
+				const currentContribution = node.net && valueByImpactCategory ? node.net * valueByImpactCategory : 0;
+
+				const subProcessesTotal = node.subProcesses.reduce((acc, sub) => acc + getTotal(sub), 0);
+
 				return currentContribution + subProcessesTotal;
 			};
-			return getRootTotal(data);
+			return getTotal(data);
 		})();
 
-		return getTotalWithPercentage(data, rootTotal);
-	}, [data, impactCategory?.id, impacts, processes]);
+		return calculateNodeContribution(data, rootTotal);
+	}, [data, impactCategory, impacts, processes]);
+
+	if (!calculateRecursiveTotal) return null;
 
 	return (
 		<div>
@@ -152,10 +170,12 @@ export const TreeView = ({ data, depth }: Props) => {
 	);
 };
 
+// Main component
 export default function ContributionBreakdownView({ data }: { data: TransformContributor }) {
 	const {
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
+
 	return (
 		<div className="h-[500px] w-[700px] overflow-scroll">
 			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 bg-white p-4">
