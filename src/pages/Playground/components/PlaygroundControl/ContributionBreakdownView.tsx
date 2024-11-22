@@ -19,23 +19,6 @@ type Props = {
 	depth: number;
 };
 
-// Function to calculate gradient colors for percentages
-const getEmissionColor = (percentage: number): string => {
-	const clampedPercentage = Math.min(100, Math.max(0, percentage));
-
-	if (clampedPercentage <= 50) {
-		const green = Math.round(168 + (clampedPercentage / 50) * (255 - 168));
-		const red = Math.round(72 + (clampedPercentage / 50) * (255 - 72));
-		const blue = Math.round(72 + (clampedPercentage / 50) * (143 - 72));
-		return `rgb(${red}, ${green}, ${blue})`;
-	}
-
-	const red = 255;
-	const green = Math.round(229 - ((clampedPercentage - 50) / 50) * (229 - 127));
-	const blue = Math.round(143 - ((clampedPercentage - 50) / 50) * (143 - 127));
-	return `rgb(${red}, ${green}, ${blue})`;
-};
-
 // Component to display value and percentage contribution
 const ValueContribute = ({ value, percentage }: { value: number; percentage: number }) => (
 	<div className="flex w-1/2 justify-end text-base">
@@ -46,7 +29,7 @@ const ValueContribute = ({ value, percentage }: { value: number; percentage: num
 					className="h-full shadow"
 					style={{
 						width: `${percentage}%`,
-						backgroundColor: `${getEmissionColor(percentage)}`,
+						backgroundColor: `#4ade80`,
 					}}
 				/>
 				<div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">{percentage}%</div>
@@ -179,7 +162,7 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 	} = useContext(PlaygroundContext);
 
 	return (
-		<div className="h-[600px] w-[700px] overflow-scroll pb-3">
+		<div className="h-auto w-[700px] overflow-scroll pb-3">
 			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 border-[0.5px] border-b bg-white p-4">
 				<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
 				<span className="text-base font-semibold">Unit contribution analysis</span>

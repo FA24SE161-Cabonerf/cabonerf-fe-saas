@@ -92,7 +92,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 		<div
 			onContextMenu={handleTriggerContextMenu}
 			ref={triggerRef}
-			className={clsx(`relative w-[370px] rounded-3xl border-[1px] border-gray-500 bg-white shadow-node transition-transform`, {
+			className={clsx(`relative w-[370px] rounded-[28px] border-[0.5px] border-gray-300 bg-white shadow-node transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.id === sheetState.process?.id,
 			})}
@@ -138,7 +138,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					</div>
 					{/* CTA */}
 				</div>
-				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.data.name}</div>
+				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.id}</div>
 				<div className="mt-4">
 					{data.data.impacts.length > 0 && (
 						<DropdownMenu>
