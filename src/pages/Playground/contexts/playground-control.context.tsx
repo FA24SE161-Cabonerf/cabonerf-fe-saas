@@ -15,6 +15,9 @@ type State = {
 
 type Action =
 	| {
+			type: PlaygroundControlDispatch.TRIGGER_MINIMIZE;
+	  }
+	| {
 			type: PlaygroundControlDispatch.ADD_TRIGGER_ID;
 			payload: string;
 	  }
@@ -72,6 +75,9 @@ const reducer = (state: State, action: Action) => {
 
 		case PlaygroundControlDispatch.CLEAR_TRIGGER_IDS:
 			return { ...state, selectedTriggerId: null };
+
+		case PlaygroundControlDispatch.TRIGGER_MINIMIZE:
+			return { ...state, isMinimizeMenu: !state.isMinimizeMenu };
 
 		case PlaygroundControlDispatch.ADD_CALCULATED_DATA: {
 			function flattenContributor(contributor: Contributor): Contributor[] {

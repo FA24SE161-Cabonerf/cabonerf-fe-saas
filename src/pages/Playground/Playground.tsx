@@ -42,6 +42,7 @@ import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
 import { Impact } from '@/@types/project.type';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
+import WarningSooner from '@/components/WarningSooner';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -110,7 +111,13 @@ export default function Playground() {
 		socket.connect();
 
 		socket.on('gateway:error-create-edge', (data) => {
-			toast.error(data.message);
+			toast(<WarningSooner message={data.message ?? ''} />, {
+				className: 'rounded-xl p-1.5',
+				style: {
+					border: `1px solid #f7e2bd`,
+					backgroundColor: `#fdf7eb`,
+				},
+			});
 		});
 
 		socket.on('gateway:delete-process-success', (data) => {
@@ -139,9 +146,8 @@ export default function Playground() {
 					)
 				);
 				updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
-
-				setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 			}
+			setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 		});
 
 		socket.on('connect_error', (err) => {
@@ -210,7 +216,7 @@ export default function Playground() {
 					<PlaygroundHeader id={project?.id as string} />
 					<ReactFlow
 						defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-						className="relative bg-[#eeeeee]"
+						className="relative bg-[#f4f3f3]"
 						nodeTypes={customNode}
 						edgeTypes={customEdge}
 						nodes={nodes}

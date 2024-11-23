@@ -37,7 +37,11 @@ function ToolboxLifeCycleStages() {
 			addNodes(data);
 
 			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'border-[0.5px] rounded-2xl',
+				className: 'rounded-xl p-1.5 w-[350px]',
+				style: {
+					border: `1px solid #c8e5cd`,
+					backgroundColor: `#edf7ef`,
+				},
 			});
 		});
 	}, [addNodes]);

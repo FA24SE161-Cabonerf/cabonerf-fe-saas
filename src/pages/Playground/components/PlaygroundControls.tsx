@@ -4,12 +4,14 @@ import ProjectApis from '@/apis/project.apis';
 import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
 import ImpactResult from '@/common/icons/ImpactResult';
+import ErrorSooner from '@/components/ErrorSooner';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import ControlItem from '@/pages/Playground/components/ControlItem';
 import PlaygroundControlMenu from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlMenu';
 import PlaygroundControlTrigger from '@/pages/Playground/components/PlaygroundControl/PlaygroundControlTrigger';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
+import { isBadRequestError } from '@/utils/error';
 import { transformProcesses } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
@@ -53,16 +55,30 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 			{ projectId },
 			{
 				onSuccess: (data) => {
-					console.log(data.contributionBreakdown);
-					playgroundControlDispatch({
-						type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,
-						payload: {
-							contributionBreakdown: data.contributionBreakdown,
-							impacts: data.impacts,
-							processes: data.processes,
-						},
-					});
-					toast('SUCCESS');
+					console.log(data);
+					if (data.data.data) {
+						playgroundControlDispatch({
+							type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,
+							payload: {
+								contributionBreakdown: data.data.data.contributionBreakdown,
+								impacts: data.data.data.impacts,
+								processes: data.data.data.processes,
+							},
+						});
+						toast('SUCCESS');
+					}
+				},
+				onError: (err) => {
+					console.log(err);
+					if (isBadRequestError<{ data: null; message: string; status: string }>(err)) {
+						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
+							className: 'rounded-xl p-1.5 ',
+							style: {
+								border: `1px solid #eecbc2`,
+								backgroundColor: `#f9edea`,
+							},
+						});
+					}
 				},
 			}
 		);

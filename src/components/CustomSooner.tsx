@@ -10,13 +10,13 @@ export default function CustomSuccessSooner({ data }: Props) {
 	return (
 		<div className="flex items-center space-x-3">
 			{/* Icon */}
-			<div className="h-fit w-fit rounded-sm bg-[#16a34a] p-2">
+			<div className="h-fit w-[fit] rounded-xl bg-[#22c55e] p-2 shadow-md shadow-[#edf7ef]">
 				<div
 					dangerouslySetInnerHTML={{
 						__html: DOMPurify.sanitize(
 							updateSVGAttributes({
 								svgString: data.iconUrl,
-								properties: { color: 'white', fill: 'white', height: 15, width: 15 },
+								properties: { color: 'white', fill: 'white', height: 18, width: 18 },
 							})
 						),
 					}}
@@ -24,10 +24,7 @@ export default function CustomSuccessSooner({ data }: Props) {
 			</div>
 			{/* Description */}
 			<div>
-				<div className="">
-					<b>{data.name}</b> create successfull
-				</div>
-				<div className="text-xs text-gray-600">{new Date().toDateString()}</div>
+				<div className="font-medium">{data.name} create successfull</div>
 			</div>
 		</div>
 	);

@@ -19,16 +19,16 @@ type Gradient = {
 };
 
 const gradientColors: Gradient[] = [
-	{ start: '#000000', end: '#323232', startPercentage: 0, endPercentage: 10 }, // Darker transition for Light Cyan
-	{ start: '#CDEDEA', end: '#9FDCC5', startPercentage: 10, endPercentage: 20 }, // Soft Mint Green to Bolder Pastel Green
-	{ start: '#A8DEC5', end: '#75C9A9', startPercentage: 20, endPercentage: 30 }, // Pastel Green to Deeper Gentle Teal
-	{ start: '#89D4B1', end: '#55B3A1', startPercentage: 30, endPercentage: 40 }, // Gentle Teal to Rich Aqua Blue
-	{ start: '#74C3C4', end: '#59A3A7', startPercentage: 40, endPercentage: 50 }, // Light Aqua Blue to Vivid Teal
-	{ start: '#FBE6A2', end: '#E8C968', startPercentage: 50, endPercentage: 60 }, // Pastel Yellow to Golden Yellow
-	{ start: '#FFD8A8', end: '#FBA276', startPercentage: 60, endPercentage: 70 }, // Peachy Orange to Deeper Coral
-	{ start: '#F9B5A8', end: '#EA8270', startPercentage: 70, endPercentage: 80 }, // Coral Pink to Bright Soft Red
-	{ start: '#E5959C', end: '#C75A68', startPercentage: 80, endPercentage: 90 }, // Soft Red to Bold Dusty Rose
-	{ start: '#B87A86', end: '#8B4A53', startPercentage: 90, endPercentage: 100 }, // Dusty Rose to Deep Charcoal Rose
+	{ start: '#000000', end: '#333333', startPercentage: 0, endPercentage: 10 }, // Darker Black to Lighter Black
+	{ start: '#94dbea', end: '#c2ebf4', startPercentage: 10, endPercentage: 20 }, // Light Cyan to Lighter Cyan
+	{ start: '#78b6d1', end: '#a0cee0', startPercentage: 20, endPercentage: 30 }, // Soft Mint Green to Lighter Mint
+	{ start: '#709ed0', end: '#9db9e0', startPercentage: 30, endPercentage: 40 }, // Pastel Green to Lighter Teal
+	{ start: '#f1cd55', end: '#f6de88', startPercentage: 40, endPercentage: 50 }, // Gentle Yellow to Softer Yellow
+	{ start: '#f2b84c', end: '#f6cf85', startPercentage: 50, endPercentage: 60 }, // Pastel Yellow to Lighter Yellow
+	{ start: '#e48c3f', end: '#f2b077', startPercentage: 60, endPercentage: 70 }, // Peachy Orange to Softer Orange
+	{ start: '#ec8978', end: '#f2b3aa', startPercentage: 70, endPercentage: 80 }, // Coral Pink to Softer Coral
+	{ start: '#cb6e5e', end: '#e29b91', startPercentage: 80, endPercentage: 90 }, // Soft Red to Lighter Red
+	{ start: '#bb4e3a', end: '#d38174', startPercentage: 90, endPercentage: 100 }, // Bold Red to Lighter Dusty Rose
 ];
 
 function getGradient(percentage: number): Gradient {
@@ -77,6 +77,8 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		return 0; // Default to 0 if invalid
 	}, [data.source, edgeContributions, impactCategory?.id, impacts, processes]);
 
+	const gradient = useMemo(() => getGradient(actualPercentage), [actualPercentage]);
+
 	const handleMouseEnter = () => setIsOpenMenu(true);
 	const handleMouseLeave = () => setIsOpenMenu(false);
 
@@ -102,11 +104,17 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 								<linearGradient id={`edgeGradient-${data.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
 									<stop
 										offset="0%"
-										style={{ stopColor: getGradient(actualPercentage as number)?.start || '#000', stopOpacity: 1 }}
+										style={{
+											stopColor: gradient.start || '#000',
+											stopOpacity: 0.7, // Opacity for the start color (0.7 = 70% opacity)
+										}}
 									/>
 									<stop
 										offset="100%"
-										style={{ stopColor: getGradient(actualPercentage as number)?.end || '#000', stopOpacity: 1 }}
+										style={{
+											stopColor: gradient.end || '#000',
+											stopOpacity: 0.3, // Opacity for the end color (0.3 = 30% opacity)
+										}}
 									/>
 								</linearGradient>
 							</defs>
@@ -116,8 +124,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 							path={path}
 							style={{
 								stroke: `url(#edgeGradient-${data.id})`, // Reference unique gradient id
-								strokeWidth: (actualPercentage as number) / 1.8 || 1, // Avoid zero width
-								strokeOpacity: 1,
+								strokeWidth: (actualPercentage as number) / 2 || 3, // Avoid zero width
 							}}
 						/>
 					</>
@@ -132,10 +139,11 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 								position: 'absolute',
 								zIndex: 50,
 								transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+								backgroundColor: gradient.start,
 							}}
-							className="rounded-xl bg-white px-2 py-1"
+							className="rounded-full px-1.5 text-base font-bold text-white"
 						>
-							{formatPercentage(actualPercentage as number)}
+							{formatPercentage(actualPercentage as number)}%
 						</div>
 					) : (
 						isOpenMenu && (

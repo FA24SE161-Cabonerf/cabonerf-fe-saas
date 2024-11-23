@@ -81,7 +81,7 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 
 	return (
 		<div
-			className={clsx(`relative overflow-hidden border-b-[0.5px] border-r-[0.5px] border-t-[0.5px] py-[1px] pl-3 pr-2`, {
+			className={clsx(`relative border-b-[0.5px] border-t-[0.5px] py-[1px] pl-3 pr-2`, {
 				'rounded-r-xl border-[0.5px] border-l-0': isReverse === false,
 				'rounded-l-xl border-[0.5px] border-r-0': isReverse === true,
 			})}
@@ -90,9 +90,9 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 
 			<Handle
 				isConnectableEnd={isValidUnitGroup}
-				className={clsx(`absolute h-[70%] w-[5px] rounded-none border-none bg-gray-200`, {
-					'left-[2px] rounded-br rounded-tr': isReverse === false,
-					'right-[2px] rounded-bl rounded-tl': isReverse === true,
+				className={clsx(`overf absolute rounded-full`, {
+					'-left-[1px] size-[8px] border-[2px] border-green-500 bg-white ring-[3px] ring-[#eeeeee]': isReverse === false,
+					'-right-[2px] size-[8px] border-[2px] border-green-500 bg-green-500 ring-[3px] ring-[#eeeeee]': isReverse === true,
 				})}
 				id={data.id}
 				position={isReverse ? Position.Right : Position.Left}

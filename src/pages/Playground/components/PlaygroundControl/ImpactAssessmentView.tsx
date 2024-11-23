@@ -1,20 +1,32 @@
+import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import { Impact } from '@/@types/project.type';
 import ImpactResult from '@/common/icons/ImpactResult';
+import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { updateSVGAttributes } from '@/utils/utils';
 import DOMPurify from 'dompurify';
 import { Info } from 'lucide-react';
+import { useContext } from 'react';
 
 type Props = {
 	impacts: Impact[];
 };
 
 export default function ImpactAssessmentView({ impacts }: Props) {
+	const { playgroundControlDispatch } = useContext(PlaygroundControlContext);
+
+	const handleMinimize = () => playgroundControlDispatch({ type: PlaygroundControlDispatch.TRIGGER_MINIMIZE });
+
 	return (
 		<div className="">
-			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 border-[0.5px] border-b bg-white p-4">
-				<ImpactResult one="#0284c7" two="#075985" three="#0c4a6e" four="#0284c7" five="#0369a1" six="#0c4a6e" seven="#0c4a6e" />
-				<span className="text-base font-semibold">Impact Assessment Result</span>
-				<Info size={17} fill="#aeaeae" color="#fff" />
+			<div className="sticky left-0 right-0 top-0 flex items-center justify-between border-[0.5px] border-b bg-white p-4">
+				<div className="flex items-center space-x-2">
+					<ImpactResult one="#0284c7" two="#075985" three="#0c4a6e" four="#0284c7" five="#0369a1" six="#0c4a6e" seven="#0c4a6e" />
+					<span className="text-base font-semibold">Impact Assessment Result</span>
+					<Info size={17} fill="#aeaeae" color="#fff" />
+				</div>
+				<button className="cursor-pointer rounded px-2 py-1.5 duration-200 hover:bg-gray-100" onClick={handleMinimize}>
+					<div className="h-[3px] w-[15px] rounded-full bg-black" />
+				</button>
 			</div>
 
 			<div className="flex h-[400px] w-[670px] flex-col space-y-1 overflow-y-scroll px-2 py-2">

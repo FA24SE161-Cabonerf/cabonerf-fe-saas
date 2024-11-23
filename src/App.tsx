@@ -17,7 +17,7 @@ function App() {
 				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<RouterProvider router={routers} />
 					<Toaster />
-					<ToastShadcnUI />
+					<ToastShadcnUI duration={2000} />
 				</ThemeProvider>
 			</AppProvider>
 			<ReactQueryDevtools initialIsOpen={false} />

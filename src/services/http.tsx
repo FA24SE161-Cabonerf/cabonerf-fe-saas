@@ -78,7 +78,7 @@ class HttpService {
 					this.refreshToken = '';
 					clearResouceInLocalStorage();
 				}
-				return error;
+				throw error;
 			}
 		);
 	}
