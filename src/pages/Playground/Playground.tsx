@@ -88,7 +88,7 @@ export default function Playground() {
 		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
 		enabled: Boolean(params.pid) && Boolean(params.wid),
 		staleTime: 0,
-		refetchOnMount: false,
+		refetchOnMount: true,
 	});
 
 	const project = projectData?.data.data;
@@ -311,7 +311,7 @@ export default function Playground() {
 										</div>
 									) : (
 										<div className="absolute -top-2 left-1/2 -z-10 flex h-[50px] -translate-x-1/2 -translate-y-full scale-95 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-0 shadow-lg transition-all duration-300 ease-out">
-											<ReloadIcon className="h-3 animate-spin font-bold" />
+											<ReloadIcon className="h-3 font-bold" />
 											<span className="invisible text-[12px] font-semibold">Inserting...</span>
 										</div>
 									)}
