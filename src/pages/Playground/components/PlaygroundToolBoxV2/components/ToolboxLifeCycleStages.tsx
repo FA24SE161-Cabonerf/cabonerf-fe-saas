@@ -1,21 +1,16 @@
-import { CabonerfNode } from '@/@types/cabonerfNode.type';
 import { ToolboxDispatchType } from '@/@types/dispatch.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
-import CustomSuccessSooner from '@/components/CustomSooner';
 import { ToolboxContext } from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
 import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
 import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
-import { useReactFlow } from '@xyflow/react';
 import DOMPurify from 'dompurify';
 import React, { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 
 function ToolboxLifeCycleStages() {
 	const data = useParams();
 
-	const { addNodes } = useReactFlow();
 	const { dispatch } = useContext(ToolboxContext);
 
 	const lifeCycleStagesQuery = useQuery({
@@ -31,20 +26,6 @@ function ToolboxLifeCycleStages() {
 			dispatch({ type: ToolboxDispatchType.LOADING_TOOLBOX, payload: false });
 		}
 	}, [lifeCycleStagesQuery.isFetching, dispatch]);
-
-	useEffect(() => {
-		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
-			addNodes(data);
-
-			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'rounded-xl p-1.5 w-[350px]',
-				style: {
-					border: `1px solid #c8e5cd`,
-					backgroundColor: `#edf7ef`,
-				},
-			});
-		});
-	}, [addNodes]);
 
 	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
 		// Get properties of screen

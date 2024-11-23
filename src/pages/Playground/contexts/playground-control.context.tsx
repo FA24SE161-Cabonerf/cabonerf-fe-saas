@@ -71,7 +71,7 @@ const reducer = (state: State, action: Action) => {
 			return { ...state, triggerIds: [...state.triggerIds, action.payload] };
 		}
 		case PlaygroundControlDispatch.SELECTED_TRIGGER_ID:
-			return { ...state, selectedTriggerId: action.payload };
+			return { ...state, selectedTriggerId: action.payload, isMinimizeMenu: false };
 
 		case PlaygroundControlDispatch.CLEAR_TRIGGER_IDS:
 			return { ...state, selectedTriggerId: null };

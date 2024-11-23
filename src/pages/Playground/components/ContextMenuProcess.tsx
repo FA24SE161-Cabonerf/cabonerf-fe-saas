@@ -126,7 +126,7 @@ const ContextMenuProcess = React.memo(
 				}}
 				className="transition-all duration-300"
 			>
-				<div className="w-[250px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
+				<div className="w-[230px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
 					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
 					<Separator />
 					<div className="py-2 text-gray-400">
@@ -137,7 +137,7 @@ const ContextMenuProcess = React.memo(
 									<button
 										onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
 										key={item.bg}
-										className="size-10 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
+										className="size-9 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
 										style={{
 											border: `1px solid ${item.border}`,
 											backgroundColor: item.bg,
