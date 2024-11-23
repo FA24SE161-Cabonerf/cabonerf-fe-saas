@@ -35,6 +35,7 @@ type CustomSVG = {
 		height: number;
 		fill: string;
 		color: string;
+		strokeWidth?: number;
 	};
 };
 
@@ -44,7 +45,8 @@ export const updateSVGAttributes = ({ svgString, properties }: CustomSVG) => {
 			.replace(/width="\d+"/, `width="${properties?.width}"`)
 			.replace(/height="\d+"/, `height="${properties?.height}"`)
 			.replace(/fill="[^"]*"/, `fill="${properties?.fill}"`)
-			.replace(/stroke="[^"]*"/, `stroke="${properties?.color}"`);
+			.replace(/stroke="[^"]*"/, `stroke="${properties?.color}"`)
+			.replace(/stroke-width="[^"]*"/, `stroke-width=${properties.strokeWidth}`);
 	else return svgString;
 };
 

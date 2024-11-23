@@ -34,6 +34,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 		playgroundControlState: { impacts: impactStateData, contributionBreakdown },
 		playgroundControlDispatch,
 	} = useContext(PlaygroundControlContext);
+
 	const reactflow = useReactFlow();
 
 	const calculateMutate = useMutation({
@@ -88,10 +89,10 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 				onError: (err) => {
 					if (isBadRequestError<{ data: null; message: string; status: string }>(err)) {
 						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
-							className: 'rounded-xl p-1.5 ',
+							className: 'rounded-2xl p-1.5 ',
 							style: {
 								border: `1px solid #eecbc2`,
-								backgroundColor: `#f9edea`,
+								backgroundColor: `#fff`,
 							},
 						});
 					}
@@ -99,7 +100,6 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 			}
 		);
 	};
-
 	return (
 		<TooltipProvider delayDuration={200}>
 			<div className="relative w-auto transform rounded-[15px] border-[0.5px] border-gray-50 bg-white shadow-xl duration-300">

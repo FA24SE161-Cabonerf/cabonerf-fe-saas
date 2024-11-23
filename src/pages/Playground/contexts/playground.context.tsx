@@ -76,10 +76,10 @@ export const PlaygroundProvider = ({ children }: Props) => {
 	});
 
 	const state = useMemo(() => {
-		return { playgroundState };
-	}, [playgroundState]);
+		return { playgroundState, playgroundDispatch };
+	}, [playgroundState, playgroundDispatch]);
 
-	return <PlaygroundContext.Provider value={{ ...state, playgroundDispatch }}>{children}</PlaygroundContext.Provider>;
+	return <PlaygroundContext.Provider value={state}>{children}</PlaygroundContext.Provider>;
 };
 
 export { PlaygroundContext };

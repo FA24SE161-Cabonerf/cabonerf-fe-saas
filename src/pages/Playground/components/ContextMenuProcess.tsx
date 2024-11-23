@@ -126,7 +126,7 @@ const ContextMenuProcess = React.memo(
 				}}
 				className="transition-all duration-300"
 			>
-				<div className="w-[230px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
+				<div className="w-[230px] rounded-[10px] border-[0.5px] border-gray-50 bg-white shadow-xl transition-all duration-500">
 					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
 					<Separator />
 					<div className="py-2 text-gray-400">
@@ -155,14 +155,13 @@ const ContextMenuProcess = React.memo(
 						<div className="mt-2 flex flex-col">
 							<span className="px-3 py-1 text-xs">Options</span>
 							<div className="p-1">
-								<Button
+								<button
 									onClick={handleEditDetail}
-									variant="ghost"
-									className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black"
+									className="flex w-full items-center space-x-2 rounded-[5px] px-[10px] py-2 font-normal text-black hover:bg-[#22c55e] hover:text-white"
 								>
 									<Leaf size={15} />
-									<span>Edit Elementary Exchanges</span>
-								</Button>
+									<span className="text-[12px]">Edit Elementary Exchanges</span>
+								</button>
 							</div>
 						</div>
 						<div className="mt-2 flex flex-col">
@@ -170,7 +169,7 @@ const ContextMenuProcess = React.memo(
 								<Button
 									onClick={handleDeleteNodeProcess}
 									variant="destructive"
-									className="mx-auto flex h-fit w-fit justify-start space-x-1 rounded-sm bg-[#fef2f2] px-2 hover:bg-[#fee2e2]"
+									className="mx-auto flex h-fit w-fit justify-start space-x-1 rounded-[5px] bg-[#fef2f2] px-2 hover:bg-[#fee2e2]"
 								>
 									<Trash2 size={14} color="#ef4444" strokeWidth={2} />
 									<span className="text-xs text-[#ef4444]">Delete process</span>

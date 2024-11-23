@@ -43,7 +43,7 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 		return sameUnitGroup && sameName;
 	}, [fromNode, fromHandle, toNode, toHandle]);
 
-	const { data: unit, isFetching: isFetchingUnit } = useQuery({
+	const { data: unit } = useQuery({
 		queryKey: ['unit-group', defaultUnitGroup],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
