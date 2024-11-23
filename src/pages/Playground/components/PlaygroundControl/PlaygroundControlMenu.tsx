@@ -36,7 +36,7 @@ export default function PlaygroundControlMenu({ impacts, contributionBreakdown }
 
 	return (
 		playgroundControlState.selectedTriggerId && (
-			<div className="absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full rounded-[15px] shadow">
+			<div className="absolute -top-1.5 left-1/2 z-50 -translate-x-1/2 -translate-y-full rounded-[15px] shadow">
 				{playgroundControlState.isMinimizeMenu ? (
 					<button
 						onClick={handleTriggerMaximize}

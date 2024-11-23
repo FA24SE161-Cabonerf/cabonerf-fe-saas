@@ -32,27 +32,27 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Impact } from '@/@types/project.type';
+import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
+import CustomSuccessSooner from '@/components/CustomSooner';
 import WarningSooner from '@/components/WarningSooner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
+import { Separator } from '@/components/ui/separator';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
 import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
-import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
-import { isNull, omitBy } from 'lodash';
-import { Package, StickyNote, Type } from 'lucide-react';
-import { flushSync } from 'react-dom';
-import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
-import DOMPurify from 'dompurify';
-import { updateSVGAttributes } from '@/utils/utils';
 import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
-import CustomSuccessSooner from '@/components/CustomSooner';
-import { Separator } from '@/components/ui/separator';
+import { updateSVGAttributes } from '@/utils/utils';
+import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
+import DOMPurify from 'dompurify';
+import { isNull, omitBy } from 'lodash';
+import { flushSync } from 'react-dom';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -64,6 +64,7 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const {
 		deleteElements,
 		setViewport,
@@ -87,7 +88,7 @@ export default function Playground() {
 		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
 		enabled: Boolean(params.pid) && Boolean(params.wid),
 		staleTime: 0,
-		refetchOnMount: false,
+		refetchOnMount: true,
 	});
 
 	const project = projectData?.data.data;
@@ -203,7 +204,7 @@ export default function Playground() {
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			addNodes(data);
-
+			setIsLoading(false);
 			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
 				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
@@ -212,7 +213,7 @@ export default function Playground() {
 				},
 			});
 		});
-	}, [addNodes]);
+	}, [addNodes, playgroundDispatch]);
 
 	useEffect(() => {
 		setMoreNodes((nodes) =>
@@ -260,7 +261,7 @@ export default function Playground() {
 			},
 			type: 'process',
 		};
-
+		setIsLoading(true);
 		//Emit event to Nodebased Server
 		socket.emit('gateway:cabonerf-node-create', newNode);
 	};
@@ -302,21 +303,33 @@ export default function Playground() {
 
 								<Panel position="bottom-center">
 									<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
+
+									{isLoading ? (
+										<div className="absolute -top-2 left-1/2 flex h-[50px] -translate-x-1/2 -translate-y-full scale-100 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-100 shadow-lg transition-all duration-300 ease-out">
+											<ReloadIcon className="h-3 animate-spin font-bold" />
+											<span className="visible text-[12px] font-semibold">Inserting...</span>
+										</div>
+									) : (
+										<div className="absolute -top-2 left-1/2 -z-10 flex h-[50px] -translate-x-1/2 -translate-y-full scale-95 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-0 shadow-lg transition-all duration-300 ease-out">
+											<ReloadIcon className="h-3 font-bold" />
+											<span className="invisible text-[12px] font-semibold">Inserting...</span>
+										</div>
+									)}
 								</Panel>
 							</ReactFlow>
 						</ContextMenuTrigger>
-						<ContextMenuContent className="w-[200px] p-0">
-							<div className="px-3 py-1.5 text-sm font-medium">Manage project:</div>
-							<Separator />
-							<div className="px-2 pb-2">
-								<div className="my-2 flex w-full flex-wrap gap-2">
+						<ContextMenuContent className="w-auto rounded-[10px] border-none p-0">
+							<div className="w-full">
+								<div className="flex w-full gap-2 p-[5px]">
 									{lifeCycleStagesQuery.data?.data.data.map((item) => (
 										<ContextMenuItem
 											onClick={addNewNode({ lifeCycleStageId: item.id })}
 											key={item.id}
-											className="flex cursor-pointer space-x-2 bg-gray-50 px-4 py-3 text-gray-600"
+											className="cursor-pointer space-x-2 p-2 focus:bg-[#22c55e] focus:text-white"
+											asChild
 										>
 											<div
+												className="hover:text-white"
 												dangerouslySetInnerHTML={{
 													__html: DOMPurify.sanitize(
 														updateSVGAttributes({
@@ -325,7 +338,8 @@ export default function Playground() {
 																height: 20,
 																width: 20,
 																fill: 'none',
-																color: '#6b7280',
+																color: 'currentColor',
+																strokeWidth: 1.5,
 															},
 														})
 													),
@@ -334,18 +348,22 @@ export default function Playground() {
 										</ContextMenuItem>
 									))}
 								</div>
-								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
-									<Package size={18} color="#6b7280" />
-									<span className="text-sm capitalize">Add object</span>
-								</ContextMenuItem>
-								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
-									<Type size={18} color="#6b7280" />
-									<span className="text-sm capitalize">Add text</span>
-								</ContextMenuItem>
-								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
-									<StickyNote size={18} color="#6b7280" />
-									<span className="text-sm capitalize">Add note</span>
-								</ContextMenuItem>
+								<Separator className="bg-[#eeeeee]" />
+								<div className="p-[5px]">
+									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+										{/* <Package size={18} color="#6b7280" /> */}
+
+										<span className="text-[12px] capitalize">Add Note</span>
+									</ContextMenuItem>
+									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+										<span className="text-[12px] capitalize">Add Text</span>
+										{/* <Package size={18} color="#6b7280" /> */}
+									</ContextMenuItem>
+									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+										<span className="text-[12px] capitalize">Sort By</span>
+										{/* <Package size={18} color="#6b7280" /> */}
+									</ContextMenuItem>
+								</div>
 							</div>
 						</ContextMenuContent>
 					</ContextMenu>
