@@ -1,3 +1,4 @@
+import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import ContributeResult from '@/common/icons/ContributeResult';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
@@ -101,7 +102,7 @@ const TreeView = ({ data, depth }: Props) => {
 		<div>
 			{data.subProcesses.length > 0 ? (
 				<Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full space-y-2">
-					<div className="flex w-full items-center space-x-4 border">
+					<div className="flex w-full items-center space-x-4">
 						<div className="flex w-full justify-between">
 							<div className="flex w-1/2 items-center space-x-0.5">
 								<CollapsibleTrigger asChild>
@@ -161,12 +162,21 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
 
+	const { playgroundControlDispatch } = useContext(PlaygroundControlContext);
+
+	const handleMinimize = () => playgroundControlDispatch({ type: PlaygroundControlDispatch.TRIGGER_MINIMIZE });
+
 	return (
 		<div className="h-auto w-[700px] overflow-scroll pb-3">
-			<div className="sticky left-0 right-0 top-0 flex items-center space-x-2 border-[0.5px] border-b bg-white p-4">
-				<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
-				<span className="text-base font-semibold">Unit contribution analysis</span>
-				<Info size={17} fill="#aeaeae" color="#fff" />
+			<div className="sticky left-0 right-0 top-0 flex items-center justify-between border-[0.5px] border-b bg-white p-4">
+				<div className="flex items-center space-x-2">
+					<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
+					<span className="text-base font-semibold">Impact Assessment Result</span>
+					<Info size={17} fill="#aeaeae" color="#fff" />
+				</div>
+				<button onClick={handleMinimize} className="cursor-pointer rounded px-2 py-1.5 duration-200 hover:bg-gray-100">
+					<div className="h-[3px] w-[15px] rounded-full bg-black" />
+				</button>
 			</div>
 			<div className="px-3 pt-2">
 				<div className="mb-2 grid grid-cols-12 text-[13px] font-semibold text-[#aeaeae]">

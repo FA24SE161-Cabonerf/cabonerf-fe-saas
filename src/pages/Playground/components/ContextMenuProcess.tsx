@@ -7,30 +7,30 @@ import { AppContext } from '@/contexts/app.context';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
-import { Edge, MarkerType, Node, useReactFlow } from '@xyflow/react';
-import { Leaf, Pencil, Trash2 } from 'lucide-react';
+import { Edge, Node, useReactFlow } from '@xyflow/react';
+import { Leaf, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
 
 const colors = [
 	{
-		bg: '#a3a3a3',
-		border: '#8a8a8a', // #737373 nhạt 10%
+		bg: '#FFB454', // Cam đậm hơn pastel
+		border: '#FFB454', // Cam rực rỡ, nổi bật
 	},
 	{
-		bg: '#fcd34d',
-		border: '#fcca4f', // #fbbf24 nhạt 10%
+		bg: '#22c55e', // Xanh lá pastel đậm hơn
+		border: '#22c55e', // Xanh lá đậm hơn, sống động
 	},
 	{
-		bg: '#f87171',
-		border: '#fa7c7c', // #ef4444 nhạt 10%
+		bg: '#3b82f6', // Xanh dương pastel đậm hơn
+		border: '#3b82f6', // Xanh dương đậm
 	},
 	{
-		bg: '#4ade80',
-		border: '#3edc72', // #22c55e nhạt 10%
+		bg: '#ef4444', // Đỏ pastel đậm
+		border: '#ef4444', // Đỏ rực rỡ, mạnh mẽ
 	},
 	{
-		bg: '#60a5fa',
-		border: '#5a94f9', // #3b82f6 nhạt 10%
+		bg: '#a3a3a3', // Tím pastel đậm hơn
+		border: '#a3a3a3', // Tím đậm, tinh tế
 	},
 ];
 
@@ -108,10 +108,6 @@ const ContextMenuProcess = React.memo(
 							? {
 									...edge,
 									style: { ...edge.style, stroke: dataColor.color },
-									markerEnd: {
-										...(typeof edge.markerEnd === 'object' ? edge.markerEnd : {}),
-										color: dataColor.color,
-									} as unknown as MarkerType,
 								}
 							: edge
 					);
@@ -130,7 +126,7 @@ const ContextMenuProcess = React.memo(
 				}}
 				className="transition-all duration-300"
 			>
-				<div className="w-[250px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
+				<div className="w-[230px] rounded-xl border-[0.5px] bg-white shadow transition-all duration-500">
 					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
 					<Separator />
 					<div className="py-2 text-gray-400">
@@ -141,7 +137,7 @@ const ContextMenuProcess = React.memo(
 									<button
 										onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
 										key={item.bg}
-										className="size-10 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
+										className="size-9 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
 										style={{
 											border: `1px solid ${item.border}`,
 											backgroundColor: item.bg,
@@ -159,10 +155,6 @@ const ContextMenuProcess = React.memo(
 						<div className="mt-2 flex flex-col">
 							<span className="px-3 py-1 text-xs">Options</span>
 							<div className="p-1">
-								<Button variant="ghost" className="flex w-full justify-start space-x-2 rounded-sm px-2 font-normal text-black">
-									<Pencil size={15} />
-									<span>Edit Process Details</span>
-								</Button>
 								<Button
 									onClick={handleEditDetail}
 									variant="ghost"

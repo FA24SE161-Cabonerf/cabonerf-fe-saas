@@ -1,4 +1,4 @@
-import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
+import { CabonerfNode, CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CreateConnectorRes } from '@/@types/connector.type';
 import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
@@ -16,6 +16,7 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 
 import {
+	Background,
 	Connection,
 	Edge,
 	EdgeTypes,
@@ -35,13 +36,23 @@ import React, { MouseEvent, useCallback, useContext, useEffect, useMemo } from '
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { Impact } from '@/@types/project.type';
+import WarningSooner from '@/components/WarningSooner';
+import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
-import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
-import { isNull, omitBy } from 'lodash';
-import { flushSync } from 'react-dom';
-import { Impact } from '@/@types/project.type';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
+import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
+import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
+import { isNull, omitBy } from 'lodash';
+import { Package, StickyNote, Type } from 'lucide-react';
+import { flushSync } from 'react-dom';
+import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
+import DOMPurify from 'dompurify';
+import { updateSVGAttributes } from '@/utils/utils';
+import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
+import CustomSuccessSooner from '@/components/CustomSooner';
+import { Separator } from '@/components/ui/separator';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -53,7 +64,14 @@ const customNode: NodeTypes = {
 };
 
 export default function Playground() {
-	const { deleteElements, setViewport, addEdges, setNodes: setMoreNodes, setEdges: setMoreEdges } = useReactFlow<Node<CabonerfNodeData>>();
+	const {
+		deleteElements,
+		setViewport,
+		addNodes,
+		addEdges,
+		setNodes: setMoreNodes,
+		setEdges: setMoreEdges,
+	} = useReactFlow<Node<CabonerfNodeData>>();
 	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -69,7 +87,7 @@ export default function Playground() {
 		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
 		enabled: Boolean(params.pid) && Boolean(params.wid),
 		staleTime: 0,
-		refetchOnMount: true,
+		refetchOnMount: false,
 	});
 
 	const project = projectData?.data.data;
@@ -79,6 +97,12 @@ export default function Playground() {
 
 		document.title = `${projectName} — Cabonerf`;
 	}, [playgroundState.projectInformation?.name]);
+
+	const lifeCycleStagesQuery = useQuery({
+		queryKey: ['life-cycle-stage'],
+		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
+		staleTime: 60_000 * 120,
+	});
 
 	useEffect(() => {
 		if (project?.processes) {
@@ -110,7 +134,13 @@ export default function Playground() {
 		socket.connect();
 
 		socket.on('gateway:error-create-edge', (data) => {
-			toast.error(data.message);
+			toast(<WarningSooner message={data.message ?? ''} />, {
+				className: 'rounded-2xl p-2 w-[350px]',
+				style: {
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
+				},
+			});
 		});
 
 		socket.on('gateway:delete-process-success', (data) => {
@@ -139,9 +169,8 @@ export default function Playground() {
 					)
 				);
 				updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
-
-				setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 			}
+			setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 		});
 
 		socket.on('connect_error', (err) => {
@@ -170,6 +199,20 @@ export default function Playground() {
 		},
 		[params.pid]
 	);
+
+	useEffect(() => {
+		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
+			addNodes(data);
+
+			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
+				className: 'rounded-2xl p-2 w-[350px]',
+				style: {
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
+				},
+			});
+		});
+	}, [addNodes]);
 
 	useEffect(() => {
 		setMoreNodes((nodes) =>
@@ -201,6 +244,27 @@ export default function Playground() {
 
 	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
 
+	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
+		// Get properties of screen
+		const screenWidth = window.innerWidth;
+		const screenHeight = window.innerHeight;
+
+		// Create new node
+		const newNode: CreateCabonerfNodeReqBody = {
+			projectId: project?.id as string,
+			color: '#a3a3a3',
+			lifeCycleStageId: payload.lifeCycleStageId,
+			position: {
+				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
+				y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
+			},
+			type: 'process',
+		};
+
+		//Emit event to Nodebased Server
+		socket.emit('gateway:cabonerf-node-create', newNode);
+	};
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -208,35 +272,84 @@ export default function Playground() {
 			<PlaygroundControlContextProvider>
 				<div className="relative h-[calc(100vh-59px)] text-[#333333]">
 					<PlaygroundHeader id={project?.id as string} />
-					<ReactFlow
-						defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-						className="relative bg-[#eeeeee]"
-						nodeTypes={customNode}
-						edgeTypes={customEdge}
-						nodes={nodes}
-						edges={edges}
-						panOnDrag={canPaneScrollAndDrag}
-						zoomOnDoubleClick={false}
-						preventScrolling={canPaneScrollAndDrag}
-						onConnect={onConnect}
-						onPaneClick={handlePanelClick}
-						proOptions={{ hideAttribution: true }}
-						onNodesChange={onNodesChange}
-						connectionLineComponent={ConnectionLine}
-						onEdgesChange={onEdgesChange}
-						onlyRenderVisibleElements
-						onNodeDragStop={handleNodeDragStop}
-					>
-						<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
-						<Panel position="top-left">
-							<PlaygroundActionToolbar />
-						</Panel>
-						<PlaygroundToolBoxV2 />
+					<ContextMenu>
+						<ContextMenuTrigger>
+							<ReactFlow
+								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
+								className="relative"
+								nodeTypes={customNode}
+								edgeTypes={customEdge}
+								nodes={nodes}
+								edges={edges}
+								panOnDrag={canPaneScrollAndDrag}
+								zoomOnDoubleClick={false}
+								preventScrolling={canPaneScrollAndDrag}
+								onConnect={onConnect}
+								onPaneClick={handlePanelClick}
+								proOptions={{ hideAttribution: true }}
+								onNodesChange={onNodesChange}
+								connectionLineComponent={ConnectionLine}
+								onEdgesChange={onEdgesChange}
+								onlyRenderVisibleElements
+								onNodeDragStop={handleNodeDragStop}
+							>
+								<Background bgColor="#f4f3f3" />
+								<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
+								<Panel position="top-left">
+									<PlaygroundActionToolbar />
+								</Panel>
+								<PlaygroundToolBoxV2 />
 
-						<Panel position="bottom-center">
-							<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
-						</Panel>
-					</ReactFlow>
+								<Panel position="bottom-center">
+									<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
+								</Panel>
+							</ReactFlow>
+						</ContextMenuTrigger>
+						<ContextMenuContent className="w-[200px] p-0">
+							<div className="px-3 py-1.5 text-sm font-medium">Manage project:</div>
+							<Separator />
+							<div className="px-2 pb-2">
+								<div className="my-2 flex w-full flex-wrap gap-2">
+									{lifeCycleStagesQuery.data?.data.data.map((item) => (
+										<ContextMenuItem
+											onClick={addNewNode({ lifeCycleStageId: item.id })}
+											key={item.id}
+											className="flex cursor-pointer space-x-2 bg-gray-50 px-4 py-3 text-gray-600"
+										>
+											<div
+												dangerouslySetInnerHTML={{
+													__html: DOMPurify.sanitize(
+														updateSVGAttributes({
+															svgString: item.iconUrl,
+															properties: {
+																height: 20,
+																width: 20,
+																fill: 'none',
+																color: '#6b7280',
+															},
+														})
+													),
+												}}
+											/>
+										</ContextMenuItem>
+									))}
+								</div>
+								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
+									<Package size={18} color="#6b7280" />
+									<span className="text-sm capitalize">Add object</span>
+								</ContextMenuItem>
+								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
+									<Type size={18} color="#6b7280" />
+									<span className="text-sm capitalize">Add text</span>
+								</ContextMenuItem>
+								<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 text-gray-600">
+									<StickyNote size={18} color="#6b7280" />
+									<span className="text-sm capitalize">Add note</span>
+								</ContextMenuItem>
+							</div>
+						</ContextMenuContent>
+					</ContextMenu>
+
 					{sheetState.process && <SheetbarSide />}
 				</div>
 			</PlaygroundControlContextProvider>

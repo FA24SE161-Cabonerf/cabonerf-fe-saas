@@ -80,7 +80,6 @@ function PlaygroundHeader({ id }: Props) {
 
 		if (currentInformation !== undefined && changingValue !== undefined) {
 			if (!isOpenEditProject && areObjectsDifferent(currentInformation, changingValue) === true) {
-				console.log('SAVING');
 				updateProjectInformationMutate.mutate(
 					{ id, payload: changingValue },
 					{
