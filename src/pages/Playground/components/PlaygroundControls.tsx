@@ -66,10 +66,26 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 							},
 						});
 						toast('SUCCESS');
+
+						reactflow.setNodes((nodes) => {
+							return nodes.map((node) => {
+								const finded = data.data.data.processes.find((p) => p.id === node.id);
+
+								if (finded) {
+									return {
+										...node,
+										data: {
+											...node.data,
+											impacts: finded.impacts,
+										},
+									};
+								}
+								return node;
+							});
+						});
 					}
 				},
 				onError: (err) => {
-					console.log(err);
 					if (isBadRequestError<{ data: null; message: string; status: string }>(err)) {
 						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
 							className: 'rounded-xl p-1.5 ',

@@ -1,11 +1,12 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { UnitApis } from '@/apis/unit.apis';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import { Handle, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
-import { Unplug } from 'lucide-react';
+import { ChevronLeft, Unplug } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 type Props = {
@@ -19,6 +20,7 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 	const [nameProduct, setNameProduct] = useState<string>(data.name);
 	const [unitProduct, setUnitProduct] = useState<Unit>(data.unit);
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
+	const [defaultUnitGroup, setDefaultUnitGroup] = useState<string>(data.unit.unitGroup.id);
 
 	const isValidUnitGroup = useMemo(() => {
 		if (!fromNode?.data || !toNode?.data || !fromHandle?.id || !toHandle?.id) {
@@ -41,9 +43,15 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 		return sameUnitGroup && sameName;
 	}, [fromNode, fromHandle, toNode, toHandle]);
 
-	const { data: unit } = useQuery({
-		queryKey: ['unit-group', data.unit.unitGroup.id],
+	const { data: unit, isFetching: isFetchingUnit } = useQuery({
+		queryKey: ['unit-group', defaultUnitGroup],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
+	});
+
+	const { data: unitGroup } = useQuery({
+		queryKey: ['unit-groups'],
+		queryFn: UnitApis.prototype.getAllUnitGroup,
+		staleTime: 1_000 * 60 * 60,
 	});
 
 	useEffect(() => {
@@ -91,8 +99,8 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 			<Handle
 				isConnectableEnd={isValidUnitGroup}
 				className={clsx(`overf absolute rounded-full`, {
-					'-left-[1px] size-[8px] border-[2px] border-green-500 bg-white ring-[3px] ring-[#eeeeee]': isReverse === false,
-					'-right-[2px] size-[8px] border-[2px] border-green-500 bg-green-500 ring-[3px] ring-[#eeeeee]': isReverse === true,
+					'-left-[1px] size-[9px] border-[2px] border-green-500 bg-white ring-[3px] ring-[#f4f3f3]': isReverse === false,
+					'-right-[2px] size-[9px] border-[2px] border-green-500 bg-green-500 ring-[3px] ring-[#f4f3f3]': isReverse === true,
 				})}
 				id={data.id}
 				position={isReverse ? Position.Right : Position.Left}
@@ -109,11 +117,12 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 						id={`name${data.id}`}
 						name="nameproduct"
 						type="text"
+						onBlur={() => console.log('Blur')}
 						value={nameProduct}
 						onChange={handleChangeName}
 						className="w-full rounded-[2px] px-1 text-[11px] outline-none transition-all focus:bg-white"
 					/>
-					<div className="flex w-full items-center space-x-2">
+					<div className="flex w-full items-center space-x-1">
 						<input
 							id={`value${data.id}`}
 							name="value"
@@ -123,31 +132,46 @@ function HandleProductItem({ data, isReverse = false }: Props) {
 							className="w-[40%] rounded-[2px] px-1 text-[11px] outline-none transition-all focus:bg-white"
 						/>
 						<DropdownMenu>
-							<DropdownMenuTrigger className="w-fit rounded p-0.5 text-[11px] font-semibold hover:bg-gray-50">
+							<DropdownMenuTrigger className="w-fit rounded p-0.5 px-2 text-[11px] font-semibold hover:bg-gray-50">
 								{unitProduct.name}
 							</DropdownMenuTrigger>
 
-							<DropdownMenuContent className="w-[270px] rounded-md border border-gray-200 p-0 shadow-lg">
-								<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
+							<DropdownMenuContent className="w-[290px] rounded-md border border-gray-200 p-0 shadow-lg">
+								<div className="relative scroll-smooth bg-white">
 									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
 										<div className="col-span-4">Unit</div>
 										<div className="col-span-5">Value</div>
 										<div className="col-span-3 text-right">Default</div>
 									</div>
-									<div className="p-2">
+									<div className="h-[300px] overflow-y-auto p-2">
 										{unit?.data.data.map((item, index) => (
 											<DropdownMenuItem
 												onClick={() => handleChangeUnit({ unit: item })}
 												key={index}
-												className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
+												className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-[12px] text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
 												aria-label={`Select unit ${item.name}`}
 											>
-												<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
-												<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
+												<div className="col-span-5 font-medium text-gray-700">{item.name}</div>
+												<div className="col-span-4 text-gray-600">= {item.conversionFactor}</div>
 												<div className="col-span-3 text-right text-gray-500">kg</div>
 											</DropdownMenuItem>
 										))}
 									</div>
+									<DropdownMenu>
+										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
+											<ChevronLeft size={15} />
+											<div className="text-[13px]">Select unit group</div>
+										</DropdownMenuTrigger>
+
+										<DropdownMenuContent side="left">
+											<DropdownMenuLabel className="text-[13px]">Select unit group</DropdownMenuLabel>
+											{unitGroup?.data.data.map((unit_group) => (
+												<DropdownMenuItem key={unit_group.id} onClick={() => setDefaultUnitGroup(unit_group.id)}>
+													<div className="col-span-4 font-medium text-gray-700">{unit_group.name}</div>
+												</DropdownMenuItem>
+											))}
+										</DropdownMenuContent>
+									</DropdownMenu>
 								</div>
 							</DropdownMenuContent>
 						</DropdownMenu>

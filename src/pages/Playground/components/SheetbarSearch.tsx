@@ -143,7 +143,6 @@ function SheetbarSearch() {
 		},
 		onError(err) {
 			toast.error(err.message);
-			console.log(err.message);
 		},
 	});
 
@@ -174,7 +173,6 @@ function SheetbarSearch() {
 	};
 
 	useEffect(() => {
-		console.log('mount');
 		return () => {
 			setSearchText('');
 		};

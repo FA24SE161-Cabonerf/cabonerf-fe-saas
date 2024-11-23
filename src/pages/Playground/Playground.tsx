@@ -16,6 +16,7 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 
 import {
+	Background,
 	Connection,
 	Edge,
 	EdgeTypes,
@@ -134,10 +135,10 @@ export default function Playground() {
 
 		socket.on('gateway:error-create-edge', (data) => {
 			toast(<WarningSooner message={data.message ?? ''} />, {
-				className: 'rounded-xl p-1.5',
+				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
-					border: `1px solid #f7e2bd`,
-					backgroundColor: `#fdf7eb`,
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
 				},
 			});
 		});
@@ -204,10 +205,10 @@ export default function Playground() {
 			addNodes(data);
 
 			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'rounded-xl p-1.5 w-[350px]',
+				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
-					border: `1px solid #c8e5cd`,
-					backgroundColor: `#edf7ef`,
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
 				},
 			});
 		});
@@ -275,7 +276,7 @@ export default function Playground() {
 						<ContextMenuTrigger>
 							<ReactFlow
 								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
-								className="relative bg-[#f4f3f3]"
+								className="relative"
 								nodeTypes={customNode}
 								edgeTypes={customEdge}
 								nodes={nodes}
@@ -292,6 +293,7 @@ export default function Playground() {
 								onlyRenderVisibleElements
 								onNodeDragStop={handleNodeDragStop}
 							>
+								<Background bgColor="#f4f3f3" />
 								<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 								<Panel position="top-left">
 									<PlaygroundActionToolbar />

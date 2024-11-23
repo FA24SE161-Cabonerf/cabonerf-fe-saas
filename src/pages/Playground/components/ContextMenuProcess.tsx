@@ -29,8 +29,8 @@ const colors = [
 		border: '#ef4444', // Đỏ rực rỡ, mạnh mẽ
 	},
 	{
-		bg: '#06b6d4', // Tím pastel đậm hơn
-		border: '#06b6d4', // Tím đậm, tinh tế
+		bg: '#a3a3a3', // Tím pastel đậm hơn
+		border: '#a3a3a3', // Tím đậm, tinh tế
 	},
 ];
 
