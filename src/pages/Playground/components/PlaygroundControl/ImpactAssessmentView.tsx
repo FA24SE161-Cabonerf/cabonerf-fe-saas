@@ -2,7 +2,7 @@ import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import { Impact } from '@/@types/project.type';
 import ImpactResult from '@/common/icons/ImpactResult';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
-import { updateSVGAttributes } from '@/utils/utils';
+import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import DOMPurify from 'dompurify';
 import { Info } from 'lucide-react';
 import { useContext } from 'react';
@@ -56,7 +56,7 @@ export default function ImpactAssessmentView({ impacts }: Props) {
 							</div>
 						</div>
 						<div className="col-span-3 flex items-center justify-end space-x-2 text-xs">
-							<div className="text-sm font-semibold">{item.value}</div>
+							<div className="text-sm font-semibold">{formatWithExponential(item.value)}</div>
 							<div className="font-medium">{item.impactCategory.midpointImpactCategory.unit.name}</div>
 						</div>
 					</div>
