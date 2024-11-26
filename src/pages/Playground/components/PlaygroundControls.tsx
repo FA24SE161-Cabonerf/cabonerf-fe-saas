@@ -56,7 +56,6 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 			{ projectId },
 			{
 				onSuccess: (data) => {
-					console.log(data);
 					if (data.data.data) {
 						playgroundControlDispatch({
 							type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,

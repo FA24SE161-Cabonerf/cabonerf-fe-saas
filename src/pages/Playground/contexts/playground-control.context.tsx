@@ -1,6 +1,7 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
-import { Contributor, Impact } from '@/@types/project.type';
+import { Contributor, Impact, TransformContributor } from '@/@types/project.type';
+import { transformNetToTotal } from '@/utils/utils';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 type State = {
@@ -10,7 +11,7 @@ type State = {
 	impacts: Impact[] | null;
 	contributionBreakdown: Contributor | null;
 	processes: CabonerfNodeData[] | null;
-	edgeContributions: Contributor[];
+	edgeContributions: TransformContributor | null;
 };
 
 type Action =
@@ -50,7 +51,7 @@ const initialPlaygroundControlContext: PlaygroundControlContext = {
 		contributionBreakdown: null,
 		impacts: null,
 		processes: [],
-		edgeContributions: [],
+		edgeContributions: null,
 	},
 	playgroundControlDispatch: () => {},
 };
@@ -80,26 +81,12 @@ const reducer = (state: State, action: Action) => {
 			return { ...state, isMinimizeMenu: !state.isMinimizeMenu };
 
 		case PlaygroundControlDispatch.ADD_CALCULATED_DATA: {
-			function flattenContributor(contributor: Contributor): Contributor[] {
-				const result: Contributor[] = [];
-
-				const traverse = (current: Contributor) => {
-					result.push({ ...current, subProcesses: [] });
-
-					current.subProcesses.forEach((sub) => traverse(sub));
-				};
-
-				traverse(contributor);
-
-				return result;
-			}
-
 			return {
 				...state,
 				contributionBreakdown: action.payload.contributionBreakdown,
 				impacts: action.payload.impacts,
 				processes: action.payload.processes,
-				edgeContributions: flattenContributor(action.payload.contributionBreakdown),
+				edgeContributions: transformNetToTotal(action.payload.contributionBreakdown),
 			};
 		}
 

@@ -1,4 +1,5 @@
 import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
+import { TransformContributor } from '@/@types/project.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
@@ -30,6 +31,8 @@ const gradientColors: Gradient[] = [
 	{ start: '#cb6e5e', end: '#e29b91', startPercentage: 80, endPercentage: 90 }, // Soft Red to Lighter Red
 	{ start: '#bb4e3a', end: '#d38174', startPercentage: 90, endPercentage: 100 }, // Bold Red to Lighter Dusty Rose
 ];
+
+type EdgeRecusive = { id: string; value: number; percentage: number; subProcesses: EdgeRecusive[] };
 
 function getGradient(percentage: number): Gradient {
 	if (percentage < 0 || percentage > 100) {
@@ -64,20 +67,63 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		targetPosition: data.targetPosition,
 	});
 
-	const actualPercentage = useMemo(() => {
-		const totalValue = impacts?.find((i) => i.impactCategory.id === impactCategory?.id)?.value;
-		const actualNet = edgeContributions.find((e) => e.processId === data.source);
-		const process = processes?.find((p) => p.id === actualNet?.processId);
-		const impact = process?.impacts?.find((z) => z.impactCategory.id === impactCategory?.id);
-		const unitProcess = impact?.unitLevel;
+	const calculateRecursiveTotal = useMemo(() => {
+		if (!impactCategory || !impacts || !processes) return null;
 
-		if (unitProcess && totalValue) {
-			return Math.min((unitProcess / totalValue) * 100, 100); // Clamp to 100
-		}
-		return 0; // Default to 0 if invalid
-	}, [data.source, edgeContributions, impactCategory?.id, impacts, processes]);
+		const totalValueByImpactCategoryId = impacts.find((i) => i.impactCategory.id === impactCategory.id)?.value;
 
-	const gradient = useMemo(() => getGradient(actualPercentage), [actualPercentage]);
+		const calculateNodeContribution = (node: TransformContributor, rootTotal: number): EdgeRecusive => {
+			const process = processes.find((p) => p.id === node.processId);
+
+			const valueByImpactCategory = process?.impacts.find((i) => i.impactCategory.id === impactCategory.id)?.unitLevel;
+
+			const currentContribution = node.net && valueByImpactCategory ? node.net * valueByImpactCategory : 0;
+
+			const subProcesses = node.subProcesses.map((sub) => calculateNodeContribution(sub, rootTotal));
+
+			const totalForNode = currentContribution + subProcesses.reduce((acc, sub) => acc + sub.value, 0);
+
+			return {
+				id: process?.id as string,
+				value: totalForNode,
+				percentage:
+					totalValueByImpactCategoryId && totalValueByImpactCategoryId !== 0
+						? formatPercentage((totalForNode / totalValueByImpactCategoryId) * 100)
+						: 0,
+				subProcesses,
+			};
+		};
+
+		const rootTotal = (() => {
+			const getTotal = (node: TransformContributor): number => {
+				const process = processes.find((p) => p.id === node.processId);
+				const valueByImpactCategory = process?.impacts.find((i) => i.impactCategory.id === impactCategory.id)?.unitLevel;
+
+				const currentContribution = node.net && valueByImpactCategory ? node.net * valueByImpactCategory : 0;
+
+				const subProcessesTotal = node.subProcesses.reduce((acc, sub) => acc + getTotal(sub), 0);
+
+				return currentContribution + subProcessesTotal;
+			};
+			return getTotal(edgeContributions as TransformContributor);
+		})();
+
+		const flattenTree = (node: EdgeRecusive): EdgeRecusive[] => {
+			const flattened: EdgeRecusive[] = [{ ...node, subProcesses: [] }];
+
+			node.subProcesses.forEach((subProcess) => {
+				flattened.push(...flattenTree(subProcess));
+			});
+
+			return flattened;
+		};
+
+		return flattenTree(calculateNodeContribution(edgeContributions as TransformContributor, rootTotal));
+	}, [edgeContributions, impactCategory, impacts, processes]);
+
+	const edgeValue = calculateRecursiveTotal?.find((item) => item.id === data.source);
+
+	const gradient = useMemo(() => getGradient(edgeValue?.percentage as number), [edgeValue?.percentage]);
 
 	const handleMouseEnter = () => setIsOpenMenu(true);
 	const handleMouseLeave = () => setIsOpenMenu(false);
@@ -124,7 +170,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 							path={path}
 							style={{
 								stroke: `url(#edgeGradient-${data.id})`, // Reference unique gradient id
-								strokeWidth: (actualPercentage as number) / 2 || 3, // Avoid zero width
+								strokeWidth: (edgeValue?.percentage as number) / 2 || 3, // Avoid zero width
 							}}
 						/>
 					</>
@@ -143,7 +189,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 							}}
 							className="rounded-full px-1.5 text-base font-bold text-white"
 						>
-							{formatPercentage(actualPercentage as number)}%
+							{formatPercentage(edgeValue?.percentage as number)}%
 						</div>
 					) : (
 						isOpenMenu && (
