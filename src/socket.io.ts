@@ -1,7 +1,9 @@
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:8386', {
-	autoConnect: false,
+const baseUrl = import.meta.env.VITE_GATEWAY_URL;
+
+const socket = io(baseUrl, {
+	autoConnect: true,
 });
 
 export default socket;

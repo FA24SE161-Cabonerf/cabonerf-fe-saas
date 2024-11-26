@@ -174,8 +174,8 @@ export default function Playground() {
 			setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 		});
 
-		socket.on('connect_error', (err) => {
-			console.error('Connection error:', err.message);
+		socket.on('connect_error', (error) => {
+			console.error('Connection failed:', error.message);
 		});
 
 		return () => {
