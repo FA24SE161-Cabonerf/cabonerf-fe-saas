@@ -122,6 +122,32 @@ export function transformProcesses(contributor: Contributor): TransformContribut
 	return newProcess;
 }
 
+export function transformProcessesv2(contributor: Contributor): TransformContributor {
+	const hasSubProcesses = contributor.subProcesses.length > 0;
+
+	const newProcess: TransformContributor = {
+		processId: contributor.processId,
+		subProcesses: [],
+	};
+
+	if (hasSubProcesses) {
+		newProcess.total = 0;
+
+		// Duyệt qua từng subProcess và thêm key processEnd
+		newProcess.subProcesses = contributor.subProcesses.map((subProcess) => {
+			const transformedSubProcess = transformProcessesv2(subProcess);
+			return {
+				...transformedSubProcess,
+				processEnd: contributor.processId, // Thêm processEnd với giá trị processId của cha
+			};
+		});
+	} else {
+		newProcess.net = contributor.net;
+	}
+
+	return newProcess;
+}
+
 type Contributor = {
 	processId: string;
 	net: number;
