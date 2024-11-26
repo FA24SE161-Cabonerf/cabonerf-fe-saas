@@ -90,12 +90,6 @@ export function areObjectsDifferent(obj1, obj2) {
 	return false;
 }
 
-type Contributor = {
-	processId: string;
-	net: number;
-	subProcesses: Contributor[];
-};
-
 type TransformContributor = {
 	processId: string;
 	net?: number;
@@ -126,4 +120,30 @@ export function transformProcesses(contributor: Contributor): TransformContribut
 	}
 
 	return newProcess;
+}
+
+type Contributor = {
+	processId: string;
+	net: number;
+	subProcesses: Contributor[];
+};
+
+export function transformNetToTotal(data: Contributor): TransformContributor {
+	const hasSubProcesses = data.subProcesses && data.subProcesses.length > 0;
+
+	// Tạo bản sao mới của dữ liệu và xử lý đệ quy các `subProcesses`
+	const transformedData: TransformContributor = {
+		processId: data.processId,
+		subProcesses: hasSubProcesses ? data.subProcesses.map((subProcess) => transformNetToTotal(subProcess)) : [],
+	};
+
+	if (hasSubProcesses) {
+		// Nếu có `subProcesses`, đổi `net` thành `total`
+		transformedData.total = data.net;
+	} else {
+		// Nếu không có `subProcesses`, giữ lại `net`
+		transformedData.net = data.net;
+	}
+
+	return transformedData;
 }
