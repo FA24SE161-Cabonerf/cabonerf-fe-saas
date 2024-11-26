@@ -1,7 +1,7 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import { Contributor, Impact, TransformContributor } from '@/@types/project.type';
-import { transformNetToTotal } from '@/utils/utils';
+import { transformNetToTotal, transformProcesses } from '@/utils/utils';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 type State = {
@@ -86,7 +86,7 @@ const reducer = (state: State, action: Action) => {
 				contributionBreakdown: action.payload.contributionBreakdown,
 				impacts: action.payload.impacts,
 				processes: action.payload.processes,
-				edgeContributions: transformNetToTotal(action.payload.contributionBreakdown),
+				edgeContributions: transformProcesses(action.payload.contributionBreakdown),
 			};
 		}
 

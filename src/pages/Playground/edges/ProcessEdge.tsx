@@ -121,6 +121,8 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		return flattenTree(calculateNodeContribution(edgeContributions as TransformContributor, rootTotal));
 	}, [edgeContributions, impactCategory, impacts, processes]);
 
+	console.log(calculateRecursiveTotal);
+
 	const edgeValue = calculateRecursiveTotal?.find((item) => item.id === data.source);
 
 	const gradient = useMemo(() => getGradient(edgeValue?.percentage as number), [edgeValue?.percentage]);
