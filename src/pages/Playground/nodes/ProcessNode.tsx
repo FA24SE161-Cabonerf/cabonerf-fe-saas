@@ -141,7 +141,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					</div>
 					{/* CTA */}
 				</div>
-				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.id}</div>
+				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.data.name}</div>
 				<div className="mt-4">
 					{data.data.impacts.length > 0 && (
 						<DropdownMenu>
