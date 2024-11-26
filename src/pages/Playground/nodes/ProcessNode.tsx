@@ -186,7 +186,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 											</div>
 										</div>
 										<div className="col-span-2 text-sm">{formatWithExponential(item.unitLevel)}</div>
-										<div className="col-span-2 text-sm">{item.systemLevel}</div>
+										<div className="col-span-2 text-sm">{formatWithExponential(item.systemLevel)}</div>
 									</div>
 								))}
 							</DropdownMenuContent>
