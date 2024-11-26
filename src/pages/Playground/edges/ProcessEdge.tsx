@@ -32,7 +32,7 @@ const gradientColors: Gradient[] = [
 	{ start: '#bb4e3a', end: '#d38174', startPercentage: 90, endPercentage: 100 }, // Bold Red to Lighter Dusty Rose
 ];
 
-type EdgeRecusive = { id: string; value: number; percentage: number; subProcesses: EdgeRecusive[] };
+type EdgeRecusive = { id: string; value: number; percentage: number; processEnd: string; subProcesses: EdgeRecusive[] };
 
 function getGradient(percentage: number): Gradient {
 	if (percentage < 0 || percentage > 100) {
@@ -86,6 +86,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 			return {
 				id: process?.id as string,
 				value: totalForNode,
+				processEnd: node.processEnd ?? '',
 				percentage:
 					totalValueByImpactCategoryId && totalValueByImpactCategoryId !== 0
 						? formatPercentage((totalForNode / totalValueByImpactCategoryId) * 100)
@@ -109,7 +110,13 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		})();
 
 		const flattenTree = (node: EdgeRecusive): EdgeRecusive[] => {
-			const flattened: EdgeRecusive[] = [{ ...node, subProcesses: [] }];
+			const flattened: EdgeRecusive[] = [
+				{
+					...node,
+					subProcesses: [],
+					processEnd: node.processEnd, // Include processEnd
+				},
+			];
 
 			node.subProcesses.forEach((subProcess) => {
 				flattened.push(...flattenTree(subProcess));
@@ -121,9 +128,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 		return flattenTree(calculateNodeContribution(edgeContributions as TransformContributor, rootTotal));
 	}, [edgeContributions, impactCategory, impacts, processes]);
 
-	console.log(calculateRecursiveTotal);
-
-	const edgeValue = calculateRecursiveTotal?.find((item) => item.id === data.source);
+	const edgeValue = calculateRecursiveTotal?.find((item) => item.id === data.source && item.processEnd === data.target);
 
 	const gradient = useMemo(() => getGradient(edgeValue?.percentage as number), [edgeValue?.percentage]);
 

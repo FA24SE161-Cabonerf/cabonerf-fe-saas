@@ -34,6 +34,7 @@ interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = unknown>
 
 type TransformContributor = {
 	processId: string;
+	processEnd?: string;
 	net?: number;
 	total?: number;
 	subProcesses: TransformContributor[];
