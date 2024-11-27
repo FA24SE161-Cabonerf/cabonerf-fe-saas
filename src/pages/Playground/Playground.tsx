@@ -132,7 +132,16 @@ export default function Playground() {
 	]);
 
 	useEffect(() => {
+		socket.auth = {
+			user_id: app.userProfile?.id,
+		};
+		console.log(socket.auth);
 		socket.connect();
+
+		socket.on('gateway:delete-process-success', (data) => {
+			deleteElements({ nodes: [{ id: data }] });
+			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
+		});
 
 		socket.on('gateway:error-create-edge', (data) => {
 			toast(<WarningSooner message={data.message ?? ''} />, {
@@ -142,11 +151,6 @@ export default function Playground() {
 					backgroundColor: `#fff`,
 				},
 			});
-		});
-
-		socket.on('gateway:delete-process-success', (data) => {
-			deleteElements({ nodes: [{ id: data }] });
-			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
 		});
 
 		socket.on('gateway:connector-created', (data: CreateConnectorRes) => {
