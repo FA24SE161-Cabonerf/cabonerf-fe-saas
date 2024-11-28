@@ -1,90 +1,48 @@
-import MyAvatar from '@/components/MyAvatar';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu';
-import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import MyAvatar from '@/components/MyAvatar';
+import { Breadcrumb, BreadcrumbList } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
-import { CheckIcon, SlashIcon } from '@radix-ui/react-icons';
-import { BriefcaseBusiness, Building2, Plus, Settings } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 export default function MainHeader() {
 	return (
 		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-2.5">
 			<div className="flex items-center justify-between text-sm">
-				{/* Workspace & Project */}
 				<Breadcrumb>
 					<BreadcrumbList>
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<MyAvatar fallBackContent="CN" urlAvatar="" />
-									<span className="ml-1 font-medium text-foreground">Personal</span>
+									<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
+									<span className="ml-1 font-medium text-foreground">
+										Personal{' '}
+										<kbd className="rounded bg-[#8888881a] px-1 text-[12px] font-medium text-[#888888]">Organization</kbd>
+									</span>
 								</React.Fragment>
 							}
 						>
 							{
-								<div className="w-[250px] rounded-sm p-[5px] text-sm">
+								<div className="w-[300px] rounded-sm p-[5px] text-sm">
 									{/* Title */}
-									<div className="mx-8 my-2 text-[11px] font-medium uppercase tracking-widest">Workspaces</div>
-									{Array(3)
-										.fill(0)
-										.map((_, index) => (
-											<div
-												key={index}
-												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-medium transition-all duration-200 hover:bg-stone-200"
-											>
-												<MyAvatar className="ml-3 h-6 w-6" fallBackContent="CN" urlAvatar="" />
-												<span className="ml-3">Personal</span>
+									<div className="mx-8 my-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600">organizations</div>
 
-												{index === 0 && <CheckIcon className="absolute left-1 h-5 w-5" />}
-											</div>
-										))}
-									<hr className="my-1" />
-									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-4">Create organization</span>
-										<Plus size={17} className="absolute left-1.5" />
-									</div>
-									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-4">Organization overview</span>
-										<Building2 size={17} className="absolute left-1.5" />
-									</div>
-								</div>
-							}
-						</BreadcrumbWithMenu>
-						<BreadcrumbSeparator>
-							<SlashIcon />
-						</BreadcrumbSeparator>
-						<BreadcrumbWithMenu
-							dropDownTrigger={
-								<React.Fragment>
-									<span className="py-[2px] text-sm font-medium text-foreground">Default project</span>
-								</React.Fragment>
-							}
-						>
-							{
-								<div className="w-[250px] rounded-sm p-[5px] text-sm">
-									{/* Title */}
-									<div className="mx-7 my-2 text-[11px] font-medium uppercase tracking-widest text-stone-500">Projects</div>
 									{Array(3)
 										.fill(0)
 										.map((_, index) => (
 											<div
 												key={index}
-												className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200"
+												className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
 											>
-												<span className="ml-3">Project {index}</span>
-												{index === 0 && <CheckIcon className="absolute left-1 h-5 w-5" />}
+												<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
+												<span className="ml-2 font-medium">Personal</span>
+
+												{index === 0 && <Check size={15} className="absolute left-2 top-1/2 ml-0 -translate-y-1/2" />}
 											</div>
 										))}
-									<hr className="my-1" />
-									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-3">Create project</span>
-										<Plus size={17} className="absolute left-1.5" />
-									</div>
-									<div className="relative flex cursor-pointer items-center justify-start rounded-sm p-1 pl-4 font-light transition-all duration-200 hover:bg-stone-200">
-										<span className="ml-3">Project overview</span>
-										<BriefcaseBusiness size={17} className="absolute left-1.5" />
-									</div>
 								</div>
 							}
 						</BreadcrumbWithMenu>
@@ -93,16 +51,44 @@ export default function MainHeader() {
 				{/* Profile */}
 				<div className="mr-1 flex items-center space-x-4">
 					<div className="flex items-center space-x-2">
-						<Link className="px-2 py-1" to="/">
-							Dashboard
-						</Link>
-						<Link className="px-2 py-1" to="chat">
-							Chat
-						</Link>
+						<Popover>
+							<PopoverTrigger asChild className="rounded-sm p-1.5 hover:bg-[#ececef]">
+								<div className="cursor-pointer">
+									<Bell size={18} />
+								</div>
+							</PopoverTrigger>
+							<PopoverContent className="m-0 mr-2 h-auto w-[350px] rounded-xl border p-0 shadow-md" asChild>
+								<div className="relative">
+									<div className="px-3 py-1.5 text-sm font-semibold">Notification</div>
+									<Separator />
+									<div className="flex flex-col space-y-2 p-2">
+										{Array(5)
+											.fill(0)
+											.map((_, index) => (
+												<div key={index} className="flex items-start space-x-2 rounded-md p-2 hover:bg-gray-100">
+													<MyAvatar fallBackContent="CN" className="h-10 w-10" urlAvatar="https://github.com/shadcn.png" />
+													<div className="flex flex-col space-y-2 leading-5">
+														<div className="text-xs">
+															You’re Invited: <b>Client B</b> has invited you to join <b>FPT</b>{' '}
+															<div className="before-exchange-substance relative inline-block rounded border bg-green-50 px-[3px] before:h-[80%] before:w-[2px] before:bg-green-500">
+																organization
+															</div>
+														</div>
+														<div className="flex space-x-2">
+															<Button className="h-fit rounded px-2 py-1 text-xs">Approve</Button>
+															<Button className="h-fit rounded px-2 py-1 text-xs" variant={'destructive'}>
+																Deny
+															</Button>
+														</div>
+													</div>
+												</div>
+											))}
+									</div>
+								</div>
+							</PopoverContent>
+						</Popover>
 					</div>
-					<Link to="/settings">
-						<Settings size={19} />
-					</Link>
+
 					<ProfileDropdown />
 				</div>
 			</div>

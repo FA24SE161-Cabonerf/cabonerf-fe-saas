@@ -110,7 +110,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 			const data = row.getValue<Owner>('owner');
 			return (
 				<div className="flex items-center space-x-1">
-					<MyAvatar fallBackContent="CN" urlAvatar="" />
+					<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
 					<div>{data.email}</div>
 				</div>
 			);

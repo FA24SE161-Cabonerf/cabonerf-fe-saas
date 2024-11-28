@@ -10,7 +10,7 @@ import {
 import axios, { AxiosInstance, HttpStatusCode, isAxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
-const BASE_URL = import.meta.env.VITE_PRODUCTION_URL;
+const BASE_URL = import.meta.env.VITE_DEV_URL;
 const TEN_SECONDS = 1000 * 10;
 
 class HttpService {

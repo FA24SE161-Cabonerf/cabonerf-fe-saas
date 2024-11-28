@@ -83,7 +83,7 @@ export default function DashboardHeader() {
 		<div className="mx-6 mt-3">
 			<div className="flex items-end justify-between">
 				<div className="flex flex-col leading-7">
-					<span className="text-2xl font-medium">Projects</span>
+					<span className="text-xl font-medium">Projects</span>
 					<span className="font-normal tracking-wide text-gray-400">All Life Cycle Assessment projects in this workspace</span>
 				</div>
 				<div className="flex items-center space-x-2">

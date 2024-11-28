@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { LayoutGrid, LayoutList } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
@@ -28,6 +29,7 @@ export default function DashboardPage() {
 		queryFn: ProjectApis.prototype.getAllProjects,
 		staleTime: 0,
 		refetchOnMount: true,
+		enabled: false,
 	});
 
 	const projectsData = useMemo(() => {
@@ -50,7 +52,12 @@ export default function DashboardPage() {
 	};
 
 	return (
-		<div className="flex h-full flex-col">
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			transition={{ duration: 0.7, ease: 'easeOut' }}
+			className="flex h-full flex-col ease-in"
+		>
 			{/* Header */}
 			<DashboardHeader />
 			<div className="mx-6 mt-5">
@@ -94,6 +101,6 @@ export default function DashboardPage() {
 				<PreviewProject />
 			</div>
 			{/* End Table */}
-		</div>
+		</motion.div>
 	);
 }
