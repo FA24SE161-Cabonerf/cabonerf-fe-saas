@@ -20,6 +20,9 @@ export const authenticationApis = {
 			token: `Bearer ${payload.token}`,
 		});
 	},
+	changePassword: (payload: { oldPassword: string; newPassword: string; newPasswordConfirm: string }) => {
+		return httpService.put<CommonResponse<''>>('users/password', payload);
+	},
 	updateProfile: (payload: { bio?: string; fullName?: string; phone?: string }) => {
 		return httpService.put<
 			CommonResponse<{
@@ -40,5 +43,12 @@ export const authenticationApis = {
 				};
 			}>
 		>('users/profile', payload);
+	},
+	uploadFile: (body: FormData) => {
+		return httpService.put<CommonResponse<{ profilePictureUrl: string }>>('users/avatar', body, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		});
 	},
 };
