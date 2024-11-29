@@ -8,7 +8,7 @@ import httpService from '@/services/http.tsx';
 import { Edge, Node } from '@xyflow/react';
 
 class ProjectApis {
-	public async getAllProjects() {
+	public async getAllProjects(payload: { organizationId: string }) {
 		return httpService.get<
 			CommonResponse<{
 				pageCurrent: string;
@@ -16,7 +16,9 @@ class ProjectApis {
 				totalPage: string;
 				projects: GetProjectListResponse[];
 			}>
-		>(PROJECT_ENDPOINT.PROJECT);
+		>(PROJECT_ENDPOINT.PROJECT, {
+			params: payload,
+		});
 	}
 
 	public async getProjectById(payload: { pid: string; wid: string }) {

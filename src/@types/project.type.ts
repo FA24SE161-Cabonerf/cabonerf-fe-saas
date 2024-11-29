@@ -30,6 +30,7 @@ interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = unknown>
 	impacts: IData;
 	processes: PData;
 	connectors: CData;
+	favorite: boolean;
 }
 
 type TransformContributor = {

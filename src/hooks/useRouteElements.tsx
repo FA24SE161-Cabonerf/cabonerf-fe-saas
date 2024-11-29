@@ -1,13 +1,15 @@
+import RedirectToDefaultOrganization from '@/components/RedirectToDefaultOrganization';
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import SettingLayout from '@/layouts/SettingLayout';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
+import ObjectLibrariesPage from '@/pages/ObjectLibraries/ObjectLibrariesPage';
+import OrganizationPage from '@/pages/Organization/OrganizationPage';
 import Playground from '@/pages/Playground';
 import ContextMenuProvider from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundProvider } from '@/pages/Playground/contexts/playground.context';
 import Sheetbar from '@/pages/Playground/contexts/sheetbar.context';
-import Profile from '@/pages/Profile';
+import ProfilePage from '@/pages/Profile';
 import RegisterPage from '@/pages/Register';
 import VerifyEmailPage from '@/pages/VerifyEmail';
 import ProtectedRoute from '@/routes/ProtectedRoute';
@@ -31,21 +33,24 @@ export default function useRouteElements() {
 						},
 						{
 							path: 'dashboard',
+							element: <RedirectToDefaultOrganization />,
+						},
+						{
+							path: 'dashboard/:organizationId',
+							index: true,
 							element: <DashboardPage />,
 						},
-					],
-				},
-				{
-					path: 'settings',
-					element: <SettingLayout />,
-					children: [
 						{
-							path: '',
-							element: <Navigate to="profile" />,
+							path: 'setting',
+							element: <ProfilePage />,
 						},
 						{
-							path: 'profile',
-							element: <Profile />,
+							path: 'organization',
+							element: <OrganizationPage />,
+						},
+						{
+							path: 'object-libraries',
+							element: <ObjectLibrariesPage />,
 						},
 					],
 				},

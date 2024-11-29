@@ -1,14 +1,17 @@
 import ImpactMethodApis from '@/apis/impactMethod.apis';
 import ProjectApis from '@/apis/project.apis';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
 import { queryClient } from '@/queryClient';
 import { CreateProjectSchema, createProjectSchema } from '@/schemas/validation/project.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,12 +83,12 @@ export default function DashboardHeader() {
 	};
 
 	return (
-		<div className="mx-6 mt-3">
-			<div className="flex items-end justify-between">
+		<div className="">
+			<div className="mx-6 my-2 flex items-center justify-between">
 				<div className="flex flex-col leading-7">
-					<span className="text-2xl font-medium">Projects</span>
-					<span className="font-normal tracking-wide text-gray-400">All Life Cycle Assessment projects in this workspace</span>
+					<span className="text-xl font-medium">Projects</span>
 				</div>
+
 				<div className="flex items-center space-x-2">
 					<Button variant={'outline'} className="space-x-1 rounded-sm font-normal">
 						<span>Explore templates</span>
@@ -225,9 +228,22 @@ export default function DashboardHeader() {
 					{/* Dialog Create Project */}
 				</div>
 			</div>
-
-			<div className="mt-2">
-				<div className="h-[140px] rounded-2xl bg-stone-100"></div>
+			<Separator className="shadow-sm" />
+			<div className="mx-6 mt-2">
+				<Accordion type="single" defaultValue="item-1" collapsible>
+					<AccordionItem className="border-none" value="item-1">
+						<AccordionTrigger className="font-semibold" style={{ textDecoration: 'none' }}>
+							<span>Favorites</span>
+						</AccordionTrigger>
+						<AccordionContent asChild>
+							<div className="flex flex-wrap gap-5">
+								<DashboardProductItem />
+								<DashboardProductItem />
+								<DashboardProductItem />
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
 			</div>
 		</div>
 	);

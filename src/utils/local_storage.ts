@@ -7,7 +7,7 @@ export enum TOKEN_KEY_NAME {
 
 export const USER_PROFILE_KEY_NAME = 'user_profile';
 
-export const insertUserToLocalStorage = (user: Omit<User, 'phone' | 'bio' | 'address'>) => {
+export const insertUserToLocalStorage = (user: User) => {
 	const user_profile_converted = JSON.stringify(user);
 	return localStorage.setItem(USER_PROFILE_KEY_NAME, user_profile_converted);
 };
@@ -25,7 +25,7 @@ export const getTokenFromLocalStorage = (tokenType: TOKEN_KEY_NAME): string | nu
 	}
 };
 
-export const getUserProfileFromLocalStorage = (): Omit<User, 'phone' | 'bio' | 'address'> | null => {
+export const getUserProfileFromLocalStorage = (): User | null => {
 	const userProfileData = localStorage.getItem(USER_PROFILE_KEY_NAME);
 	if (!userProfileData) {
 		return null;

@@ -7,10 +7,9 @@ import {
 	insertUserToLocalStorage,
 	TOKEN_KEY_NAME,
 } from '@/utils/local_storage';
-import axios, { AxiosInstance, HttpStatusCode, isAxiosError } from 'axios';
-import toast from 'react-hot-toast';
+import axios, { AxiosInstance } from 'axios';
 
-const BASE_URL = import.meta.env.VITE_PRODUCTION_URL;
+const BASE_URL = import.meta.env.VITE_DEV_URL;
 const TEN_SECONDS = 1000 * 10;
 
 class HttpService {
@@ -72,12 +71,6 @@ class HttpService {
 				return response;
 			},
 			(error) => {
-				if (isAxiosError(error) && error.status === HttpStatusCode.Unauthorized) {
-					toast.error('You will be log out');
-					this.accessToken = '';
-					this.refreshToken = '';
-					clearResouceInLocalStorage();
-				}
 				throw error;
 			}
 		);
