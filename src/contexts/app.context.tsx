@@ -11,7 +11,7 @@ type Props = {
 
 type State = {
 	isAuthenticated: boolean;
-	userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
+	userProfile: User | null;
 	previewProject: GetProjectListResponse | undefined;
 	deleteIds: string[];
 	impactCategory: ImpactCategory | undefined;
@@ -22,7 +22,7 @@ type LoginAction = {
 	type: eDispatchType.LOGIN;
 	payload: {
 		isAuthenticated: boolean;
-		userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
+		userProfile: User | null;
 	};
 };
 
@@ -30,7 +30,7 @@ type RegisterAction = {
 	type: eDispatchType.REGISTER;
 	payload: {
 		isAuthenticated: boolean;
-		userProfile: Omit<User, 'phone' | 'bio' | 'address'> | null;
+		userProfile: User | null;
 	};
 };
 
@@ -71,6 +71,11 @@ type ClearDeleteProcessesIds = {
 	payload: string;
 };
 
+type UpdateProfile = {
+	type: eDispatchType.UPDATE_PROFILE;
+	payload: User;
+};
+
 type Action =
 	| LoginAction
 	| RegisterAction
@@ -81,7 +86,8 @@ type Action =
 	| ClearDeleteIds
 	| SetImpactCategory
 	| AddDeleteProcessesIds
-	| ClearDeleteProcessesIds;
+	| ClearDeleteProcessesIds
+	| UpdateProfile;
 
 type AppContext = {
 	app: State;
@@ -166,6 +172,9 @@ const reducer = (state: State, action: Action) => {
 				deleteProcessesIds: filtered,
 			};
 		}
+
+		case eDispatchType.UPDATE_PROFILE:
+			return { ...state, userProfile: action.payload };
 
 		default:
 			return state;

@@ -20,4 +20,25 @@ export const authenticationApis = {
 			token: `Bearer ${payload.token}`,
 		});
 	},
+	updateProfile: (payload: { bio?: string; fullName?: string; phone?: string }) => {
+		return httpService.put<
+			CommonResponse<{
+				id: string;
+				fullName: string;
+				email: string;
+				phone: string;
+				profilePictureUrl: string;
+				bio: string;
+				role: {
+					id: string;
+					name: string;
+				};
+				userVerifyStatus: {
+					id: string;
+					statusName: string;
+					description: string;
+				};
+			}>
+		>('users/profile', payload);
+	},
 };

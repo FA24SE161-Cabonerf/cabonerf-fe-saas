@@ -1,8 +1,13 @@
 import { Separator } from '@/components/ui/separator';
 import OrganizationHeader from '@/pages/Organization/components/OrganizationHeader';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function OrganizationPage() {
+	useEffect(() => {
+		document.title = 'Organization settings - Cabonerf';
+	}, []);
+
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -11,7 +16,7 @@ export default function OrganizationPage() {
 			className="flex h-full flex-col ease-in"
 		>
 			<OrganizationHeader />
-			<Separator />
+			<Separator className="shadow-sm" />
 		</motion.div>
 	);
 }

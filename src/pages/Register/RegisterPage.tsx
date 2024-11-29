@@ -198,9 +198,7 @@ export default function RegisterPage() {
 
 									<div className="mt-[1px] min-h-[1.5rem]">
 										{form.formState.errors.confirmPassword?.message && (
-											<span className="text-xs text-red-600">
-												{form.formState.errors.confirmPassword.message}
-											</span>
+											<span className="text-xs text-red-600">{form.formState.errors.confirmPassword.message}</span>
 										)}
 									</div>
 								</FormItem>
@@ -228,10 +226,7 @@ export default function RegisterPage() {
 						<div className="flex-grow border-t border-gray-300"></div>
 					</div>
 
-					<Button
-						variant="outline"
-						className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]"
-					>
+					<Button variant="outline" className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]">
 						<GoogleIcon className="h-6 w-6" />
 						<span className="text-base font-normal">Continue with google</span>
 					</Button>

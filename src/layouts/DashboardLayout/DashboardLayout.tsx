@@ -16,8 +16,13 @@ export default function DashboardLayout() {
 					<SidebarItem icon={<Settings size={19} />} to="setting" text="Setting profile" active={path === 'setting'} />
 					<hr className="my-3" />
 					<SidebarItem icon={<Building2 size={19} />} to="organization" text="Organization" active={path === 'organization'} />
-					<SidebarItem icon={<BriefcaseBusiness size={19} />} to="/" text="Projects" active={path === 'dashboard'} />
-					<SidebarItem icon={<Package size={19} />} to="object-libraries" text="Object Libraries" active={path === 'object-library'} />
+					<SidebarItem icon={<BriefcaseBusiness size={19} />} to="dashboard" text="Projects" active={path === 'dashboard'} />
+					<SidebarItem
+						icon={<Package size={19} />}
+						to="object-libraries"
+						text="Object Libraries"
+						active={path === 'object-libraries'}
+					/>
 				</Sidebar>
 			}
 			content={<Outlet />}

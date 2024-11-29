@@ -4,10 +4,8 @@ import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
 import ImpactCategoriesComboBox from '@/components/ImpactCategoriesComboBox';
 import ImpactMethodComboBox from '@/components/ImpactMethodComboBox';
-import { Button } from '@/components/ui/button';
 import { AppContext } from '@/contexts/app.context';
 import { useQuery } from '@tanstack/react-query';
-import { Download, Filter } from 'lucide-react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 export default function FilterProject() {
@@ -92,15 +90,6 @@ export default function FilterProject() {
 				onSelected={updateSelectedImpactCategories}
 				data={_impactCategories ?? []}
 			/>
-
-			<Button className="flex items-center space-x-2 px-3 font-normal" variant={'outline'}>
-				<Filter size={16} />
-				<span>Filter</span>
-			</Button>
-			<Button className="flex items-center space-x-1 px-3 font-normal" variant={'outline'}>
-				<Download size={16} />
-				<span>Export</span>
-			</Button>
 		</div>
 	);
 }

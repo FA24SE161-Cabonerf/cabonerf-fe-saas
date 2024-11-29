@@ -1,8 +1,13 @@
 import { Separator } from '@/components/ui/separator';
+import TAB_TITLES from '@/constants/tab.titles';
 import ObjectLibrariesHeader from '@/pages/ObjectLibraries/components/ObjectLibrariesHeader';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function ObjectLibrariesPage() {
+	useEffect(() => {
+		document.title = `Object Libraries - ${TAB_TITLES.HOME}`;
+	}, []);
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -11,7 +16,7 @@ export default function ObjectLibrariesPage() {
 			className="flex h-full flex-col ease-in"
 		>
 			<ObjectLibrariesHeader />
-			<Separator />
+			<Separator className="shadow-sm" />
 		</motion.div>
 	);
 }

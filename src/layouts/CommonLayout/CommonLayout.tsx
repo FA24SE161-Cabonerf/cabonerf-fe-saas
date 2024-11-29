@@ -24,8 +24,8 @@ export default function CommonLayout({ content, sidebar }: tProps) {
 					<div className="animate-slideUp flex flex-col items-center justify-center rounded-lg bg-white p-10 shadow-lg">
 						<h2 className="text-2xl font-medium">Welcome, please verify your email.</h2>
 						<div className="mt-5 text-sm">
-							We sent an email to <Badge variant="outline">{app.userProfile?.email}</Badge>. Once verified, you
-							will be able to access your account.
+							We sent an email to <Badge variant="outline">{app.userProfile?.email}</Badge>. Once verified, you will be able to
+							access your account.
 						</div>
 
 						<div className="mt-8 flex w-[70%] flex-wrap justify-center gap-3">
@@ -48,8 +48,8 @@ export default function CommonLayout({ content, sidebar }: tProps) {
 						</div>
 
 						<p className="mt-8 text-sm">
-							If you do not see it. You may need to <span className="font-medium">check your spam</span> folder
-							or <span className="font-medium underline">Resend the mail</span>
+							If you do not see it. You may need to <span className="font-medium">check your spam</span> folder or{' '}
+							<span className="font-medium underline">Resend the mail</span>
 						</p>
 					</div>
 				</div>
@@ -64,9 +64,7 @@ export default function CommonLayout({ content, sidebar }: tProps) {
 					{sidebar}
 
 					{/* Main content */}
-					<div className="h-full w-full overflow-scroll rounded-[8px] border-[1px] border-gray-200 bg-white">
-						{content}
-					</div>
+					<div className="h-full w-full overflow-scroll rounded-[16px] border-[1px] border-gray-200 bg-white shadow">{content}</div>
 				</div>
 			</div>
 		</div>
