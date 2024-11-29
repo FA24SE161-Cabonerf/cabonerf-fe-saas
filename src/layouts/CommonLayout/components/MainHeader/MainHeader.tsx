@@ -1,14 +1,28 @@
+import { OrganizeApis } from '@/apis/organiza.apis';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu';
 import MyAvatar from '@/components/MyAvatar';
 import { Breadcrumb, BreadcrumbList } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
+import { useQuery } from '@tanstack/react-query';
 import { Bell, Check } from 'lucide-react';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 export default function MainHeader() {
+	const { organizationId } = useParams<{ organizationId: string }>();
+
+	const organizations = useQuery({
+		queryKey: ['organizations'],
+		queryFn: OrganizeApis.prototype.getOrganizationsByUser,
+		enabled: true,
+		staleTime: 60 * 1000 * 60,
+	});
+
+	console.log(organizations.data?.data.data);
+
 	return (
 		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-2.5">
 			<div className="flex items-center justify-between text-sm">
@@ -17,7 +31,7 @@ export default function MainHeader() {
 						<BreadcrumbWithMenu
 							dropDownTrigger={
 								<React.Fragment>
-									<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
+									<MyAvatar fallBackContent="CN" urlAvatar="" />
 									<span className="ml-1 font-medium text-foreground">
 										Personal{' '}
 										<kbd className="rounded bg-[#8888881a] px-1 text-[12px] font-medium text-[#888888]">Organization</kbd>
@@ -30,19 +44,19 @@ export default function MainHeader() {
 									{/* Title */}
 									<div className="mx-8 my-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600">organizations</div>
 
-									{Array(3)
-										.fill(0)
-										.map((_, index) => (
-											<div
-												key={index}
-												className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
-											>
-												<MyAvatar fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
-												<span className="ml-2 font-medium">Personal</span>
+									{organizations.data?.data.data.map((org) => (
+										<div
+											key={org.id}
+											className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
+										>
+											<MyAvatar fallBackContent="CN" urlAvatar="" />
+											<span className="ml-2 font-medium">{org.name}</span>
 
-												{index === 0 && <Check size={15} className="absolute left-2 top-1/2 ml-0 -translate-y-1/2" />}
-											</div>
-										))}
+											{organizationId === org.id && (
+												<Check size={15} className="absolute left-2 top-1/2 ml-0 -translate-y-1/2" />
+											)}
+										</div>
+									))}
 								</div>
 							}
 						</BreadcrumbWithMenu>

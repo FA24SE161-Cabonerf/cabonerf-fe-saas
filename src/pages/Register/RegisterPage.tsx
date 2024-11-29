@@ -1,6 +1,7 @@
 import { CommonResponse } from '@/@types/common.type';
 import { eDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.apis';
+import { OrganizeApis } from '@/apis/organiza.apis';
 import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Button } from '@/components/ui/button';
@@ -12,14 +13,15 @@ import { registerSchema, tRegisterSchema } from '@/schemas/validation/register.s
 import { isUnprocessableEntity } from '@/utils/error';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Eye, EyeOff } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function RegisterPage() {
+	const navigate = useNavigate();
 	const { dispatch } = useContext(AppContext);
 	const [isVisiblePassword, setIsVisiblePassword] = useState<boolean>(false);
 
@@ -31,6 +33,13 @@ export default function RegisterPage() {
 			confirmPassword: '',
 			fullName: '',
 		},
+	});
+
+	const organizations = useQuery({
+		queryKey: ['organizations'],
+		queryFn: OrganizeApis.prototype.getOrganizationsByUser,
+		enabled: false,
+		staleTime: 60 * 1000 * 60,
 	});
 
 	useEffect(() => {
@@ -45,16 +54,30 @@ export default function RegisterPage() {
 		toast.promise(
 			new Promise((resolve, reject) => {
 				registerMutation.mutate(data, {
-					onSuccess: (success) => {
+					onSuccess: async (success) => {
 						const { user } = success.data.data;
 
+						const refetchResult = await organizations.refetch();
+
+						const orgData = refetchResult.data?.data.data;
+
+						const defaultOrg = orgData?.find((item) => item.default === true);
+
+						if (defaultOrg) {
+							navigate(`/dashboard/${defaultOrg.id}`);
+						} else {
+							console.error('No default organization found');
+						}
+
+						// Dispatch login state
 						dispatch({
-							type: eDispatchType.REGISTER,
+							type: eDispatchType.LOGIN,
 							payload: {
 								isAuthenticated: true,
 								userProfile: user,
 							},
 						});
+
 						resolve(true);
 					},
 					onError: (error) => {

@@ -1,4 +1,5 @@
 import { eDispatchType } from '@/@types/dispatch.type';
+import { OrganizeApis } from '@/apis/organiza.apis';
 import ProjectApis from '@/apis/project.apis';
 import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
@@ -6,29 +7,39 @@ import TAB_TITLES from '@/constants/tab.titles';
 import { AppContext } from '@/contexts/app.context';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
 import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
-import FilterProject from '@/pages/Dashboard/components/FilterProject';
 import TableProject from '@/pages/Dashboard/components/Project/table-project';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { LayoutGrid, LayoutList } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
 export default function DashboardPage() {
+	const navigate = useNavigate();
+	const { organizationId } = useParams<{ organizationId: string }>();
+
 	const {
 		app: { deleteIds },
 		dispatch,
 	} = useContext(AppContext);
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
 
-	const { data: projects, isFetching: projectsFetching } = useQuery({
-		queryKey: ['projects'],
-		queryFn: ProjectApis.prototype.getAllProjects,
+	const organizations = useQuery({
+		queryKey: ['organizations'],
+		queryFn: OrganizeApis.prototype.getOrganizationsByUser,
+		enabled: false,
+		staleTime: 60 * 1000 * 60,
+	});
+
+	const { data: projects, error } = useQuery({
+		queryKey: ['projects', organizationId],
+		queryFn: ({ queryKey }) => ProjectApis.prototype.getAllProjects({ organizationId: queryKey[1] as string }),
 		staleTime: 0,
 		refetchOnMount: true,
-		enabled: false,
+		enabled: organizationId !== undefined,
 	});
 
 	const projectsData = useMemo(() => {
@@ -37,6 +48,17 @@ export default function DashboardPage() {
 		}
 		return projects?.data.data.projects;
 	}, [deleteIds, projects?.data.data.projects]);
+
+	useEffect(() => {
+		if (!organizationId && organizations.data) {
+			const defaultOrg = organizations.data.data.data.find((org) => org.default === true);
+			if (defaultOrg) {
+				navigate(`/dashboard/${defaultOrg.id}`);
+			} else {
+				console.error('No default organization found.');
+			}
+		}
+	}, [organizationId, organizations.data, navigate]);
 
 	useEffect(() => {
 		document.title = `Projects - ${TAB_TITLES.HOME}`;
@@ -49,6 +71,11 @@ export default function DashboardPage() {
 	const toggleLayout = (value: string) => {
 		setLayoutView(value as LayoutView);
 	};
+
+	if (error) {
+		console.error('Error fetching projects:', error);
+		return <div>Error loading projects. Please try again later.</div>;
+	}
 
 	return (
 		<motion.div
@@ -99,7 +126,7 @@ export default function DashboardPage() {
 						</div>
 					) : (
 						// <DataTable isLoading={projectsFetching} data={projectsData ?? []} columns={columns} />
-						<TableProject />
+						<TableProject data={projectsData ?? []} />
 					)}
 				</div>
 

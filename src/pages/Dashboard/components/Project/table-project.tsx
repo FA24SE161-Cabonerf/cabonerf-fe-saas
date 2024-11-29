@@ -1,8 +1,13 @@
+import { GetProjectListResponse, Project } from '@/@types/project.type';
 import MyAvatar from '@/components/MyAvatar';
 import { Separator } from '@/components/ui/separator';
 import { Dot } from 'lucide-react';
 
-export default function TableProject() {
+type Props = {
+	data: GetProjectListResponse[];
+};
+
+export default function TableProject({ data }: Props) {
 	return (
 		<div className="">
 			{/* Table Header */}

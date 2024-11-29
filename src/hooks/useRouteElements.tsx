@@ -1,3 +1,4 @@
+import RedirectToDefaultOrganization from '@/components/RedirectToDefaultOrganization';
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
@@ -32,6 +33,10 @@ export default function useRouteElements() {
 						},
 						{
 							path: 'dashboard',
+							element: <RedirectToDefaultOrganization />,
+						},
+						{
+							path: 'dashboard/:organizationId',
 							index: true,
 							element: <DashboardPage />,
 						},
