@@ -1,6 +1,6 @@
 import { eDispatchType } from '@/@types/dispatch.type';
 import { GetProjectListResponse } from '@/@types/project.type';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import WarningSooner from '@/components/WarningSooner';
 import { AppContext } from '@/contexts/app.context';
@@ -27,6 +27,17 @@ export default function FloatingControl() {
 
 	const onCompare = () => {
 		const selectedProjects = project?.projects.filter((item) => app.selectCheckbox.includes(item.id));
+
+		if (selectedProjects && selectedProjects.length > 3) {
+			toast(<WarningSooner message={`Only up to 3 projects using the same method can be compared at once.`} />, {
+				className: 'rounded-2xl p-2 w-[350px]',
+				style: {
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
+				},
+			});
+			return;
+		}
 
 		let isValid = false;
 
