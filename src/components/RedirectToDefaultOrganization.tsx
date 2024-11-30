@@ -25,7 +25,6 @@ const RedirectToDefaultOrganization = () => {
 		}
 	}, [organizationsQuery.data, navigate]);
 
-	// Hiển thị loader hoặc fallback UI trong lúc chờ dữ liệu
-	return <p>Redirecting to your default organization...</p>;
+	return <p></p>;
 };
 export default RedirectToDefaultOrganization;

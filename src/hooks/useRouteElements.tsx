@@ -55,7 +55,7 @@ export default function useRouteElements() {
 					],
 				},
 				{
-					path: 'playground/:pid/:wid',
+					path: 'playground/:pid',
 					element: (
 						<ReactFlowProvider>
 							<ContextMenuProvider>

@@ -1,3 +1,4 @@
+import { GetProjectListResponse } from '@/@types/project.type';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
 import ProjectApis from '@/apis/project.apis';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
@@ -20,9 +21,15 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Check, ChevronsUpDown, Plus, Telescope, Workflow } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export default function DashboardHeader() {
+type Props = {
+	projects: GetProjectListResponse[];
+};
+
+export default function DashboardHeader({ projects }: Props) {
+	const { organizationId } = useParams<{ organizationId: string }>();
 	const [openDialogCreateProject, setOpenDialogCreateProject] = useState<boolean>(false);
 	const [openMethodDropdown, setOpenMethodDropdown] = useState<boolean>(false);
 	const [value, setValue] = useState('');
@@ -34,7 +41,7 @@ export default function DashboardHeader() {
 			location: 'Viet Nam',
 			methodId: '',
 			name: '',
-			workspaceId: '6ccbff7f-9653-44c0-8ddb-e7728f12e5a0',
+			organizationId: organizationId,
 		},
 	});
 
@@ -237,9 +244,11 @@ export default function DashboardHeader() {
 						</AccordionTrigger>
 						<AccordionContent asChild>
 							<div className="flex flex-wrap gap-5">
-								<DashboardProductItem />
-								<DashboardProductItem />
-								<DashboardProductItem />
+								{projects.length === 0 ? (
+									<div className="w-full text-center text-xs">No Favorite Projects Selected Yet!</div>
+								) : (
+									projects.map((item) => <DashboardProductItem key={item.id} item={item} />)
+								)}
 							</div>
 						</AccordionContent>
 					</AccordionItem>

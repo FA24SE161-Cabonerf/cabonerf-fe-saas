@@ -9,7 +9,7 @@ interface Workspace {
 
 interface Owner {
 	id: string;
-	name: string;
+	fullName: string;
 	email: string;
 	profilePictureUrl: string;
 }
