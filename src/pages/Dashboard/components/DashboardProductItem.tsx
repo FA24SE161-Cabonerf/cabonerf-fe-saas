@@ -9,7 +9,7 @@ import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, Dot, GalleryThumbnails, GitCompare, Heart, Trash2 } from 'lucide-react';
+import { ArrowUpRight, Dot, GalleryThumbnails, Heart, Trash2 } from 'lucide-react';
 import { useContext } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -155,10 +155,6 @@ export default function DashboardProductItem({ item }: Props) {
 						<Heart size={18} strokeWidth={2} fill={item.favorite ? '#ef4444' : 'none'} stroke={item.favorite ? '#ef4444' : 'black'} />
 
 						<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
-					</ContextMenuItem>
-					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm">
-						<GitCompare size={18} strokeWidth={2} />
-						<span>Compare</span>
 					</ContextMenuItem>
 				</div>
 				<ContextMenuSeparator />
