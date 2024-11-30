@@ -167,10 +167,6 @@ function ItemProject({ item }: Props) {
 
 								<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
 							</DropdownMenuItem>
-							<DropdownMenuItem className="flex items-center justify-start space-x-2 text-sm">
-								<GitCompare size={18} strokeWidth={2} />
-								<span>Compare</span>
-							</DropdownMenuItem>
 						</div>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
