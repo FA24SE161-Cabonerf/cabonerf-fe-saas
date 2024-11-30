@@ -15,7 +15,7 @@ import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, GalleryThumbnails, GitCompare, Heart, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ArrowUpRight, GalleryThumbnails, Heart, MoreHorizontal, Trash2 } from 'lucide-react';
 import React, { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -117,7 +117,7 @@ function ItemProject({ item }: Props) {
 	};
 
 	return (
-		<div key={item.id} className="grid grid-cols-12 items-center border-b px-4 py-2.5 hover:bg-gray-50">
+		<div key={item.id} className="grid grid-cols-12 items-center border-b px-[18px] py-2.5 hover:bg-gray-50">
 			<div className="col-span-4 flex items-center space-x-4 text-left text-[13px] font-medium">
 				<Checkbox
 					checked={app.selectCheckbox.includes(item.id)}

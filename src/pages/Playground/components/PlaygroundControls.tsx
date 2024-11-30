@@ -65,7 +65,6 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 								processes: data.data.data.processes,
 							},
 						});
-						toast('SUCCESS');
 
 						reactflow.setNodes((nodes) => {
 							return nodes.map((node) => {
