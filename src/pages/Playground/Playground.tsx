@@ -81,12 +81,12 @@ export default function Playground() {
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
-	const params = useParams<{ pid: string; wid: string }>();
+	const params = useParams<{ pid: string }>();
 
 	const { data: projectData, isFetching } = useQuery({
-		queryKey: ['projects', { pid: params.pid, wid: params.wid }],
-		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string, wid: params.wid as string }),
-		enabled: Boolean(params.pid) && Boolean(params.wid),
+		queryKey: ['projects', { pid: params.pid }],
+		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string }),
+		enabled: Boolean(params.pid),
 		staleTime: 0,
 		refetchOnMount: true,
 	});

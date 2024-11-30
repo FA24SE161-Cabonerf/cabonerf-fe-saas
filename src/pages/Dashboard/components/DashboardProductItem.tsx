@@ -1,31 +1,30 @@
-import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { eDispatchType } from '@/@types/dispatch.type';
-import { Impact, Project } from '@/@types/project.type';
+import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import logo from '@/assets/logos/trans-logo.png';
 import MyAvatar from '@/components/MyAvatar';
-import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
 import { AppContext } from '@/contexts/app.context';
+import { queryClient } from '@/queryClient';
+import { formatDate } from '@/utils/utils';
+import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
-import { Copy, Dot, GitCompare, MoreHorizontal, ScanSearch, SquareArrowOutUpRight, Trash2 } from 'lucide-react';
+import { ArrowUpRight, Dot, GalleryThumbnails, GitCompare, Heart, Trash2 } from 'lucide-react';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export default function DashboardProductItem() {
-	const project = {} as Project<Impact[], CabonerfNodeData[], unknown>;
+type Props = {
+	item: GetProjectListResponse;
+};
+
+export default function DashboardProductItem({ item }: Props) {
+	const { organizationId } = useParams<{ organizationId: string }>();
 	const navigate = useNavigate();
 	const { app, dispatch } = useContext(AppContext);
 
 	const onPreview = () => {
-		dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: project });
+		dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: item });
 	};
 
 	const clearPreview = () => {
@@ -33,7 +32,7 @@ export default function DashboardProductItem() {
 	};
 
 	const togglePreview = () => {
-		if (app.previewProject?.id === project.id) {
+		if (app.previewProject?.id === item.id) {
 			return clearPreview();
 		}
 		return onPreview();
@@ -43,12 +42,30 @@ export default function DashboardProductItem() {
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
 	});
 
+	const favoriteProjectMutate = useMutation({
+		mutationFn: ProjectApis.prototype.favoriteProject,
+	});
+
 	const onDeleteProject = (id: string) => {
 		deleteProjectMutate.mutate(
 			{ id },
 			{
 				onSuccess: () => {
-					dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.filter((project) => project.id !== id);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
 					toast(`Project has been deleted: ${id}`, {
 						description: 'Sunday, December 03, 2023 at 9:00 AM',
 						action: {
@@ -60,70 +77,100 @@ export default function DashboardProductItem() {
 			}
 		);
 	};
+
+	const onUpdateFavProject = () => {
+		favoriteProjectMutate.mutate(
+			{ projectId: item.id },
+			{
+				onSuccess: () => {
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.map((project) =>
+							project.id === item.id ? { ...project, favorite: !project.favorite } : project
+						);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
+				},
+			}
+		);
+	};
+
 	return (
-		<div className="flex w-[290px] cursor-pointer flex-col rounded-[18px] border-[1px] border-gray-200 p-[6px] shadow hover:border-gray-300 hover:shadow-md">
-			<div className="flex h-[140px] items-center justify-center rounded-[12px] bg-[#f7f7f7]">
-				<div className="rounded-[38px] border-[0.5px] border-[#edebea] p-3">
-					<div className="rounded-[28px] border-[0.5px] border-[#e6e3e2] p-2.5">
-						<div className="rounded-[20px] border-[0.7px] border-[#e9e6e5] p-3">
-							<img src={logo} alt="Transparent Logo" className="h-11 object-contain mix-blend-multiply" />
+		<ContextMenu>
+			<ContextMenuTrigger>
+				<Link to={`/playground/${item.id}`} className={deleteProjectMutate.isPending ? `pointer-events-none` : ''}>
+					<div className="mt-1 flex w-[290px] cursor-pointer flex-col rounded-[18px] border-[1px] border-gray-200 p-[6px] shadow duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
+						<div className="flex h-[140px] items-center justify-center rounded-[12px] bg-[#f7f7f7]">
+							<div className="rounded-[38px] border-[0.5px] border-[#edebea] p-3">
+								<div className="rounded-[28px] border-[0.5px] border-[#e6e3e2] p-2.5">
+									<div className="rounded-[20px] border-[0.7px] border-[#e9e6e5] p-3">
+										<img src={logo} alt="Transparent Logo" className="h-11 object-contain mix-blend-multiply" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div className="mt-2 flex min-h-[110px] flex-col items-start justify-between space-y-3 px-2 pb-1">
+							<div className="space-y-2">
+								<div className="text-[16px] font-medium">{item.name}</div>
+								<div className="w-fit rounded bg-[#ececec] px-1.5 text-xs font-medium">
+									{item.method.name} {item.method.version} ({item.method.perspective.abbr})
+								</div>
+							</div>
+							<div className="flex w-full items-center justify-between">
+								<div className="flex items-center space-x-1">
+									<MyAvatar className="h-5 w-5" fallBackContent="CN" urlAvatar={item.owner.profilePictureUrl} />
+									<div className="text-xs">{item.owner.fullName}</div>
+									<Dot size={12} color="#44403c" />
+									<div className="text-xs">{formatDate(item.modifiedAt)}</div>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div className="mt-2 flex h-[60px] flex-col items-start justify-center space-y-1 px-2">
-				<div className="text-[16px] font-medium">Project name</div>
-				<div className="flex w-full items-center justify-between">
-					<div className="flex items-center space-x-1">
-						<MyAvatar className="h-6 w-6" fallBackContent="CN" urlAvatar="https://github.com/shadcn.png" />
-						<div className="text-sm">13gucci</div>
-						<Dot size={12} color="#44403c" />
-						<div className="text-xs">time</div>
-					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-[150px]">
-							<DropdownMenuItem
-								className="flex cursor-pointer items-center space-x-1"
-								onClick={() => navigate(`/playground/${project.id}/6ccbff7f-9653-44c0-8ddb-e7728f12e5a0`)}
-							>
-								<SquareArrowOutUpRight size={17} />
-								<span>Open Project</span>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem onClick={togglePreview} className="flex cursor-pointer items-center space-x-1">
-								<ScanSearch size={17} />
-								<span>{app.previewProject?.id === project.id ? 'Close preview' : 'Preview LCA'}</span>
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => navigator.clipboard.writeText(project.id.toString())}
-								className="flex cursor-pointer items-center space-x-1"
-							>
-								<Copy size={17} />
-								<span>Copy ID</span>
-							</DropdownMenuItem>
+				</Link>
+			</ContextMenuTrigger>
+			<ContextMenuContent className="w-[200px] rounded-xl border-[0.5px] p-0 shadow">
+				<div className="px-1 pb-0.5 pt-1">
+					<ContextMenuItem
+						className="flex items-center justify-start space-x-2 text-sm"
+						onClick={() => navigate(`/playground/${item.id}`)}
+					>
+						<ArrowUpRight size={18} strokeWidth={2} />
+						<span>Open</span>
+					</ContextMenuItem>
+					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm" onClick={togglePreview}>
+						<GalleryThumbnails size={18} strokeWidth={2} />
+						<span>Preview LCA</span>
+					</ContextMenuItem>
+					<ContextMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-2 text-sm">
+						<Heart size={18} strokeWidth={2} fill={item.favorite ? '#ef4444' : 'none'} stroke={item.favorite ? '#ef4444' : 'black'} />
 
-							<DropdownMenuItem className="flex cursor-pointer items-center space-x-1">
-								<GitCompare size={17} />
-								<span>Compare</span>
-							</DropdownMenuItem>
-							<DropdownMenuItem
-								disabled={deleteProjectMutate.isPending}
-								onClick={() => onDeleteProject(project.id)}
-								className="flex cursor-pointer items-center space-x-1 text-red-600"
-							>
-								<Trash2 size={17} />
-								<span>{deleteProjectMutate.isPending ? 'Deleting...' : 'Delete'}</span>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+						<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
+					</ContextMenuItem>
+					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm">
+						<GitCompare size={18} strokeWidth={2} />
+						<span>Compare</span>
+					</ContextMenuItem>
 				</div>
-			</div>
-		</div>
+				<ContextMenuSeparator />
+				<ContextMenuItem
+					disabled={deleteProjectMutate.isPending}
+					className="m-1 flex items-center justify-start space-x-2 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
+					onClick={() => onDeleteProject(item.id)}
+				>
+					<Trash2 size={18} strokeWidth={2} />
+					<span className="font-medium">Move to trash</span>
+				</ContextMenuItem>
+			</ContextMenuContent>
+		</ContextMenu>
 	);
 }

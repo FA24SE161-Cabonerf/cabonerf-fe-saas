@@ -10,7 +10,7 @@ type tProps = {
 export default function MyAvatar({ fallBackContent, urlAvatar, className = 'h-7 w-7' }: tProps) {
 	return (
 		<Avatar className={className}>
-			<AvatarImage src={urlAvatar} alt="@shadcn" />
+			<AvatarImage className="object-cover" src={urlAvatar} alt="@shadcn" />
 			<AvatarFallback>{fallBackContent}</AvatarFallback>
 		</Avatar>
 	);

@@ -8,6 +8,7 @@ import { AppContext } from '@/contexts/app.context';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
 import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
 import TableProject from '@/pages/Dashboard/components/Project/table-project';
+import SkeletonCard from '@/pages/Dashboard/components/SkeletonCard';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
@@ -18,13 +19,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 export type LayoutView = 'layout-list' | 'layout-grid';
 
 export default function DashboardPage() {
+	const { dispatch } = useContext(AppContext);
 	const navigate = useNavigate();
 	const { organizationId } = useParams<{ organizationId: string }>();
 
-	const {
-		app: { deleteIds },
-		dispatch,
-	} = useContext(AppContext);
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
 
 	const organizations = useQuery({
@@ -34,7 +32,11 @@ export default function DashboardPage() {
 		staleTime: 60 * 1000 * 60,
 	});
 
-	const { data: projects, error } = useQuery({
+	const {
+		data: projects,
+		error,
+		isPending,
+	} = useQuery({
 		queryKey: ['projects', organizationId],
 		queryFn: ({ queryKey }) => ProjectApis.prototype.getAllProjects({ organizationId: queryKey[1] as string }),
 		staleTime: 0,
@@ -42,12 +44,9 @@ export default function DashboardPage() {
 		enabled: organizationId !== undefined,
 	});
 
-	const projectsData = useMemo(() => {
-		if (deleteIds.length > 0) {
-			return projects?.data.data.projects.filter((item) => !deleteIds.includes(item.id));
-		}
-		return projects?.data.data.projects;
-	}, [deleteIds, projects?.data.data.projects]);
+	const favProjects = useMemo(() => {
+		return projects?.projects.filter((item) => item.favorite);
+	}, [projects?.projects]);
 
 	useEffect(() => {
 		if (!organizationId && organizations.data) {
@@ -64,7 +63,7 @@ export default function DashboardPage() {
 		document.title = `Projects - ${TAB_TITLES.HOME}`;
 
 		return () => {
-			dispatch({ type: eDispatchType.CLEAR_DELETE_IDS });
+			dispatch({ type: eDispatchType.CLEAR_SELECT_CHECKBOX });
 		};
 	}, [dispatch]);
 
@@ -85,7 +84,7 @@ export default function DashboardPage() {
 			className="flex flex-col ease-in"
 		>
 			{/* Header */}
-			<DashboardHeader />
+			<DashboardHeader isPending={isPending} projects={favProjects ?? []} />
 			<div className="mx-6 mt-5">
 				<div className="flex items-center justify-between space-x-1 border-b pb-1.5">
 					<div className="relative text-sm font-semibold after:absolute after:-bottom-3.5 after:left-0 after:h-[3px] after:w-full after:bg-black">
@@ -118,15 +117,25 @@ export default function DashboardPage() {
 			<div className="mx-6 flex h-full">
 				<div className="my-2 w-full">
 					{layoutView === 'layout-grid' ? (
-						<div className="flex flex-wrap gap-4">
-							<DashboardProductItem />
-							<DashboardProductItem />
-							<DashboardProductItem />
-							<DashboardProductItem />
-						</div>
+						isPending ? (
+							<div className="flex flex-wrap gap-5">
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
+							</div>
+						) : (
+							<div className="flex flex-wrap gap-5">
+								{projects.projects && projects.projects.length === 0 ? (
+									<div className="mt-5 w-full text-center text-xs">No Projects Found. Start Creating Your First Project!</div>
+								) : (
+									projects.projects.map((item) => <DashboardProductItem key={item.id} item={item} />)
+								)}
+							</div>
+						)
 					) : (
-						// <DataTable isLoading={projectsFetching} data={projectsData ?? []} columns={columns} />
-						<TableProject data={projectsData ?? []} />
+						<TableProject isPending={isPending} data={projects?.projects ?? []} />
 					)}
 				</div>
 

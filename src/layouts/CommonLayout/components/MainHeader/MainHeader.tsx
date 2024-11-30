@@ -21,8 +21,6 @@ export default function MainHeader() {
 		staleTime: 60 * 1000 * 60,
 	});
 
-	console.log(organizations.data?.data.data);
-
 	return (
 		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-2.5">
 			<div className="flex items-center justify-between text-sm">

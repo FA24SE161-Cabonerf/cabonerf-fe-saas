@@ -8,6 +8,7 @@ export default {
 		extend: {
 			boxShadow: {
 				node: 'rgba(100, 100, 111, 0.2) 0px 4px 15px 0px',
+				'inner-custom': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

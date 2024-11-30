@@ -13,8 +13,8 @@ type State = {
 	isAuthenticated: boolean;
 	userProfile: User | null;
 	previewProject: GetProjectListResponse | undefined;
-	deleteIds: string[];
 	impactCategory: ImpactCategory | undefined;
+	selectCheckbox: string[];
 	deleteProcessesIds: string[];
 };
 
@@ -24,6 +24,11 @@ type LoginAction = {
 		isAuthenticated: boolean;
 		userProfile: User | null;
 	};
+};
+
+type SelectCheckbox = {
+	type: eDispatchType.SELECT_CHECKBOX;
+	payload: string;
 };
 
 type RegisterAction = {
@@ -47,15 +52,6 @@ type ClearProjectPreview = {
 	type: eDispatchType.CLEAR_PROJECT_PREVIEW;
 };
 
-type AddDeleteIds = {
-	type: eDispatchType.ADD_DELETE_IDS;
-	payload: string;
-};
-
-type ClearDeleteIds = {
-	type: eDispatchType.CLEAR_DELETE_IDS;
-};
-
 type SetImpactCategory = {
 	type: eDispatchType.SET_IMPACT_CATEGORY;
 	payload: ImpactCategory;
@@ -76,18 +72,36 @@ type UpdateProfile = {
 	payload: User;
 };
 
+type ClearCheckbox = {
+	type: eDispatchType.CLEAR_SELECT_CHECKBOX;
+};
+
+type SelectAllCheckbox = {
+	type: eDispatchType.SELECT_ALL_CHECKBOX;
+	payload: {
+		totalLength: number;
+		projectIds: string[];
+	};
+};
+
+type CloseCheckbox = {
+	type: eDispatchType.CLOSE_CHECKBOX;
+};
+
 type Action =
 	| LoginAction
 	| RegisterAction
 	| LogoutAction
 	| AddProjectPreview
 	| ClearProjectPreview
-	| AddDeleteIds
-	| ClearDeleteIds
 	| SetImpactCategory
 	| AddDeleteProcessesIds
 	| ClearDeleteProcessesIds
-	| UpdateProfile;
+	| UpdateProfile
+	| SelectCheckbox
+	| ClearCheckbox
+	| SelectAllCheckbox
+	| CloseCheckbox;
 
 type AppContext = {
 	app: State;
@@ -99,9 +113,9 @@ const initialAppStateContext: AppContext = {
 		isAuthenticated: Boolean(getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN)),
 		userProfile: getUserProfileFromLocalStorage(),
 		previewProject: undefined,
-		deleteIds: [],
 		impactCategory: undefined,
 		deleteProcessesIds: [],
+		selectCheckbox: [],
 	},
 	dispatch: () => {},
 };
@@ -141,18 +155,6 @@ const reducer = (state: State, action: Action) => {
 				previewProject: undefined,
 			};
 
-		case eDispatchType.ADD_DELETE_IDS:
-			return {
-				...state,
-				deleteIds: [...state.deleteIds, action.payload],
-			};
-
-		case eDispatchType.CLEAR_DELETE_IDS:
-			return {
-				...state,
-				deleteIds: [],
-			};
-
 		case eDispatchType.SET_IMPACT_CATEGORY:
 			return {
 				...state,
@@ -173,8 +175,40 @@ const reducer = (state: State, action: Action) => {
 			};
 		}
 
+		case eDispatchType.SELECT_CHECKBOX: {
+			const isExisted = state.selectCheckbox.includes(action.payload);
+
+			return {
+				...state,
+				selectCheckbox: isExisted
+					? state.selectCheckbox.filter((item) => item !== action.payload)
+					: [...state.selectCheckbox, action.payload],
+			};
+		}
+
+		case eDispatchType.CLEAR_SELECT_CHECKBOX:
+			return { ...state, selectCheckbox: [] };
+
+		case eDispatchType.SELECT_ALL_CHECKBOX: {
+			const { totalLength, projectIds } = action.payload;
+
+			if (!projectIds || projectIds.length === 0) {
+				return state;
+			}
+
+			const areAllSelected = state.selectCheckbox.length === totalLength;
+
+			return {
+				...state,
+				selectCheckbox: areAllSelected ? [] : [...projectIds],
+			};
+		}
+
 		case eDispatchType.UPDATE_PROFILE:
 			return { ...state, userProfile: action.payload };
+
+		case eDispatchType.CLOSE_CHECKBOX:
+			return { ...state, selectCheckbox: [] };
 
 		default:
 			return state;
@@ -186,9 +220,9 @@ export default function AppProvider({ children }: Props) {
 		isAuthenticated: initialAppStateContext.app.isAuthenticated,
 		userProfile: initialAppStateContext.app.userProfile,
 		previewProject: initialAppStateContext.app.previewProject,
-		deleteIds: initialAppStateContext.app.deleteIds,
 		impactCategory: initialAppStateContext.app.impactCategory,
 		deleteProcessesIds: initialAppStateContext.app.deleteProcessesIds,
+		selectCheckbox: initialAppStateContext.app.selectCheckbox,
 	});
 
 	const context = useMemo(() => {

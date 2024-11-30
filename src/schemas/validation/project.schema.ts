@@ -9,7 +9,7 @@ export const createProjectSchema = z.object({
 		message: 'Please specify the project location.',
 	}),
 	methodId: z.string().uuid({ message: 'Please choose one method above.' }),
-	workspaceId: z.string().uuid({
+	organizationId: z.string().uuid({
 		message: 'Ensure the workspace ID is correct.',
 	}),
 });

@@ -2,9 +2,7 @@ import { CommonResponse } from '@/@types/common.type';
 import { eDispatchType } from '@/@types/dispatch.type';
 import { authenticationApis } from '@/apis/authentication.apis';
 import { OrganizeApis } from '@/apis/organiza.apis';
-import GoogleIcon from '@/common/icons/GoogleIcon';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
-import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import TAB_TITLES from '@/constants/tab.titles';
@@ -243,7 +241,7 @@ export default function RegisterPage() {
 						</Link>
 					</div>
 
-					<div className="my-5 flex items-center">
+					{/* <div className="my-5 flex items-center">
 						<div className="flex-grow border-t border-gray-300"></div>
 						<span className="mx-4 text-xs text-gray-500">OR</span>
 						<div className="flex-grow border-t border-gray-300"></div>
@@ -252,7 +250,7 @@ export default function RegisterPage() {
 					<Button variant="outline" className="flex h-14 w-full items-center justify-center space-x-2 rounded-[6px]">
 						<GoogleIcon className="h-6 w-6" />
 						<span className="text-base font-normal">Continue with google</span>
-					</Button>
+					</Button> */}
 				</Form>
 			</div>
 		</div>
