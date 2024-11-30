@@ -19,10 +19,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 export type LayoutView = 'layout-list' | 'layout-grid';
 
 export default function DashboardPage() {
+	const { dispatch } = useContext(AppContext);
 	const navigate = useNavigate();
 	const { organizationId } = useParams<{ organizationId: string }>();
 
-	const { dispatch } = useContext(AppContext);
 	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
 
 	const organizations = useQuery({
@@ -63,7 +63,7 @@ export default function DashboardPage() {
 		document.title = `Projects - ${TAB_TITLES.HOME}`;
 
 		return () => {
-			dispatch({ type: eDispatchType.CLEAR_DELETE_IDS });
+			dispatch({ type: eDispatchType.CLEAR_SELECT_CHECKBOX });
 		};
 	}, [dispatch]);
 

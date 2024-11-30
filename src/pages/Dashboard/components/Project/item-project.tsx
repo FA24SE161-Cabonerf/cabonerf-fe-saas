@@ -16,7 +16,7 @@ import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowUpRight, GalleryThumbnails, GitCompare, Heart, MoreHorizontal, Trash2 } from 'lucide-react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -24,7 +24,7 @@ type Props = {
 	item: GetProjectListResponse;
 };
 
-export default function ItemProject({ item }: Props) {
+function ItemProject({ item }: Props) {
 	const { organizationId } = useParams<{ organizationId: string }>();
 
 	const navigate = useNavigate();
@@ -112,10 +112,18 @@ export default function ItemProject({ item }: Props) {
 		);
 	};
 
+	const triggerProjectId = () => {
+		dispatch({ type: eDispatchType.SELECT_CHECKBOX, payload: item.id });
+	};
+
 	return (
-		<div key={item.id} className="grid grid-cols-12 items-center border-b py-2.5 hover:bg-gray-50">
+		<div key={item.id} className="grid grid-cols-12 items-center border-b px-4 py-2.5 hover:bg-gray-50">
 			<div className="col-span-4 flex items-center space-x-4 text-left text-[13px] font-medium">
-				<Checkbox className="rounded border-gray-700 shadow-none data-[state=checked]:bg-gray-900 data-[state=checked]:text-white" />
+				<Checkbox
+					checked={app.selectCheckbox.includes(item.id)}
+					onClick={triggerProjectId}
+					className="h-5 w-5 rounded-sm border-[1px] border-gray-200 bg-white shadow focus:border-[0.5px] data-[state=checked]:bg-gray-900 data-[state=checked]:text-white"
+				/>
 				<div>{item.name}</div>
 			</div>
 			<div className="col-span-2 flex items-center space-x-2 text-[13px] font-medium">
@@ -179,3 +187,5 @@ export default function ItemProject({ item }: Props) {
 		</div>
 	);
 }
+
+export default React.memo(ItemProject);

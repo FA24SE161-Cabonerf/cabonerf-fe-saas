@@ -13,7 +13,7 @@ export default function SkeletonCard() {
 			</div>
 
 			{/* Text and Info Section */}
-			<div className="mt-2 flex min-h-[100px] flex-col items-start justify-between space-y-3 px-2">
+			<div className="mt-2 flex min-h-[110px] flex-col items-start justify-between space-y-3 px-2">
 				{/* Title and Method */}
 				<div className="space-y-2">
 					<div className="h-5 w-3/4 rounded-md bg-gray-300"></div>
