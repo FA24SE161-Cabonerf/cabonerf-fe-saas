@@ -66,6 +66,7 @@ export default function DashboardProductItem({ item }: Props) {
 							projects: updatedProjects,
 						};
 					});
+
 					toast(`Project has been deleted: ${id}`, {
 						description: 'Sunday, December 03, 2023 at 9:00 AM',
 						action: {

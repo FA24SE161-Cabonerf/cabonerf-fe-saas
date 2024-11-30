@@ -74,8 +74,8 @@ export default function TableProject({ data, isPending }: Props) {
 	return (
 		<div className="h-full">
 			{/* Table Header */}
-			<div className="mt-3 grid h-full grid-cols-12">
-				<div className="shadow-inner-custom col-span-full grid grid-cols-12 items-center rounded-lg border-[1.5px] bg-gray-50 px-3 py-0.5">
+			<div className="mt-3 grid grid-cols-12">
+				<div className="col-span-full grid h-fit grid-cols-12 items-center rounded-lg border-[1.5px] bg-gray-50 px-3 py-1">
 					<div className="col-span-1 flex pl-1">
 						<Checkbox
 							checked={project?.projects.length === selectCheckbox.length}
