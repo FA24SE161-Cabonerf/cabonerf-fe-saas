@@ -3,6 +3,7 @@ import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import MyAvatar from '@/components/MyAvatar';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -11,11 +12,12 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
+import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { Copy, GitCompare, MoreHorizontal, ScanSearch, SquareArrowOutUpRight, Trash2 } from 'lucide-react';
+import { ArrowUpRight, GalleryThumbnails, GitCompare, Heart, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type Props = {
@@ -23,6 +25,8 @@ type Props = {
 };
 
 export default function ItemProject({ item }: Props) {
+	const { organizationId } = useParams<{ organizationId: string }>();
+
 	const navigate = useNavigate();
 	const { app, dispatch } = useContext(AppContext);
 
@@ -45,12 +49,30 @@ export default function ItemProject({ item }: Props) {
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
 	});
 
+	const favoriteProjectMutate = useMutation({
+		mutationFn: ProjectApis.prototype.favoriteProject,
+	});
+
 	const onDeleteProject = (id: string) => {
 		deleteProjectMutate.mutate(
 			{ id },
 			{
 				onSuccess: () => {
-					dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.filter((project) => project.id !== id);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
 					toast(`Project has been deleted: ${id}`, {
 						description: 'Sunday, December 03, 2023 at 9:00 AM',
 						action: {
@@ -62,11 +84,39 @@ export default function ItemProject({ item }: Props) {
 			}
 		);
 	};
+
+	const onUpdateFavProject = () => {
+		favoriteProjectMutate.mutate(
+			{ projectId: item.id },
+			{
+				onSuccess: () => {
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.map((project) =>
+							project.id === item.id ? { ...project, favorite: !project.favorite } : project
+						);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
+				},
+			}
+		);
+	};
+
 	return (
-		<div key={item.id} className="grid grid-cols-12 border-b py-2.5 hover:bg-gray-50">
-			<div className="col-span-4 ml-2 text-[13px] font-medium">
+		<div key={item.id} className="grid grid-cols-12 items-center border-b py-2.5 hover:bg-gray-50">
+			<div className="col-span-4 flex items-center space-x-4 text-left text-[13px] font-medium">
+				<Checkbox className="rounded border-gray-700 shadow-none data-[state=checked]:bg-gray-900 data-[state=checked]:text-white" />
 				<div>{item.name}</div>
-				<div>impact</div>
 			</div>
 			<div className="col-span-2 flex items-center space-x-2 text-[13px] font-medium">
 				<MyAvatar fallBackContent="CN" className="h-5 w-5" urlAvatar={item.owner.profilePictureUrl} />
@@ -86,38 +136,42 @@ export default function ItemProject({ item }: Props) {
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-[150px]">
-						<DropdownMenuItem
-							className="flex cursor-pointer items-center space-x-1"
-							onClick={() => navigate(`/playground/${item.id}`)}
-						>
-							<SquareArrowOutUpRight size={17} />
-							<span>Open Project</span>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={togglePreview} className="flex cursor-pointer items-center space-x-1">
-							<ScanSearch size={17} />
-							<span>{app.previewProject?.id === item.id ? 'Close preview' : 'Preview LCA'}</span>
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(item.id.toString())}
-							className="flex cursor-pointer items-center space-x-1"
-						>
-							<Copy size={17} />
-							<span>Copy ID</span>
-						</DropdownMenuItem>
+					<DropdownMenuContent className="w-[170px] rounded-xl border-[0.5px] p-0 shadow">
+						<div className="px-1 pb-0.5 pt-1">
+							<DropdownMenuItem
+								className="flex items-center justify-start space-x-2 text-sm"
+								onClick={() => navigate(`/playground/${item.id}`)}
+							>
+								<ArrowUpRight size={18} strokeWidth={2} />
+								<span>Open</span>
+							</DropdownMenuItem>
+							<DropdownMenuItem className="flex items-center justify-start space-x-2 text-sm" onClick={togglePreview}>
+								<GalleryThumbnails size={18} strokeWidth={2} />
+								<span>Preview LCA</span>
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-2 text-sm">
+								<Heart
+									size={18}
+									strokeWidth={2}
+									fill={item.favorite ? '#ef4444' : 'none'}
+									stroke={item.favorite ? '#ef4444' : 'black'}
+								/>
 
-						<DropdownMenuItem className="flex cursor-pointer items-center space-x-1">
-							<GitCompare size={17} />
-							<span>Compare</span>
-						</DropdownMenuItem>
+								<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
+							</DropdownMenuItem>
+							<DropdownMenuItem className="flex items-center justify-start space-x-2 text-sm">
+								<GitCompare size={18} strokeWidth={2} />
+								<span>Compare</span>
+							</DropdownMenuItem>
+						</div>
+						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							disabled={deleteProjectMutate.isPending}
+							className="m-1 flex items-center justify-start space-x-2 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
 							onClick={() => onDeleteProject(item.id)}
-							className="flex cursor-pointer items-center space-x-1 text-red-600"
 						>
-							<Trash2 size={17} />
-							<span>{deleteProjectMutate.isPending ? 'Deleting...' : 'Delete'}</span>
+							<Trash2 size={18} strokeWidth={2} />
+							<span className="font-medium">Move to trash</span>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

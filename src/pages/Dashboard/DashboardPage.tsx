@@ -8,6 +8,7 @@ import { AppContext } from '@/contexts/app.context';
 import DashboardHeader from '@/pages/Dashboard/components/DashboardHeader';
 import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
 import TableProject from '@/pages/Dashboard/components/Project/table-project';
+import SkeletonCard from '@/pages/Dashboard/components/SkeletonCard';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
@@ -17,54 +18,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 export type LayoutView = 'layout-list' | 'layout-grid';
 
-function Skeleton() {
-	return (
-		<div className="mt-1 flex w-[290px] animate-pulse flex-col rounded-[18px] border-[1px] border-gray-200 p-[6px] shadow">
-			{/* Logo Section */}
-			<div className="flex h-[140px] items-center justify-center rounded-[12px] bg-[#f7f7f7]">
-				<div className="rounded-[38px] border-[0.5px] border-[#edebea] p-3">
-					<div className="rounded-[28px] border-[0.5px] border-[#e6e3e2] p-2.5">
-						<div className="rounded-[20px] border-[0.7px] border-[#e9e6e5] p-3">
-							<div className="h-11 w-11 rounded-full bg-gray-300"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* Text and Info Section */}
-			<div className="mt-2 flex min-h-[100px] flex-col items-start justify-between space-y-3 px-2">
-				{/* Title and Method */}
-				<div className="space-y-2">
-					<div className="h-5 w-3/4 rounded-md bg-gray-300"></div>
-					<div className="h-4 w-1/2 rounded-md bg-gray-300"></div>
-				</div>
-
-				{/* Owner and Date */}
-				<div className="flex w-full items-center justify-between">
-					<div className="flex items-center space-x-1">
-						<div className="h-5 w-5 rounded-full bg-gray-300"></div>
-						<div className="h-4 w-16 rounded-md bg-gray-300"></div>
-						<div className="h-3 w-3 rounded-full bg-gray-300"></div>
-						<div className="h-4 w-20 rounded-md bg-gray-300"></div>
-					</div>
-
-					{/* Dropdown Placeholder */}
-					<div className="h-8 w-8 rounded-full bg-gray-300"></div>
-				</div>
-			</div>
-		</div>
-	);
-}
-
 export default function DashboardPage() {
 	const navigate = useNavigate();
 	const { organizationId } = useParams<{ organizationId: string }>();
 
-	const {
-		app: { deleteIds },
-		dispatch,
-	} = useContext(AppContext);
-	const [layoutView, setLayoutView] = useState<LayoutView>('layout-grid');
+	const { dispatch } = useContext(AppContext);
+	const [layoutView, setLayoutView] = useState<LayoutView>('layout-list');
 
 	const organizations = useQuery({
 		queryKey: ['organizations'],
@@ -85,16 +44,9 @@ export default function DashboardPage() {
 		enabled: organizationId !== undefined,
 	});
 
-	const projectsData = useMemo(() => {
-		if (deleteIds.length > 0) {
-			return projects?.data.data.projects.filter((item) => !deleteIds.includes(item.id));
-		}
-		return projects?.data.data.projects;
-	}, [deleteIds, projects?.data.data.projects]);
-
 	const favProjects = useMemo(() => {
-		return projects?.data.data.projects.filter((item) => item.favorite);
-	}, [projects?.data.data.projects]);
+		return projects?.projects.filter((item) => item.favorite);
+	}, [projects?.projects]);
 
 	useEffect(() => {
 		if (!organizationId && organizations.data) {
@@ -132,7 +84,7 @@ export default function DashboardPage() {
 			className="flex flex-col ease-in"
 		>
 			{/* Header */}
-			<DashboardHeader projects={favProjects ?? []} />
+			<DashboardHeader isPending={isPending} projects={favProjects ?? []} />
 			<div className="mx-6 mt-5">
 				<div className="flex items-center justify-between space-x-1 border-b pb-1.5">
 					<div className="relative text-sm font-semibold after:absolute after:-bottom-3.5 after:left-0 after:h-[3px] after:w-full after:bg-black">
@@ -167,19 +119,23 @@ export default function DashboardPage() {
 					{layoutView === 'layout-grid' ? (
 						isPending ? (
 							<div className="flex flex-wrap gap-5">
-								<Skeleton />
-								<Skeleton />
-								<Skeleton />
-								<Skeleton />
-								<Skeleton />
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
+								<SkeletonCard />
 							</div>
 						) : (
 							<div className="flex flex-wrap gap-5">
-								{projectsData && projectsData.map((item) => <DashboardProductItem key={item.id} item={item} />)}
+								{projects.projects && projects.projects.length === 0 ? (
+									<div className="mt-5 w-full text-center text-xs">No Projects Found. Start Creating Your First Project!</div>
+								) : (
+									projects.projects.map((item) => <DashboardProductItem key={item.id} item={item} />)
+								)}
 							</div>
 						)
 					) : (
-						<TableProject isPending={isPending} data={projectsData ?? []} />
+						<TableProject isPending={isPending} data={projects?.projects ?? []} />
 					)}
 				</div>
 

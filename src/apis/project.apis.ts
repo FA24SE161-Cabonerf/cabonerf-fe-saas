@@ -9,7 +9,7 @@ import { Edge, Node } from '@xyflow/react';
 
 class ProjectApis {
 	public async getAllProjects(payload: { organizationId: string }) {
-		return httpService.get<
+		const result = await httpService.get<
 			CommonResponse<{
 				pageCurrent: string;
 				pageSize: string;
@@ -19,6 +19,7 @@ class ProjectApis {
 		>(PROJECT_ENDPOINT.PROJECT, {
 			params: payload,
 		});
+		return result.data.data;
 	}
 
 	public async getProjectById(payload: { pid: string }) {
@@ -52,6 +53,12 @@ class ProjectApis {
 		return httpService.post<CommonResponse<Project & { contributionBreakdown: Contributor }>>(
 			`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.CALCULATE_PROJECT}`,
 			payload
+		);
+	}
+
+	public favoriteProject(payload: { projectId: string }) {
+		return httpService.put<CommonResponse<Pick<Project, 'id' | 'description' | 'location' | 'name' | 'method' | 'favorite'>>>(
+			`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.FAVORITE}`
 		);
 	}
 }

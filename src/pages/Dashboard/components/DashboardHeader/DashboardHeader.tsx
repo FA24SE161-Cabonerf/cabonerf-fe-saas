@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductItem';
+import SkeletonCard from '@/pages/Dashboard/components/SkeletonCard';
 import { queryClient } from '@/queryClient';
 import { CreateProjectSchema, createProjectSchema } from '@/schemas/validation/project.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,9 +27,10 @@ import { toast } from 'sonner';
 
 type Props = {
 	projects: GetProjectListResponse[];
+	isPending: boolean;
 };
 
-export default function DashboardHeader({ projects }: Props) {
+export default function DashboardHeader({ projects, isPending }: Props) {
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const [openDialogCreateProject, setOpenDialogCreateProject] = useState<boolean>(false);
 	const [openMethodDropdown, setOpenMethodDropdown] = useState<boolean>(false);
@@ -244,7 +246,14 @@ export default function DashboardHeader({ projects }: Props) {
 						</AccordionTrigger>
 						<AccordionContent asChild>
 							<div className="flex flex-wrap gap-5">
-								{projects.length === 0 ? (
+								{isPending ? (
+									<div className="flex flex-wrap gap-5">
+										<SkeletonCard />
+										<SkeletonCard />
+										<SkeletonCard />
+										<SkeletonCard />
+									</div>
+								) : projects.length === 0 ? (
 									<div className="w-full text-center text-xs">No Favorite Projects Selected Yet!</div>
 								) : (
 									projects.map((item) => <DashboardProductItem key={item.id} item={item} />)

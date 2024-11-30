@@ -5,12 +5,13 @@ import logo from '@/assets/logos/trans-logo.png';
 import MyAvatar from '@/components/MyAvatar';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
 import { AppContext } from '@/contexts/app.context';
+import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowUpRight, Dot, GalleryThumbnails, GitCompare, Heart, Trash2 } from 'lucide-react';
 import { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function DashboardProductItem({ item }: Props) {
+	const { organizationId } = useParams<{ organizationId: string }>();
 	const navigate = useNavigate();
 	const { app, dispatch } = useContext(AppContext);
 
@@ -40,12 +42,30 @@ export default function DashboardProductItem({ item }: Props) {
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
 	});
 
+	const favoriteProjectMutate = useMutation({
+		mutationFn: ProjectApis.prototype.favoriteProject,
+	});
+
 	const onDeleteProject = (id: string) => {
 		deleteProjectMutate.mutate(
 			{ id },
 			{
 				onSuccess: () => {
-					dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.filter((project) => project.id !== id);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
 					toast(`Project has been deleted: ${id}`, {
 						description: 'Sunday, December 03, 2023 at 9:00 AM',
 						action: {
@@ -58,10 +78,37 @@ export default function DashboardProductItem({ item }: Props) {
 		);
 	};
 
+	const onUpdateFavProject = () => {
+		favoriteProjectMutate.mutate(
+			{ projectId: item.id },
+			{
+				onSuccess: () => {
+					queryClient.setQueryData<{
+						pageCurrent: string;
+						pageSize: string;
+						totalPage: string;
+						projects: GetProjectListResponse[];
+					}>(['projects', organizationId], (oldData) => {
+						if (!oldData) return oldData;
+
+						const updatedProjects = oldData.projects.map((project) =>
+							project.id === item.id ? { ...project, favorite: !project.favorite } : project
+						);
+
+						return {
+							...oldData,
+							projects: updatedProjects,
+						};
+					});
+				},
+			}
+		);
+	};
+
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger>
-				<Link to={`/playground/${item.id}`}>
+				<Link to={`/playground/${item.id}`} className={deleteProjectMutate.isPending ? `pointer-events-none` : ''}>
 					<div className="mt-1 flex w-[290px] cursor-pointer flex-col rounded-[18px] border-[1px] border-gray-200 p-[6px] shadow duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
 						<div className="flex h-[140px] items-center justify-center rounded-[12px] bg-[#f7f7f7]">
 							<div className="rounded-[38px] border-[0.5px] border-[#edebea] p-3">
@@ -72,7 +119,7 @@ export default function DashboardProductItem({ item }: Props) {
 								</div>
 							</div>
 						</div>
-						<div className="mt-2 flex min-h-[100px] flex-col items-start justify-between space-y-3 px-2 pb-1">
+						<div className="mt-2 flex min-h-[110px] flex-col items-start justify-between space-y-3 px-2 pb-1">
 							<div className="space-y-2">
 								<div className="text-[16px] font-medium">{item.name}</div>
 								<div className="w-fit rounded bg-[#ececec] px-1.5 text-xs font-medium">
@@ -97,20 +144,20 @@ export default function DashboardProductItem({ item }: Props) {
 						className="flex items-center justify-start space-x-2 text-sm"
 						onClick={() => navigate(`/playground/${item.id}`)}
 					>
-						<ArrowUpRight size={18} />
+						<ArrowUpRight size={18} strokeWidth={2} />
 						<span>Open</span>
 					</ContextMenuItem>
 					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm" onClick={togglePreview}>
-						<GalleryThumbnails size={18} />
+						<GalleryThumbnails size={18} strokeWidth={2} />
 						<span>Preview LCA</span>
 					</ContextMenuItem>
-					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm">
-						<Heart size={18} />
+					<ContextMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-2 text-sm">
+						<Heart size={18} strokeWidth={2} fill={item.favorite ? '#ef4444' : 'none'} stroke={item.favorite ? '#ef4444' : 'black'} />
 
 						<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
 					</ContextMenuItem>
 					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm">
-						<GitCompare size={18} />
+						<GitCompare size={18} strokeWidth={2} />
 						<span>Compare</span>
 					</ContextMenuItem>
 				</div>
