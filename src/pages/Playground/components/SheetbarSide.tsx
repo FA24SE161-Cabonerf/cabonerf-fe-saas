@@ -156,7 +156,7 @@ function SheetbarSide() {
 	const onSubmit: SubmitHandler<ProcessSchema> = (data) => {
 		const newvalue = {
 			name: data.name,
-			description: data.description,
+			description: data.description || '',
 			lifeCycleStagesId: data.lifeCycleStage.id,
 		};
 
