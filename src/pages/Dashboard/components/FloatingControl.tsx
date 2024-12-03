@@ -1,16 +1,22 @@
 import { eDispatchType } from '@/@types/dispatch.type';
+import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
+import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import WarningSooner from '@/components/WarningSooner';
 import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
+import { calculatePercentageDifference, formatNumberExponential, updateSVGAttributes } from '@/utils/utils';
+import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { ChartSpline, Check, GitCompare, User, X } from 'lucide-react';
-import { useContext, useMemo, useState } from 'react';
+import { ArrowDown, ArrowUp, ChartArea, ChartSpline, Check, ChevronDown, GitCompare, X } from 'lucide-react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Bar, BarChart, CartesianGrid, Rectangle, XAxis, YAxis } from 'recharts';
 import { toast } from 'sonner';
@@ -26,9 +32,13 @@ const chartConfig = {
 	},
 } satisfies ChartConfig;
 
-export default function FloatingControl() {
+function FloatingControl() {
 	const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
 	const [compareProjects, setCompareProjects] = useState<GetProjectListResponse[]>([]);
+	const [methodId, setMethodId] = useState<string | null>(null);
+	const [baseIndex, setBasedIndex] = useState<number>(0);
+	const [selectImpactCategory, setSelectImpactCategory] =
+		useState<Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>>();
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const { app, dispatch } = useContext(AppContext);
 
@@ -44,13 +54,61 @@ export default function FloatingControl() {
 	const projectCompareOnChart = useMemo(() => {
 		return compareProjects.map((item) => ({
 			projectId: item.id,
+			methodId: item.method.id,
 			chartData: item.impacts.map((item) => ({
 				abbr: item.impactCategory.midpointImpactCategory.abbr,
 				name: item.impactCategory.midpointImpactCategory.name,
+				impactCategory: item.impactCategory.name,
+				unit: item.impactCategory.midpointImpactCategory.unit.name,
 				value: item.value,
 			})),
 		}));
 	}, [compareProjects]);
+
+	const projectCompareByImpactCategory = useMemo(() => {
+		return compareProjects.map((project, index) => {
+			return {
+				data: project.impacts.find((item) => item.impactCategory.id === selectImpactCategory?.id),
+				baseIndex: index,
+			};
+		});
+	}, [compareProjects, selectImpactCategory?.id]);
+
+	const calculateDiffValue = useMemo(() => {
+		const [value1, value2] = [
+			projectCompareByImpactCategory[0]?.data?.value as number,
+			projectCompareByImpactCategory[1]?.data?.value as number,
+		];
+
+		const isBaseIndexZero = baseIndex === 0;
+
+		if (value1 === 0 && value2 === 0) {
+			return {
+				value: null,
+				isReduce: null,
+			};
+		}
+
+		// Calculate the ratio and comparison based on baseIndex
+		const value = calculatePercentageDifference(value1, value2, isBaseIndexZero ? 'value1' : 'value2');
+		const isReduce = isBaseIndexZero ? value2 < value1 : value1 < value2;
+
+		return { value, isReduce };
+	}, [baseIndex, projectCompareByImpactCategory]);
+
+	console.log(calculateDiffValue.value);
+
+	const impactCategoryByProjectMethodQuery = useQuery({
+		queryKey: ['impact_categories', methodId],
+		queryFn: ({ queryKey }) => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: queryKey[1] as string }),
+		enabled: Boolean(methodId),
+	});
+
+	useEffect(() => {
+		if (impactCategoryByProjectMethodQuery.data?.data.data) {
+			setSelectImpactCategory(impactCategoryByProjectMethodQuery.data.data.data[0]);
+		}
+	}, [impactCategoryByProjectMethodQuery.data?.data.data]);
 
 	const onCompare = () => {
 		const selectedProjects = project?.projects.filter((item) => app.selectCheckbox.includes(item.id));
@@ -109,10 +167,16 @@ export default function FloatingControl() {
 			});
 			return;
 		}
-
+		setMethodId(selectedProjects[0].method.id);
 		setCompareProjects(selectedProjects);
 		setIsOpenDialog(true);
 	};
+
+	const handleSetImpactCategory = (item: Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>) => {
+		setSelectImpactCategory(item);
+	};
+
+	console.log(calculateDiffValue);
 
 	return (
 		<Dialog modal={true} open={isOpenDialog} onOpenChange={setIsOpenDialog}>
@@ -159,130 +223,254 @@ export default function FloatingControl() {
 					</div>
 				</DialogHeader>
 				<div className="flex items-center space-x-2 px-4 text-sm">
-					<div className="text-xs font-semibold">Current Method:</div>
+					<div className="text-xs font-semibold">Impact Assessment Method:</div>
 					<div className="rounded bg-[#8888881a] px-1 text-[12px] text-xs font-medium text-[#888888]">
 						ReCiPe 2016 Midpoint v1.03 (I)
 					</div>
 				</div>
-				<div className="flex items-center space-x-2 px-4 text-sm">
-					<div className="text-xs font-semibold">Current Method:</div>
+				<div className="flex min-h-[26px] items-center space-x-2 px-4 text-sm">
+					<div className="text-xs font-semibold">Impact Category:</div>
 					<DropdownMenu>
-						<DropdownMenuTrigger>Climate change</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-56">
-							<DropdownMenuItem>
-								<User />
-								<span>Profile</span>
-							</DropdownMenuItem>
+						{impactCategoryByProjectMethodQuery.isFetching ? (
+							<Skeleton className="h-[23px] w-44 rounded-sm" />
+						) : (
+							<DropdownMenuTrigger className="flex items-center space-x-2 rounded px-1 text-sm font-medium text-[#888888] duration-200 hover:bg-gray-100">
+								<span>{selectImpactCategory?.name}</span>
+								<ChevronDown size={17} />
+							</DropdownMenuTrigger>
+						)}
+
+						<DropdownMenuContent className="w-[320px]">
+							{impactCategoryByProjectMethodQuery.data?.data.data.map((item) => (
+								<DropdownMenuItem onClick={() => handleSetImpactCategory(item)} key={item.id} className="relative flex">
+									<div
+										className="mr-3"
+										dangerouslySetInnerHTML={{
+											__html: updateSVGAttributes({
+												svgString: item.iconUrl,
+												properties: {
+													color: 'black',
+													fill: 'none',
+													height: 18,
+													width: 18,
+													strokeWidth: 2,
+												},
+											}),
+										}}
+									/>
+									<span
+										className={clsx(`text-[13px]`, {
+											'font-medium': item.id === selectImpactCategory?.id,
+										})}
+									>
+										{item.name}
+									</span>
+									{item.id === selectImpactCategory?.id && <Check strokeWidth={1.5} size={17} className="absolute right-2" />}
+								</DropdownMenuItem>
+							))}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
 				<Tabs defaultValue="bar-chart" className="w-full" asChild>
-					<>
-						<div className="h-[10%] w-full">
-							<div className="flex items-center justify-center">
-								{compareProjects.map((item, index) => (
-									<div className="flex items-center justify-center" key={item.id}>
-										<div className="flex items-center space-x-2">
-											<div className={`h-[10px] w-[10px] rounded-[2px] ${index === 0 ? 'bg-[#16a34a]' : 'bg-[#3b82f6]'}`}></div>
-											<div className="text-sm font-medium">{item.name}</div>
+					<TooltipProvider delayDuration={100}>
+						<>
+							<div className="h-[10%] w-full">
+								<div className="flex items-center justify-center">
+									{compareProjects.map((item, index) => (
+										<div className="flex items-center justify-center" key={item.id}>
+											{index === 0 &&
+												(baseIndex === 0 ? (
+													<div className="mr-3 rounded bg-green-300 px-1.5 py-0.5 text-xs text-green-900">Original</div>
+												) : (
+													<div className="mr-3 rounded bg-green-600 px-1.5 py-0.5 text-xs text-white">Comparison</div>
+												))}
+
+											<div className="flex items-center space-x-2">
+												<div
+													className={`h-[10px] w-[10px] rounded-[2px] ${index === 0 ? 'bg-[#16a34a]' : 'bg-[#3b82f6]'}`}
+												></div>
+												<div className="text-[15px] font-medium">{item.name}</div>
+											</div>
+
+											{index === 1 &&
+												(baseIndex === 1 ? (
+													<div className="ml-3 rounded bg-green-300 px-1.5 py-0.5 text-xs text-green-900">Original</div>
+												) : (
+													<div className="ml-3 rounded bg-green-600 px-1.5 py-0.5 text-xs text-white">Comparison</div>
+												))}
+											{compareProjects.length - 1 !== index && <div className="text-gray-00 mx-5 text-xs font-semibold">VS</div>}
 										</div>
-										{compareProjects.length - 1 !== index && <div className="mx-5 text-xs font-semibold text-gray-400">VS</div>}
-									</div>
-								))}
+									))}
+								</div>
+
+								<TabsList className="mx-auto w-full rounded-none bg-white focus:ring-0">
+									<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
+									<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
+								</TabsList>
 							</div>
+							<div className="mt-1 h-full overflow-scroll pt-2">
+								<TabsContent value="bar-chart" asChild className="flex h-[95%] flex-col overflow-y-scroll">
+									<>
+										<div className="z-0 mx-5 flex justify-between">
+											{Array(2)
+												.fill(0)
+												.map((_, index) => (
+													<button
+														onClick={() => setBasedIndex(index)}
+														className={clsx(
+															`translate-y-1/2 rounded-tl-md rounded-tr-md bg-green-600 px-2 py-1 text-sm font-medium text-white shadow transition-all hover:translate-y-0`,
+															{
+																'pointer-events-none invisible cursor-none': baseIndex === index,
+																visible: baseIndex !== index,
+															}
+														)}
+														key={index}
+													>
+														Set Base
+													</button>
+												))}
+										</div>
+										<div className="relative flex h-full justify-between px-2.5">
+											{projectCompareOnChart.map((item, index) => (
+												<ChartContainer
+													className="h-full w-[49.5%] rounded-tl-xl rounded-tr-xl border border-b-0 bg-white p-2 shadow"
+													config={chartConfig}
+													key={item.projectId}
+												>
+													<BarChart barSize={45} barCategoryGap={20} barGap={20} data={item.chartData} layout="vertical">
+														<CartesianGrid vertical horizontal={false} />
 
-							<TabsList className="mx-auto w-full rounded-none bg-white focus:ring-0">
-								<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
-								<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
-							</TabsList>
-						</div>
-						<div className="mt-1 h-full overflow-scroll pt-2">
-							<TabsContent value="bar-chart" asChild className="flex h-[90%] flex-col overflow-y-scroll">
-								<>
-									<div className="relative flex h-full justify-between px-2">
-										{projectCompareOnChart.map((item, index) => (
-											<ChartContainer
-												className="h-full w-[49.5%] rounded-tl-xl rounded-tr-xl border border-b-0 p-2 shadow"
-												config={chartConfig}
-												key={item.projectId}
-											>
-												<BarChart barSize={45} barCategoryGap={20} barGap={20} data={item.chartData} layout="vertical">
-													<CartesianGrid vertical horizontal={false} />
-
-													<XAxis type="number" dataKey="value" hide />
-													<YAxis
-														dataKey="abbr"
-														type="category"
-														tickLine={false}
-														tickMargin={10}
-														axisLine={false}
-														tickSize={6}
-														tickFormatter={(value) => value.slice(0, 3)}
-													/>
-													<ChartTooltip
-														cursor={false}
-														content={({ payload }) => {
-															if (!payload || payload.length === 0) return null;
-															const data = payload[0].payload;
-															return (
-																<div className="flex rounded-lg border border-border/50 bg-white px-[10px] py-[6px] text-xs shadow-xl">
-																	<div className="mr-5 flex items-center space-x-2">
+														<XAxis type="number" dataKey="value" hide />
+														<YAxis
+															dataKey="abbr"
+															type="category"
+															tickLine={false}
+															tickMargin={10}
+															axisLine={false}
+															tickSize={6}
+															tickFormatter={(value) => value.slice(0, 3)}
+														/>
+														<ChartTooltip
+															cursor={false}
+															content={({ payload }) => {
+																if (!payload || payload.length === 0) return null;
+																const data = payload[0].payload;
+																return (
+																	<div className="flex h-full items-end space-x-2.5 rounded-lg border border-border/50 bg-white px-[10px] py-[6px] text-xs shadow-xl">
 																		<div
-																			className="h-2.5 w-2.5 rounded-[2px]"
-																			style={{ backgroundColor: `var(--color-${index === 0 ? 'first' : 'second'})` }}
+																			className="before-floating-chart-item"
+																			style={
+																				{
+																					'--before-bg-color':
+																						index === 0 ? '#16a34a' : index === 1 ? '#3b82f6' : 'transparent',
+																				} as React.CSSProperties
+																			}
 																		/>
-																		<span className="font-medium text-foreground">{data.name}</span>
+																		{/* <div
+																		className="h-full w-2.5 rounded-[2px]"
+																		style={{ backgroundColor: `var(--color-${index === 0 ? 'first' : 'second'})` }}
+																	/> */}
+																		<div className="flex flex-col">
+																			<span className="font-normal text-gray-500">{data.impactCategory}</span>
+																			<span className="font-medium text-foreground">{data.name}</span>
+																		</div>
+																		<div className="mr-2 rounded font-medium">{data.value}</div>
 																	</div>
-																	<div>{data.value}</div>
-																</div>
-															);
-														}}
-													/>
+																);
+															}}
+														/>
 
-													<Bar
-														dataKey="value"
-														fill={`var(--color-${index === 0 ? 'first' : 'second'})`}
-														strokeWidth={1}
-														radius={8}
-														activeIndex={1}
-														activeBar={({ ...props }) => {
-															return (
-																<Rectangle
-																	{...props}
-																	fillOpacity={0.8}
-																	stroke="black"
-																	strokeDasharray={4}
-																	strokeDashoffset={4}
-																/>
-															);
-														}}
-													/>
-												</BarChart>
-											</ChartContainer>
-										))}
-									</div>
-									<div className="invisible flex h-[40px]">
-										<div className="w-full bg-blue-200">total 2</div>
-										<div className="w-full bg-green-200">total </div>
-									</div>
-									<div className="absolute bottom-0 left-2 right-2 flex h-[50px] space-x-3">
-										<div className="flex w-full items-center justify-end border border-b-0 bg-white">
-											<div className="">Total</div>
-											<div className="ml-5 mr-5 font-semibold">200</div>
+														<Bar
+															dataKey="value"
+															fill={`var(--color-${index === 0 ? 'first' : 'second'})`}
+															strokeWidth={1.5}
+															radius={8}
+															activeIndex={compareProjects[0].impacts.findIndex(
+																(item) => item.impactCategory.id === selectImpactCategory?.id
+															)}
+															activeBar={({ ...props }) => {
+																return (
+																	<Rectangle
+																		{...props}
+																		fillOpacity={0.8}
+																		stroke="#1e293b"
+																		strokeDasharray={4}
+																		strokeDashoffset={4}
+																	/>
+																);
+															}}
+														/>
+													</BarChart>
+												</ChartContainer>
+											))}
 										</div>
-										<div className="flex w-full items-center justify-end border border-b-0 bg-white">
-											<div className="">Total</div>
-											<div className="mr-5 font-semibold">200</div>
+										<div className="invisible flex h-[40px]">
+											<div className="w-full bg-blue-200">total</div>
+											<div className="w-full bg-green-200">total </div>
 										</div>
-									</div>
-								</>
-							</TabsContent>
-							<TabsContent value="stacked-chart">Change your password here.</TabsContent>
-						</div>
-					</>
+										<div className="absolute bottom-0 left-2.5 right-2.5 flex h-[50px] space-x-3">
+											{projectCompareByImpactCategory.map((item, index) => (
+												<div key={index} className="flex w-full items-center justify-end border border-b-0 bg-white">
+													{impactCategoryByProjectMethodQuery.isFetching ? (
+														<div className="mr-5 flex items-start space-x-2">
+															<Skeleton className="h-[26px] w-20" />
+															<Skeleton className="h-[26px] w-32" />
+														</div>
+													) : (
+														<div className="mr-3 flex items-center space-x-4 text-gray-500">
+															<div className="">Total</div>
+															<div className="font-semibold">
+																{item.data?.value} {item.data?.impactCategory.midpointImpactCategory.unit.name}
+															</div>
+															{calculateDiffValue.isReduce !== null &&
+																calculateDiffValue.value !== null &&
+																baseIndex !== item.baseIndex && (
+																	<div className="flex items-center space-x-2">
+																		<Tooltip>
+																			<TooltipTrigger asChild>
+																				<div
+																					className={`flex items-center space-x-1 text-sm font-medium ${calculateDiffValue.isReduce ? 'text-green-600' : 'text-red-600'}`}
+																				>
+																					<div
+																						dangerouslySetInnerHTML={{
+																							__html: formatNumberExponential(calculateDiffValue.value as number),
+																						}}
+																					/>
+																					<span>%</span>
+																				</div>
+																			</TooltipTrigger>
+																			<TooltipContent className="relative bg-green-900 font-medium text-white">
+																				<p>{calculateDiffValue.value}</p>
+																			</TooltipContent>
+																		</Tooltip>
+
+																		<div
+																			className={`rounded-full p-[3px] ${calculateDiffValue.isReduce ? 'bg-green-600' : 'bg-red-600'}`}
+																		>
+																			{calculateDiffValue.isReduce ? (
+																				<ArrowDown size={15} color="white" strokeWidth={3} />
+																			) : (
+																				<ArrowUp size={15} color="white" strokeWidth={3} />
+																			)}
+																		</div>
+																	</div>
+																)}
+														</div>
+													)}
+												</div>
+											))}
+										</div>
+									</>
+								</TabsContent>
+								<TabsContent value="stacked-chart">Change your password here.</TabsContent>
+							</div>
+						</>
+					</TooltipProvider>
 				</Tabs>
 			</DialogContent>
 			<DialogOverlay className="bg-black/40 backdrop-blur-[2px]" />
 		</Dialog>
 	);
 }
+
+export default React.memo(FloatingControl);

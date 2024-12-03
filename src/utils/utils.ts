@@ -173,3 +173,40 @@ export function transformNetToTotal(data: Contributor): TransformContributor {
 
 	return transformedData;
 }
+
+export function formatNumberExponential(value: number, threshold: number = 1_000): string {
+	// Trường hợp đặc biệt: Giá trị bằng 0
+	if (value === 0) {
+		return '0';
+	}
+
+	// Trường hợp số nhỏ hơn ngưỡng và không cần ký hiệu khoa học
+	if (Math.abs(value) < threshold) {
+		// Làm tròn tối đa 2 chữ số thập phân, loại bỏ .00 nếu không cần thiết
+		return parseFloat(value.toFixed(2)).toString();
+	}
+
+	// Trường hợp số lớn hơn hoặc rất nhỏ (bao gồm cả số âm)
+	const exponent = Math.floor(Math.log10(Math.abs(value))); // Tìm số mũ
+	const base = value / Math.pow(10, exponent); // Tính phần cơ số
+
+	// Dạng ký hiệu khoa học với làm tròn đến 2 chữ số thập phân
+	return `${value > 0 ? '+' : ''}${parseFloat(base.toFixed(2))} · 10<sup>${exponent}</sup>`;
+}
+
+export function calculatePercentageDifference(value1: number, value2: number, baseValue: 'value1' | 'value2'): number {
+	// Xác định giá trị base
+	const base = baseValue === 'value1' ? value1 : value2;
+
+	// Xử lý trường hợp base bằng 0
+	if (base === 0) {
+		// Nếu base = 0 và giá trị kia khác 0, coi là thay đổi 100%
+		return 100;
+	}
+
+	// Tính chênh lệch tuyệt đối
+	const difference = Math.abs(value1 - value2);
+
+	// Tính phần trăm chênh lệch
+	return (difference / base) * 100;
+}
