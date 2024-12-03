@@ -2,7 +2,7 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
-import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
@@ -15,7 +15,7 @@ import { queryClient } from '@/queryClient';
 import { calculatePercentageDifference, formatNumberExponential, updateSVGAttributes } from '@/utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { ArrowDown, ArrowUp, ChartArea, ChartSpline, Check, ChevronDown, GitCompare, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChartSpline, Check, ChevronDown, GitCompare, X } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Bar, BarChart, CartesianGrid, Rectangle, XAxis, YAxis } from 'recharts';
@@ -29,6 +29,23 @@ const chartConfig = {
 	second: {
 		label: 'second',
 		color: '#3b82f6',
+	},
+} satisfies ChartConfig;
+
+const color = ['#4f9b90', '#d87558', '#2f4653', '#e3c576', '#e8a76d', '#ecaeb7'];
+
+const chartConfigs = {
+	desktop: {
+		label: 'Desktop',
+		color: 'hsl(var(--chart-1))',
+	},
+	mobile: {
+		label: 'Mobile',
+		color: 'hsl(var(--chart-2))',
+	},
+	phone: {
+		label: 'Phone',
+		color: '#cecece',
 	},
 } satisfies ChartConfig;
 
@@ -96,7 +113,24 @@ function FloatingControl() {
 		return { value, isReduce };
 	}, [baseIndex, projectCompareByImpactCategory]);
 
-	console.log(calculateDiffValue.value);
+	const lifeCycleStageContributeByImpactCategory = useMemo(() => {
+		return compareProjects.map((project) => {
+			const object: { [key: string]: number | string } = {
+				projectName: project.name,
+			};
+			const lifeStage = project.lifeCycleStageBreakdown?.find((item) => item.id === selectImpactCategory?.id)?.lifeCycleStage;
+
+			if (lifeStage) {
+				lifeStage.forEach((item) => {
+					object[item.name] = item.percent * 100;
+				});
+			}
+
+			return object;
+		});
+	}, [compareProjects, selectImpactCategory]);
+
+	console.log(lifeCycleStageContributeByImpactCategory);
 
 	const impactCategoryByProjectMethodQuery = useQuery({
 		queryKey: ['impact_categories', methodId],
@@ -176,8 +210,6 @@ function FloatingControl() {
 		setSelectImpactCategory(item);
 	};
 
-	console.log(calculateDiffValue);
-
 	return (
 		<Dialog modal={true} open={isOpenDialog} onOpenChange={setIsOpenDialog}>
 			<div
@@ -208,73 +240,82 @@ function FloatingControl() {
 					</div>
 				</div>
 			</div>
-			<DialogContent className="flex h-[90%] max-w-[75%] flex-col overflow-hidden p-0 shadow-2xl">
-				<DialogHeader className="h-fit space-y-1">
-					<div className="flex items-center space-x-2 border-b px-4 pb-2 pt-4 text-sm font-normal">
-						<ChartSpline size={16} color="#76767f" />
-						<span className="text-[#76767f]">Analysis</span>
+			<Tabs defaultValue="bar-chart" className="w-full" asChild>
+				<DialogContent className="flex h-[90%] max-w-[80%] flex-col overflow-hidden p-0 shadow-2xl">
+					<DialogHeader className="flex h-fit space-y-1">
+						<div>
+							<div className="flex items-center space-x-2 border-b px-4 pb-2 pt-4 text-sm font-normal">
+								<ChartSpline size={16} color="#76767f" />
+								<span className="text-[#76767f]">Analysis</span>
+							</div>
+							<div className="flex w-full items-center">
+								<div className="w-full space-y-1 px-4 pt-2">
+									<DialogTitle className="text-2xl">Compare LCIA result</DialogTitle>
+									<DialogDescription className="text-sm">
+										Review and analyze the selected LCIA results. Ensure all data is accurate and consistent before proceeding, as
+										changes cannot be reverted
+									</DialogDescription>
+								</div>
+								<TabsList className="mr-3 mt-2 w-fit focus:ring-0">
+									<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
+									<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
+									<TabsTrigger value="stacked-chart2">Pie Chart</TabsTrigger>
+								</TabsList>
+							</div>
+						</div>
+					</DialogHeader>
+					<div className="flex items-center space-x-2 px-4 text-sm">
+						<div className="text-xs font-semibold">Impact Assessment Method:</div>
+						<div className="rounded bg-[#8888881a] px-1 text-[12px] text-xs font-medium text-[#888888]">
+							ReCiPe 2016 Midpoint v1.03 (I)
+						</div>
 					</div>
-					<div className="space-y-1 px-4 pt-2">
-						<DialogTitle className="text-2xl">Compare LCIA result</DialogTitle>
-						<DialogDescription className="text-sm">
-							Review and analyze the selected LCIA results. Ensure all data is accurate and consistent before proceeding, as changes
-							cannot be reverted
-						</DialogDescription>
-					</div>
-				</DialogHeader>
-				<div className="flex items-center space-x-2 px-4 text-sm">
-					<div className="text-xs font-semibold">Impact Assessment Method:</div>
-					<div className="rounded bg-[#8888881a] px-1 text-[12px] text-xs font-medium text-[#888888]">
-						ReCiPe 2016 Midpoint v1.03 (I)
-					</div>
-				</div>
-				<div className="flex min-h-[26px] items-center space-x-2 px-4 text-sm">
-					<div className="text-xs font-semibold">Impact Category:</div>
-					<DropdownMenu>
-						{impactCategoryByProjectMethodQuery.isFetching ? (
-							<Skeleton className="h-[23px] w-44 rounded-sm" />
-						) : (
-							<DropdownMenuTrigger className="flex items-center space-x-2 rounded px-1 text-sm font-medium text-[#888888] duration-200 hover:bg-gray-100">
-								<span>{selectImpactCategory?.name}</span>
-								<ChevronDown size={17} />
-							</DropdownMenuTrigger>
-						)}
+					<div className="flex min-h-[26px] items-center space-x-2 px-4 text-sm">
+						<div className="text-xs font-semibold">Impact Category:</div>
+						<DropdownMenu>
+							{impactCategoryByProjectMethodQuery.isFetching ? (
+								<Skeleton className="h-[23px] w-44 rounded-sm" />
+							) : (
+								<DropdownMenuTrigger className="flex items-center space-x-2 rounded px-1 text-sm font-medium text-[#888888] duration-200 hover:bg-gray-100">
+									<span>{selectImpactCategory?.name}</span>
+									<ChevronDown size={17} />
+								</DropdownMenuTrigger>
+							)}
 
-						<DropdownMenuContent className="w-[320px]">
-							{impactCategoryByProjectMethodQuery.data?.data.data.map((item) => (
-								<DropdownMenuItem onClick={() => handleSetImpactCategory(item)} key={item.id} className="relative flex">
-									<div
-										className="mr-3"
-										dangerouslySetInnerHTML={{
-											__html: updateSVGAttributes({
-												svgString: item.iconUrl,
-												properties: {
-													color: 'black',
-													fill: 'none',
-													height: 18,
-													width: 18,
-													strokeWidth: 2,
-												},
-											}),
-										}}
-									/>
-									<span
-										className={clsx(`text-[13px]`, {
-											'font-medium': item.id === selectImpactCategory?.id,
-										})}
-									>
-										{item.name}
-									</span>
-									{item.id === selectImpactCategory?.id && <Check strokeWidth={1.5} size={17} className="absolute right-2" />}
-								</DropdownMenuItem>
-							))}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-				<Tabs defaultValue="bar-chart" className="w-full" asChild>
+							<DropdownMenuContent className="w-[320px]">
+								{impactCategoryByProjectMethodQuery.data?.data.data.map((item) => (
+									<DropdownMenuItem onClick={() => handleSetImpactCategory(item)} key={item.id} className="relative flex">
+										<div
+											className="mr-3"
+											dangerouslySetInnerHTML={{
+												__html: updateSVGAttributes({
+													svgString: item.iconUrl,
+													properties: {
+														color: 'black',
+														fill: 'none',
+														height: 18,
+														width: 18,
+														strokeWidth: 2,
+													},
+												}),
+											}}
+										/>
+										<span
+											className={clsx(`text-[13px]`, {
+												'font-medium': item.id === selectImpactCategory?.id,
+											})}
+										>
+											{item.name}
+										</span>
+										{item.id === selectImpactCategory?.id && <Check strokeWidth={1.5} size={17} className="absolute right-2" />}
+									</DropdownMenuItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 					<TooltipProvider delayDuration={100}>
 						<>
-							<div className="h-[10%] w-full">
+							<div className="h-[3.5%] w-full">
 								<div className="flex items-center justify-center">
 									{compareProjects.map((item, index) => (
 										<div className="flex items-center justify-center" key={item.id}>
@@ -302,15 +343,22 @@ function FloatingControl() {
 										</div>
 									))}
 								</div>
-
-								<TabsList className="mx-auto w-full rounded-none bg-white focus:ring-0">
-									<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
-									<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
-								</TabsList>
 							</div>
-							<div className="mt-1 h-full overflow-scroll pt-2">
-								<TabsContent value="bar-chart" asChild className="flex h-[95%] flex-col overflow-y-scroll">
+							<div className="h-full overflow-scroll">
+								{/* Bar Chart */}
+								<TabsContent value="bar-chart" asChild className="flex h-auto flex-col overflow-y-scroll">
 									<>
+										{impactCategoryByProjectMethodQuery.isFetching ? (
+											<Skeleton className="mx-auto h-[30px] min-h-[35px] w-[500px]" />
+										) : (
+											<div className="min-h-[35px] text-center text-lg font-semibold">
+												Comparison of Environmental Impact on
+												<span className="ml-2 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-xl font-bold text-transparent">
+													{selectImpactCategory?.name}
+												</span>
+											</div>
+										)}
+
 										<div className="z-0 mx-5 flex justify-between">
 											{Array(2)
 												.fill(0)
@@ -333,7 +381,9 @@ function FloatingControl() {
 										<div className="relative flex h-full justify-between px-2.5">
 											{projectCompareOnChart.map((item, index) => (
 												<ChartContainer
-													className="h-full w-[49.5%] rounded-tl-xl rounded-tr-xl border border-b-0 bg-white p-2 shadow"
+													className={clsx(
+														`h-full w-[49.5%] rounded-tl-2xl rounded-tr-2xl border border-b-0 bg-white p-2 shadow`
+													)}
 													config={chartConfig}
 													key={item.projectId}
 												>
@@ -462,12 +512,46 @@ function FloatingControl() {
 										</div>
 									</>
 								</TabsContent>
-								<TabsContent value="stacked-chart">Change your password here.</TabsContent>
+
+								{/* Stackle Chart */}
+								<TabsContent className="h-full" value="stacked-chart">
+									{impactCategoryByProjectMethodQuery.isFetching ? (
+										<Skeleton className="mx-auto h-[30px] min-h-[35px] w-[500px]" />
+									) : (
+										<div className="min-h-[35px] text-center text-lg font-semibold">
+											Contribution of Life Cycle Stages to
+											<span className="ml-2 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-xl font-bold text-transparent">
+												{selectImpactCategory?.name}
+											</span>
+										</div>
+									)}
+									<div className="mx-auto h-full w-[80%]">
+										<ChartContainer config={chartConfigs}>
+											<BarChart accessibilityLayer data={lifeCycleStageContributeByImpactCategory}>
+												<CartesianGrid vertical={false} />
+												<XAxis dataKey="projectName" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
+												<ChartTooltip content={<ChartTooltipContent hideLabel />} />
+												{lifeCycleStageContributeByImpactCategory?.length > 0 &&
+													Object.keys(lifeCycleStageContributeByImpactCategory[0])
+														.filter((item) => item !== 'projectName')
+														.map((item, index, array) => {
+															if (index === 0) {
+																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[0, 0, 4, 4]} />;
+															} else if (index === array.length - 1) {
+																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[0, 0, 0, 0]} />;
+															} else {
+																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[4, 4, 0, 0]} />;
+															}
+														})}
+											</BarChart>
+										</ChartContainer>
+									</div>
+								</TabsContent>
 							</div>
 						</>
 					</TooltipProvider>
-				</Tabs>
-			</DialogContent>
+				</DialogContent>
+			</Tabs>
 			<DialogOverlay className="bg-black/40 backdrop-blur-[2px]" />
 		</Dialog>
 	);

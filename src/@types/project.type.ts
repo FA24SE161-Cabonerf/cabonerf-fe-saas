@@ -1,6 +1,7 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
+import { LifeCycleStages } from '@/@types/lifeCycleStage.type';
 
 interface Workspace {
 	id: string;
@@ -30,6 +31,7 @@ interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = unknown>
 	impacts: IData;
 	processes: PData;
 	connectors: CData;
+	lifeCycleStageBreakdown?: LifeCycleStageBreakdown[];
 	favorite: boolean;
 }
 
@@ -72,6 +74,12 @@ type Insensity = {
 	unit: string;
 	description: string;
 	icon: string;
+};
+
+type LifeCycleStageBreakdown = {
+	id: string;
+	name: string;
+	lifeCycleStage: (Pick<LifeCycleStages, 'name' | 'id'> & { percent: number })[];
 };
 
 export type {
