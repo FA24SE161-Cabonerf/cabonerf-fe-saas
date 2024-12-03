@@ -58,6 +58,8 @@ export default {
 					5: 'hsl(var(--chart-5))',
 				},
 				'primary-green': '#00BF63',
+				'custom-green': '#16a34a',
+				'custom-blue': '#3b82f6',
 			},
 			keyframes: {
 				'accordion-down': {

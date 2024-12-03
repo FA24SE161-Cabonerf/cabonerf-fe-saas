@@ -79,6 +79,12 @@
 		@apply after:absolute after:right-0 after:top-1/2 after:h-[60%] after:w-[5px] after:-translate-y-1/2 after:rounded-bl after:rounded-tl after:content-[''];
 	}
 
+	.before-floating-chart-item {
+		@apply before:absolute before:left-2 before:top-1/2 before:h-[60%] before:w-[5px] before:-translate-y-1/2 before:rounded before:content-[''];
+		--before-bg-color: transparent; /* Default color */
+		@apply before:bg-[var(--before-bg-color)];
+	}
+
 	.grainy-effect {
 		position: relative;
 	}
