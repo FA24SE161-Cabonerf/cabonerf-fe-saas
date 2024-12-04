@@ -210,3 +210,8 @@ export function calculatePercentageDifference(value1: number, value2: number, ba
 	// Tính phần trăm chênh lệch
 	return (difference / base) * 100;
 }
+
+export function formatPercentage2(value: number, decimalPlaces: number = 1): string {
+	const rounded = value.toFixed(decimalPlaces);
+	return `${rounded}%`;
+}

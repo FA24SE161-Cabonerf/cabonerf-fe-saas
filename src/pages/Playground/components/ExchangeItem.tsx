@@ -42,21 +42,20 @@ function ExchangeItem({ data, isInput }: Props) {
 		const currentValue = Number(valueExchange);
 		const currentUnit = unitExchange;
 
-		// Kiểm tra nếu giá trị hoặc đơn vị đã thay đổi từ base
 		const isValueChanged = data.value !== currentValue;
 		const isUnitChanged = data.unit.id !== currentUnit.id;
 
-		// Đặt isUpdate thành true nếu một trong hai hoặc cả hai thay đổi
 		setIsUpdate(isValueChanged || isUnitChanged);
 	}, [data.unit.id, data.value, unitExchange, valueExchange]);
 
 	const handleChangeValueExchange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
+
 		const newValue = value === '' ? '0' : value;
 
 		const sanitizedValue = newValue.replace(/^0+(?=\d)/, '');
 
-		if (/^\d+(\.\d+)?$/.test(sanitizedValue) || sanitizedValue === '0') {
+		if (/^\d*(\.\d*)?$/.test(sanitizedValue)) {
 			setValueExchange(sanitizedValue);
 		}
 	};

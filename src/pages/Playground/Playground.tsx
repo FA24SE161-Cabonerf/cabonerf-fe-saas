@@ -36,7 +36,7 @@ import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useStat
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { Impact } from '@/@types/project.type';
+import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import CustomSuccessSooner from '@/components/CustomSooner';
 import WarningSooner from '@/components/WarningSooner';
@@ -135,7 +135,6 @@ export default function Playground() {
 		socket.auth = {
 			user_id: app.userProfile?.id,
 		};
-		console.log(socket.auth);
 		socket.connect();
 
 		socket.on('gateway:delete-process-success', (data) => {
@@ -306,7 +305,11 @@ export default function Playground() {
 								<PlaygroundToolBoxV2 />
 
 								<Panel position="bottom-center">
-									<PlaygroundControls impacts={project?.impacts as Impact[]} projectId={project?.id as string} />
+									<PlaygroundControls
+										lifeCycleStageBreakdown={project?.lifeCycleStageBreakdown as LifeCycleStageBreakdown[]}
+										impacts={project?.impacts as Impact[]}
+										projectId={project?.id as string}
+									/>
 
 									{isLoading ? (
 										<div className="absolute -top-2 left-1/2 flex h-[50px] -translate-x-1/2 -translate-y-full scale-100 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-100 shadow-lg transition-all duration-300 ease-out">

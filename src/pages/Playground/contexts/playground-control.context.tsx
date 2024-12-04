@@ -1,6 +1,6 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
-import { Contributor, Impact, TransformContributor } from '@/@types/project.type';
+import { Contributor, Impact, LifeCycleStageBreakdown, TransformContributor } from '@/@types/project.type';
 import { transformProcessesv2 } from '@/utils/utils';
 import { createContext, Dispatch, useMemo, useReducer } from 'react';
 
@@ -10,6 +10,7 @@ type State = {
 	triggerIds: string[];
 	impacts: Impact[] | null;
 	contributionBreakdown: Contributor | null;
+	lifeCycleStageBreakdown: LifeCycleStageBreakdown[] | null;
 	processes: CabonerfNodeData[] | null;
 	edgeContributions: TransformContributor | null;
 };
@@ -35,6 +36,7 @@ type Action =
 				contributionBreakdown: Contributor;
 				impacts: Impact[];
 				processes: CabonerfNodeData[];
+				lifeCycleStageBreakdown: LifeCycleStageBreakdown[];
 			};
 	  };
 
@@ -52,6 +54,7 @@ const initialPlaygroundControlContext: PlaygroundControlContext = {
 		impacts: null,
 		processes: [],
 		edgeContributions: null,
+		lifeCycleStageBreakdown: null,
 	},
 	playgroundControlDispatch: () => {},
 };
@@ -87,6 +90,7 @@ const reducer = (state: State, action: Action) => {
 				impacts: action.payload.impacts,
 				processes: action.payload.processes,
 				edgeContributions: transformProcessesv2(action.payload.contributionBreakdown),
+				lifeCycleStageBreakdown: action.payload.lifeCycleStageBreakdown,
 			};
 		}
 
@@ -104,6 +108,7 @@ export default function PlaygroundControlContextProvider({ children }: Props) {
 		impacts: initialPlaygroundControlContext.playgroundControlState.impacts,
 		processes: initialPlaygroundControlContext.playgroundControlState.processes,
 		edgeContributions: initialPlaygroundControlContext.playgroundControlState.edgeContributions,
+		lifeCycleStageBreakdown: initialPlaygroundControlContext.playgroundControlState.lifeCycleStageBreakdown,
 	});
 
 	const context = useMemo(

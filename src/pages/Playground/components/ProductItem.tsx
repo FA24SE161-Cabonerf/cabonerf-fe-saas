@@ -50,11 +50,12 @@ export default function ProductItem({ data }: Props) {
 
 	const handleChangeValueExchange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
+
 		const newValue = value === '' ? '0' : value;
 
 		const sanitizedValue = newValue.replace(/^0+(?=\d)/, '');
 
-		if (/^\d+(\.\d+)?$/.test(sanitizedValue) || sanitizedValue === '0') {
+		if (/^\d*(\.\d*)?$/.test(sanitizedValue)) {
 			setValueExchange(sanitizedValue);
 		}
 	};

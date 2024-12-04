@@ -1,6 +1,7 @@
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
-import { Impact, Insensity } from '@/@types/project.type';
+import { Impact, Insensity, LifeCycleStageBreakdown } from '@/@types/project.type';
 import ContributionBreakdownView from '@/pages/Playground/components/PlaygroundControl/ContributionBreakdownView';
+import ContributionLifeStageView from '@/pages/Playground/components/PlaygroundControl/ContributionLifeStageView';
 import ImpactAssessmentView from '@/pages/Playground/components/PlaygroundControl/ImpactAssessmentView';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { useContext } from 'react';
@@ -16,9 +17,10 @@ type Props = {
 	impacts: Impact[];
 	contributionBreakdown?: TransformContributor;
 	compareWorlds?: Insensity[];
+	lifeCycleStageBreakdown: LifeCycleStageBreakdown[];
 };
 
-export default function PlaygroundControlMenu({ impacts, contributionBreakdown }: Props) {
+export default function PlaygroundControlMenu({ impacts, contributionBreakdown, lifeCycleStageBreakdown }: Props) {
 	const { playgroundControlState, playgroundControlDispatch } = useContext(PlaygroundControlContext);
 
 	const handleTriggerMaximize = () => playgroundControlDispatch({ type: PlaygroundControlDispatch.TRIGGER_MINIMIZE });
@@ -29,6 +31,8 @@ export default function PlaygroundControlMenu({ impacts, contributionBreakdown }
 				return <ImpactAssessmentView impacts={impacts} />;
 			case '2':
 				return <ContributionBreakdownView data={contributionBreakdown as TransformContributor} />;
+			case '4':
+				return <ContributionLifeStageView lifeCycleStageBreakdown={lifeCycleStageBreakdown} />;
 			default:
 				break;
 		}
