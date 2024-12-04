@@ -130,8 +130,6 @@ function FloatingControl() {
 		});
 	}, [compareProjects, selectImpactCategory]);
 
-	console.log(lifeCycleStageContributeByImpactCategory);
-
 	const impactCategoryByProjectMethodQuery = useQuery({
 		queryKey: ['impact_categories', methodId],
 		queryFn: ({ queryKey }) => ImpactCategoryApis.prototype.getImpactCategoriesByImpactMethodID({ id: queryKey[1] as string }),
@@ -218,7 +216,7 @@ function FloatingControl() {
 					'translate-y-0 opacity-100': length > 0,
 				})}
 			>
-				<div className="flex w-[550px] rounded-[14px] border bg-white px-3 py-1.5 text-xs shadow-lg">
+				<div className="flex w-[480px] rounded-[14px] border bg-white px-3 py-1.5 text-xs shadow-lg">
 					<div className="flex w-1/2 items-center">
 						<Check className="mr-3 rounded-md border bg-black p-1" stroke="white" size={26} />
 						<span className="font-medium">
@@ -535,11 +533,17 @@ function FloatingControl() {
 														.filter((item) => item !== 'projectName')
 														.map((item, index, array) => {
 															if (index === 0) {
-																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[0, 0, 4, 4]} />;
+																return (
+																	<Bar dataKey={item} key={index} stackId="a" fill={color[index]} radius={[0, 0, 4, 4]} />
+																);
 															} else if (index === array.length - 1) {
-																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[0, 0, 0, 0]} />;
+																return (
+																	<Bar dataKey={item} key={index} stackId="a" fill={color[index]} radius={[0, 0, 0, 0]} />
+																);
 															} else {
-																return <Bar dataKey={item} stackId="a" fill={color[index]} radius={[4, 4, 0, 0]} />;
+																return (
+																	<Bar dataKey={item} key={index} stackId="a" fill={color[index]} radius={[4, 4, 0, 0]} />
+																);
 															}
 														})}
 											</BarChart>

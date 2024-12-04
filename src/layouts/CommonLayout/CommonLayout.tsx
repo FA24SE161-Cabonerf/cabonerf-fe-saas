@@ -3,6 +3,7 @@ import OutLookIcon from '@/common/icons/OutLookIcon';
 import { Badge } from '@/components/ui/badge';
 import { AppContext } from '@/contexts/app.context';
 import MainHeader from '@/layouts/CommonLayout/components/MainHeader';
+import DashboardProject from '@/pages/Dashboard/components/DashboardProject';
 import FloatingControl from '@/pages/Dashboard/components/FloatingControl';
 import { getTokenFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
 import { getPayload } from '@/utils/utils';
@@ -67,6 +68,7 @@ export default function CommonLayout({ content, sidebar }: tProps) {
 					{/* Main content */}
 					<div className="relative h-full w-full overflow-scroll rounded-[16px] border-[1px] border-gray-200 bg-white shadow">
 						{content}
+						<DashboardProject />
 						<FloatingControl />
 					</div>
 				</div>

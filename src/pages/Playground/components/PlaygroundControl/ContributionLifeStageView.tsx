@@ -50,7 +50,7 @@ export default function ContributionLifeStageView({ lifeCycleStageBreakdown }: P
 				{Boolean(contributionLifeStageData) &&
 					contributionLifeStageData?.lifeCycleStage.map((item) => (
 						<div key={item.id} className="flex w-full items-center gap-2">
-							<div className="relative h-[40px] w-[90%] overflow-hidden rounded-md outline-dashed outline-[1px] outline-gray-200">
+							<div className="relative h-[40px] w-[90%] overflow-hidden rounded-xl outline-dashed outline-[1px] outline-gray-200">
 								<div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 items-center space-x-2 text-sm font-medium">
 									<div
 										dangerouslySetInnerHTML={{

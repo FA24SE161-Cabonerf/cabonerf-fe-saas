@@ -1,6 +1,9 @@
 import { eDispatchType } from '@/@types/dispatch.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
+import DashboardIcon from '@/common/icons/DashboardIcon';
+import DocumentIcon from '@/common/icons/DocumentIcon';
+import FavoriteIcon from '@/common/icons/FavoriteIcon';
 import MyAvatar from '@/components/MyAvatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -8,14 +11,18 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, GalleryThumbnails, Heart, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ArrowUpRight, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import React, { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -29,21 +36,6 @@ function ItemProject({ item }: Props) {
 
 	const navigate = useNavigate();
 	const { app, dispatch } = useContext(AppContext);
-
-	const onPreview = () => {
-		dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: item });
-	};
-
-	const clearPreview = () => {
-		dispatch({ type: eDispatchType.CLEAR_PROJECT_PREVIEW });
-	};
-
-	const togglePreview = () => {
-		if (app.previewProject?.id === item.id) {
-			return clearPreview();
-		}
-		return onPreview();
-	};
 
 	const deleteProjectMutate = useMutation({
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
@@ -147,23 +139,41 @@ function ItemProject({ item }: Props) {
 					<DropdownMenuContent className="w-[170px] rounded-xl border-[0.5px] p-0 shadow">
 						<div className="px-1 pb-0.5 pt-1">
 							<DropdownMenuItem
-								className="flex items-center justify-start space-x-2 text-sm"
+								className="flex items-center justify-start space-x-3 text-sm"
 								onClick={() => navigate(`/playground/${item.id}`)}
 							>
 								<ArrowUpRight size={18} strokeWidth={2} />
 								<span>Open</span>
 							</DropdownMenuItem>
-							<DropdownMenuItem className="flex items-center justify-start space-x-2 text-sm" onClick={togglePreview}>
-								<GalleryThumbnails size={18} strokeWidth={2} />
-								<span>Preview LCA</span>
+
+							<DropdownMenuItem className="flex items-center justify-start space-x-3 text-sm">
+								<DashboardIcon />
+								<span>Dashboard</span>
 							</DropdownMenuItem>
-							<DropdownMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-2 text-sm">
-								<Heart
-									size={18}
-									strokeWidth={2}
-									fill={item.favorite ? '#ef4444' : 'none'}
-									stroke={item.favorite ? '#ef4444' : 'black'}
-								/>
+
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger>
+									<div className="flex items-center justify-start space-x-3 text-sm">
+										<DocumentIcon />
+										<span>Reports</span>
+									</div>
+								</DropdownMenuSubTrigger>
+
+								<DropdownMenuPortal>
+									<DropdownMenuSubContent>
+										<div className="px-2 text-sm font-medium">Reports</div>
+										<DropdownMenuSeparator />
+
+										<DropdownMenuItem className="flex items-center space-x-3">
+											<Plus size={18} />
+											<span>Create</span>
+										</DropdownMenuItem>
+									</DropdownMenuSubContent>
+								</DropdownMenuPortal>
+							</DropdownMenuSub>
+
+							<DropdownMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-3 text-sm">
+								<FavoriteIcon fill={item.favorite ? '#ef4444' : 'none'} color={item.favorite ? '#ef4444' : 'none'} />
 
 								<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
 							</DropdownMenuItem>
@@ -171,7 +181,7 @@ function ItemProject({ item }: Props) {
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							disabled={deleteProjectMutate.isPending}
-							className="m-1 flex items-center justify-start space-x-2 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
+							className="m-1 flex items-center justify-start space-x-3 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
 							onClick={() => onDeleteProject(item.id)}
 						>
 							<Trash2 size={18} strokeWidth={2} />

@@ -1,7 +1,6 @@
 import { eDispatchType } from '@/@types/dispatch.type';
 import { OrganizeApis } from '@/apis/organiza.apis';
 import ProjectApis from '@/apis/project.apis';
-import PreviewProject from '@/components/PreviewProject';
 import { Button } from '@/components/ui/button';
 import TAB_TITLES from '@/constants/tab.titles';
 import { AppContext } from '@/contexts/app.context';
@@ -138,8 +137,6 @@ export default function DashboardPage() {
 						<TableProject isPending={isPending} data={projects?.projects ?? []} />
 					)}
 				</div>
-
-				<PreviewProject />
 			</div>
 			{/* End Table */}
 		</motion.div>
