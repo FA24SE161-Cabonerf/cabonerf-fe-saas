@@ -1,5 +1,7 @@
+import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import { LifeCycleStageBreakdown } from '@/@types/project.type';
 import ContributionLifeStage from '@/common/icons/ContributionLifeStage';
+import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { formatPercentage2, updateSVGAttributes } from '@/utils/utils';
 import { Info } from 'lucide-react';
@@ -13,6 +15,10 @@ export default function ContributionLifeStageView({ lifeCycleStageBreakdown }: P
 	const {
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
+
+	const { playgroundControlDispatch } = useContext(PlaygroundControlContext);
+
+	const handleMinimize = () => playgroundControlDispatch({ type: PlaygroundControlDispatch.TRIGGER_MINIMIZE });
 
 	const contributionLifeStageData = useMemo(() => {
 		const data = lifeCycleStageBreakdown.find((item) => item.id === impactCategory?.id);
@@ -36,7 +42,7 @@ export default function ContributionLifeStageView({ lifeCycleStageBreakdown }: P
 					<span className="text-base font-semibold">Contribution Life Cycle Stage Result</span>
 					<Info size={17} fill="#aeaeae" color="#fff" />
 				</div>
-				<button className="cursor-pointer rounded px-2 py-1.5 duration-200 hover:bg-gray-100">
+				<button onClick={handleMinimize} className="cursor-pointer rounded px-2 py-1.5 duration-200 hover:bg-gray-100">
 					<div className="h-[3px] w-[15px] rounded-full bg-black" />
 				</button>
 			</div>

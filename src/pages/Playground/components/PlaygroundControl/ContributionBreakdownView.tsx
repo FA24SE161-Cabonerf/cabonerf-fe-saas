@@ -167,7 +167,7 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 	const handleMinimize = () => playgroundControlDispatch({ type: PlaygroundControlDispatch.TRIGGER_MINIMIZE });
 
 	return (
-		<div className="h-[500px] w-[700px] overflow-scroll pb-3">
+		<div className="h-auto w-[700px] overflow-scroll pb-3">
 			<div className="sticky left-0 right-0 top-0 z-50 flex items-center justify-between border-[0.5px] border-b bg-white px-4 py-3">
 				<div className="flex items-center space-x-2">
 					<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
