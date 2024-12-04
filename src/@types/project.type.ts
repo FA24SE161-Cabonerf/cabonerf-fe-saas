@@ -65,6 +65,7 @@ type GetProjectListResponse = Omit<Project<Impact[]>, 'processes' | 'connectors'
 	modifiedAt: string;
 	owner: Owner;
 	workspace: Workspace;
+	intensity: Insensity[];
 };
 
 type Insensity = {

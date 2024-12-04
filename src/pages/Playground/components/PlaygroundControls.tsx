@@ -1,11 +1,11 @@
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
-import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
 import ContributionLifeStage from '@/common/icons/ContributionLifeStage';
 import ImpactResult from '@/common/icons/ImpactResult';
 import ErrorSooner from '@/components/ErrorSooner';
+import SuccessSooner from '@/components/SuccessSooner';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import ControlItem from '@/pages/Playground/components/ControlItem';
@@ -74,7 +74,13 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 							},
 						});
 
-						console.log(data.data.data.lifeCycleStageBreakdown);
+						toast(<SuccessSooner message="Calculation completed successfully!" />, {
+							className: 'rounded-2xl p-2 w-[350px]',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
 
 						reactflow.setNodes((nodes) => {
 							return nodes.map((node) => {
@@ -99,7 +105,7 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
 							className: 'rounded-2xl p-1.5 ',
 							style: {
-								border: `1px solid #eecbc2`,
+								border: `1px solid #dedede`,
 								backgroundColor: `#fff`,
 							},
 						});
@@ -204,19 +210,6 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 						})}
 					>
 						<ContributeResult />
-					</PlaygroundControlTrigger>
-
-					{/* Compare Assessment to world */}
-					<PlaygroundControlTrigger
-						isOpenTooltip={Boolean(contributionBreakdown) === false}
-						disabled={contributionBreakdown === null ? true : false}
-						id="3"
-						className={clsx(`rounded-[9px] p-2`, {
-							'cursor-not-allowed text-[#EFEFEF]': contributionBreakdown === null ? true : false,
-							'text-[#888888] hover:text-black': contributionBreakdown === null ? false : true,
-						})}
-					>
-						<CompareResult />
 					</PlaygroundControlTrigger>
 
 					<Separator orientation="vertical" className="h-6" color="black" />

@@ -1,16 +1,24 @@
-import { eDispatchType } from '@/@types/dispatch.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import logo from '@/assets/logos/trans-logo.png';
+import DashboardIcon from '@/common/icons/DashboardIcon';
+import DocumentIcon from '@/common/icons/DocumentIcon';
+import FavoriteIcon from '@/common/icons/FavoriteIcon';
 import MyAvatar from '@/components/MyAvatar';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
-import { AppContext } from '@/contexts/app.context';
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuSub,
+	ContextMenuSubContent,
+	ContextMenuSubTrigger,
+} from '@/components/ui/context-menu';
 import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, Dot, GalleryThumbnails, Heart, Trash2 } from 'lucide-react';
-import { useContext } from 'react';
+import { ArrowUpRight, Dot, Plus, Trash2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -21,22 +29,6 @@ type Props = {
 export default function DashboardProductItem({ item }: Props) {
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const navigate = useNavigate();
-	const { app, dispatch } = useContext(AppContext);
-
-	const onPreview = () => {
-		dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: item });
-	};
-
-	const clearPreview = () => {
-		dispatch({ type: eDispatchType.CLEAR_PROJECT_PREVIEW });
-	};
-
-	const togglePreview = () => {
-		if (app.previewProject?.id === item.id) {
-			return clearPreview();
-		}
-		return onPreview();
-	};
 
 	const deleteProjectMutate = useMutation({
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
@@ -139,30 +131,50 @@ export default function DashboardProductItem({ item }: Props) {
 					</div>
 				</Link>
 			</ContextMenuTrigger>
-			<ContextMenuContent className="w-[200px] rounded-xl border-[0.5px] p-0 shadow">
+			<ContextMenuContent className="w-[170px] rounded-xl border-[0.5px] p-0 shadow">
 				<div className="px-1 pb-0.5 pt-1">
 					<ContextMenuItem
-						className="flex items-center justify-start space-x-2 text-sm"
-						onClick={() => navigate(`/playground/${item.id}`)}
+						className="flex items-center justify-start space-x-3 text-sm"
+						onSelect={() => navigate(`/playground/${item.id}`)}
 					>
 						<ArrowUpRight size={18} strokeWidth={2} />
 						<span>Open</span>
 					</ContextMenuItem>
-					<ContextMenuItem className="flex items-center justify-start space-x-2 text-sm" onClick={togglePreview}>
-						<GalleryThumbnails size={18} strokeWidth={2} />
-						<span>Preview LCA</span>
-					</ContextMenuItem>
-					<ContextMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-2 text-sm">
-						<Heart size={18} strokeWidth={2} fill={item.favorite ? '#ef4444' : 'none'} stroke={item.favorite ? '#ef4444' : 'black'} />
 
+					<ContextMenuItem className="flex items-center justify-start space-x-3 text-sm">
+						<DashboardIcon />
+						<span>Dashboard</span>
+					</ContextMenuItem>
+
+					<ContextMenuSub>
+						<ContextMenuSubTrigger>
+							<div className="flex items-center justify-start space-x-3 text-sm">
+								<DocumentIcon />
+								<span>Reports</span>
+							</div>
+						</ContextMenuSubTrigger>
+						<ContextMenuSubContent>
+							<div className="px-2 text-sm font-medium">Reports</div>
+							<ContextMenuSeparator />
+
+							<ContextMenuItem className="flex items-center space-x-3">
+								<Plus size={18} />
+								<span>Create</span>
+							</ContextMenuItem>
+						</ContextMenuSubContent>
+					</ContextMenuSub>
+
+					<ContextMenuItem onSelect={onUpdateFavProject} className="flex items-center justify-start space-x-3 text-sm">
+						<FavoriteIcon fill={item.favorite ? '#ef4444' : 'none'} color={item.favorite ? '#ef4444' : 'none'} />
 						<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
 					</ContextMenuItem>
 				</div>
+
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					disabled={deleteProjectMutate.isPending}
-					className="m-1 flex items-center justify-start space-x-2 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
-					onClick={() => onDeleteProject(item.id)}
+					className="m-1 flex items-center justify-start space-x-3 text-sm text-red-500 focus:bg-red-50 focus:text-red-500"
+					onSelect={() => onDeleteProject(item.id)}
 				>
 					<Trash2 size={18} strokeWidth={2} />
 					<span className="font-medium">Move to trash</span>

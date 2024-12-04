@@ -126,7 +126,7 @@ const ContextMenuProcess = React.memo(
 				}}
 				className="transition-all duration-300"
 			>
-				<div className="w-[230px] rounded-[10px] border-[0.5px] border-gray-50 bg-white shadow-xl transition-all duration-500">
+				<div className="w-[230px] rounded-[10px] border-[0.5px] border-gray-200 bg-white shadow-xl transition-all duration-500">
 					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
 					<Separator />
 					<div className="py-2 text-gray-400">
