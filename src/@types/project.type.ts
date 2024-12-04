@@ -79,10 +79,11 @@ type Insensity = {
 type LifeCycleStageBreakdown = {
 	id: string;
 	name: string;
-	lifeCycleStage: (Pick<LifeCycleStages, 'name' | 'id'> & { percent: number })[];
+	lifeCycleStage: (Pick<LifeCycleStages, 'name' | 'id' | 'iconUrl'> & { percent: number })[];
 };
 
 export type {
+	LifeCycleStageBreakdown,
 	Insensity,
 	Contributor,
 	CreateProjectResponse,

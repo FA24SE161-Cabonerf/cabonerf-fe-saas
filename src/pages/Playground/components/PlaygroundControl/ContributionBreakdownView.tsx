@@ -33,7 +33,7 @@ const ValueContribute = ({ value, percentage }: { value: number; percentage: num
 						backgroundColor: `#4ade80`,
 					}}
 				/>
-				<div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">{percentage}%</div>
+				<div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-black">{percentage}%</div>
 			</div>
 		</div>
 	</div>
@@ -168,10 +168,10 @@ export default function ContributionBreakdownView({ data }: { data: TransformCon
 
 	return (
 		<div className="h-[500px] w-[700px] overflow-scroll pb-3">
-			<div className="sticky left-0 right-0 top-0 z-50 flex items-center justify-between border-[0.5px] border-b bg-white p-4">
+			<div className="sticky left-0 right-0 top-0 z-50 flex items-center justify-between border-[0.5px] border-b bg-white px-4 py-3">
 				<div className="flex items-center space-x-2">
 					<ContributeResult w={18} h={18} one="#fb923c" two="#fdba74" />
-					<span className="text-base font-semibold">Impact Assessment Result</span>
+					<span className="text-base font-semibold">Contribution Breakdown Result</span>
 					<Info size={17} fill="#aeaeae" color="#fff" />
 				</div>
 				<button onClick={handleMinimize} className="cursor-pointer rounded px-2 py-1.5 duration-200 hover:bg-gray-100">

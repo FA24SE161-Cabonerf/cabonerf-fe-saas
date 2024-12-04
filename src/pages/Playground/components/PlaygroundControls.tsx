@@ -1,8 +1,9 @@
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
-import { Impact } from '@/@types/project.type';
+import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import CompareResult from '@/common/icons/CompareResult';
 import ContributeResult from '@/common/icons/ContributeResult';
+import ContributionLifeStage from '@/common/icons/ContributionLifeStage';
 import ImpactResult from '@/common/icons/ImpactResult';
 import ErrorSooner from '@/components/ErrorSooner';
 import { Separator } from '@/components/ui/separator';
@@ -27,11 +28,12 @@ const ZOOM = 150;
 type Props = {
 	projectId: string;
 	impacts: Impact[];
+	lifeCycleStageBreakdown: LifeCycleStageBreakdown[];
 };
 
-function PlaygroundControls({ projectId, impacts }: Props) {
+function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Props) {
 	const {
-		playgroundControlState: { impacts: impactStateData, contributionBreakdown },
+		playgroundControlState: { impacts: impactStateData, contributionBreakdown, lifeCycleStageBreakdown: lifeCycleStageBreakdownContext },
 		playgroundControlDispatch,
 	} = useContext(PlaygroundControlContext);
 
@@ -45,6 +47,10 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 		return impactStateData ?? impacts;
 	}, [impactStateData, impacts]);
 
+	const lifeCycleStageBreakdownData = useMemo(() => {
+		return lifeCycleStageBreakdownContext ?? lifeCycleStageBreakdown;
+	}, [lifeCycleStageBreakdown, lifeCycleStageBreakdownContext]);
+
 	const contributionBreakdownResult = useMemo(() => {
 		if (contributionBreakdown) {
 			return transformProcesses(contributionBreakdown);
@@ -56,6 +62,7 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 			{ projectId },
 			{
 				onSuccess: (data) => {
+					console.log(data.data.data);
 					if (data.data.data) {
 						playgroundControlDispatch({
 							type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,
@@ -63,8 +70,11 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 								contributionBreakdown: data.data.data.contributionBreakdown,
 								impacts: data.data.data.impacts,
 								processes: data.data.data.processes,
+								lifeCycleStageBreakdown: data.data.data.lifeCycleStageBreakdown as LifeCycleStageBreakdown[],
 							},
 						});
+
+						console.log(data.data.data.lifeCycleStageBreakdown);
 
 						reactflow.setNodes((nodes) => {
 							return nodes.map((node) => {
@@ -172,6 +182,17 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 						<ImpactResult />
 					</PlaygroundControlTrigger>
 
+					<PlaygroundControlTrigger
+						isOpenTooltip={lifeCycleStageBreakdownData.length === 0}
+						disabled={lifeCycleStageBreakdownData.length === 0}
+						id="4"
+						className={clsx(`rounded-[9px] p-2`, {
+							'cursor-not-allowed text-[#EFEFEF]': lifeCycleStageBreakdownData.length === 0,
+							'text-[#888888] hover:text-black': lifeCycleStageBreakdownData.length > 0,
+						})}
+					>
+						<ContributionLifeStage />
+					</PlaygroundControlTrigger>
 					{/* Contributor Assessment View */}
 					<PlaygroundControlTrigger
 						isOpenTooltip={Boolean(contributionBreakdown) === false}
@@ -223,7 +244,11 @@ function PlaygroundControls({ projectId, impacts }: Props) {
 					</button>
 				</div>
 
-				<PlaygroundControlMenu impacts={impactsData} contributionBreakdown={contributionBreakdownResult} />
+				<PlaygroundControlMenu
+					lifeCycleStageBreakdown={lifeCycleStageBreakdownData}
+					impacts={impactsData}
+					contributionBreakdown={contributionBreakdownResult}
+				/>
 			</div>
 		</TooltipProvider>
 	);

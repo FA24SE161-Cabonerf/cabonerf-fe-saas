@@ -241,7 +241,7 @@ function FloatingControl() {
 				</div>
 			</div>
 			<Tabs defaultValue="bar-chart" className="w-full" asChild>
-				<DialogContent className="flex h-[90%] max-w-[80%] flex-col overflow-hidden p-0 shadow-2xl">
+				<DialogContent className="flex h-[90%] max-w-[80%] flex-col p-0 shadow-2xl">
 					<DialogHeader className="flex h-fit space-y-1">
 						<div>
 							<div className="flex items-center space-x-2 border-b px-4 pb-2 pt-4 text-sm font-normal">
@@ -259,7 +259,6 @@ function FloatingControl() {
 								<TabsList className="mr-3 mt-2 w-fit focus:ring-0">
 									<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
 									<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
-									<TabsTrigger value="stacked-chart2">Pie Chart</TabsTrigger>
 								</TabsList>
 							</div>
 						</div>
@@ -489,7 +488,7 @@ function FloatingControl() {
 																					<span>%</span>
 																				</div>
 																			</TooltipTrigger>
-																			<TooltipContent className="relative bg-green-900 font-medium text-white">
+																			<TooltipContent className="relative z-50 bg-green-900 font-medium text-white">
 																				<p>{calculateDiffValue.value}</p>
 																			</TooltipContent>
 																		</Tooltip>
@@ -529,7 +528,7 @@ function FloatingControl() {
 										<ChartContainer config={chartConfigs}>
 											<BarChart accessibilityLayer data={lifeCycleStageContributeByImpactCategory}>
 												<CartesianGrid vertical={false} />
-												<XAxis dataKey="projectName" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
+												<XAxis dataKey="projectName" tickLine={false} tickMargin={10} axisLine={false} tick={true} />
 												<ChartTooltip content={<ChartTooltipContent hideLabel />} />
 												{lifeCycleStageContributeByImpactCategory?.length > 0 &&
 													Object.keys(lifeCycleStageContributeByImpactCategory[0])
