@@ -1,25 +1,48 @@
+import { eDispatchType } from '@/@types/dispatch.type';
 import ContributeLifeStage from '@/common/icons/ContributeLifeStage';
 import Intensity from '@/common/icons/Intensity';
 import OverviewIcon from '@/common/icons/OverviewIcon';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
+import { AppContext } from '@/contexts/app.context';
+import { formatDate } from '@/utils/utils';
+import React, { useContext, useEffect, useState } from 'react';
 
-export default function DashboardProject() {
-	const [isOpenDialog, setIsOpenDialog] = useState<boolean>(true);
+function DashboardProject() {
+	const {
+		app: { previewProject },
+		dispatch,
+	} = useContext(AppContext);
+	const [isOpenDialog, setIsOpenDialog] = useState<boolean>(Boolean(previewProject));
+
+	useEffect(() => {
+		if (previewProject !== undefined) {
+			setIsOpenDialog(true);
+		} else {
+			setIsOpenDialog(false);
+		}
+	}, [previewProject]);
+
+	const handleDialogClose = (isOpen: boolean) => {
+		setIsOpenDialog(isOpen);
+		if (!isOpen) {
+			dispatch({ type: eDispatchType.CLEAR_PROJECT_PREVIEW });
+		}
+	};
+
 	return (
-		<Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
-			<DialogContent className="h-[90%] max-w-[85%] overflow-y-scroll">
+		<Dialog open={isOpenDialog} onOpenChange={handleDialogClose}>
+			<DialogContent className="h-[90%] max-w-[75%] overflow-y-scroll">
 				<Tabs defaultValue="overview" className="mx-auto flex max-w-[60%] flex-col">
 					<DialogTitle className="text-center text-base font-medium text-gray-400">LCA Report for:</DialogTitle>
 					<DialogHeader className="mx-auto mt-10 flex w-full justify-center !text-center text-4xl font-bold">
-						Tutorial #4 - Modeling Machine Energy Consumption 123 123 123 123
+						{previewProject?.name}
 					</DialogHeader>
 					<DialogDescription className="mx-auto mt-8 w-fit rounded bg-stone-100 px-4 py-0.5 text-[18px] font-semibold text-black">
-						25.8 kg CO2-Eq per 1 Unit Mountain Bike
+						25.8 kg CO2-Eq per {previewProject?.functionalUnit}
 					</DialogDescription>
 
-					<TabsList className="mx-auto mt-6 grid w-[60%] grid-cols-3 bg-white shadow-none">
+					<TabsList className="mx-auto mt-6 grid w-[500px] grid-cols-3 bg-white shadow-none">
 						<TabsTrigger
 							className="flex space-x-2 !rounded-none border-b py-3 !shadow-none transition-none data-[state=active]:border-b-[3px] data-[state=active]:border-green-600 data-[state=active]:text-green-800"
 							value="overview"
@@ -45,30 +68,30 @@ export default function DashboardProject() {
 					</TabsList>
 
 					<div className="mt-7">
-						<TabsContent value="overview">
+						<TabsContent value="overview" className="">
 							<div className="p-4">
 								<h2 className="mb-8 mt-6 text-center text-xl font-medium">Life cycle assessment overview</h2>
 
 								<div className="h-fit w-full border px-6 py-2">
 									<div className="grid grid-cols-12 border-b border-gray-200 py-3">
 										<div className="col-span-3 font-medium text-gray-600">Project Description:</div>
-										<div className="col-span-9">Product A ádasd</div>
+										<div className="col-span-9">{previewProject?.description}</div>
 									</div>
 									<div className="grid grid-cols-12 border-b border-gray-200 py-4">
 										<div className="col-span-3 font-medium text-gray-600">Project Owner:</div>
-										<div className="col-span-9">Product A ádasd</div>
+										<div className="col-span-9">{previewProject?.owner.fullName}</div>
 									</div>
 									<div className="grid grid-cols-12 border-b border-gray-200 py-4">
 										<div className="col-span-3 font-medium text-gray-600">Functional Unit:</div>
-										<div className="col-span-9">Product A ádasd</div>
+										<div className="col-span-9">{previewProject?.functionalUnit}</div>
 									</div>
 									<div className="grid grid-cols-12 border-b border-gray-200 py-4">
 										<div className="col-span-3 font-medium text-gray-600">Project Life Cycle:</div>
-										<div className="col-span-9">Product A ádasd</div>
+										<div className="col-span-9"></div>
 									</div>
 									<div className="grid grid-cols-12 border-b border-gray-200 py-4">
 										<div className="col-span-3 font-medium text-gray-600">Created On:</div>
-										<div className="col-span-9">Product A ádasd</div>
+										<div className="col-span-9">{formatDate(previewProject?.modifiedAt as string)}</div>
 									</div>
 									<div className="grid grid-cols-12 py-4">
 										<div className="col-span-3 font-medium text-gray-600">Reporting Standard:</div>
@@ -99,3 +122,5 @@ export default function DashboardProject() {
 		</Dialog>
 	);
 }
+
+export default React.memo(DashboardProject);

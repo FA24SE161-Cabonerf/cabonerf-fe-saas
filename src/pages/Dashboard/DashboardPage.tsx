@@ -34,7 +34,7 @@ export default function DashboardPage() {
 	const {
 		data: projects,
 		error,
-		isPending,
+		isFetching,
 	} = useQuery({
 		queryKey: ['projects', organizationId],
 		queryFn: ({ queryKey }) => ProjectApis.prototype.getAllProjects({ organizationId: queryKey[1] as string }),
@@ -83,7 +83,7 @@ export default function DashboardPage() {
 			className="flex flex-col ease-in"
 		>
 			{/* Header */}
-			<DashboardHeader isPending={isPending} projects={favProjects ?? []} />
+			<DashboardHeader isPending={isFetching} projects={favProjects ?? []} />
 			<div className="mx-6 mt-5">
 				<div className="flex items-center justify-between space-x-1 border-b pb-1.5">
 					<div className="relative text-sm font-semibold after:absolute after:-bottom-3.5 after:left-0 after:h-[3px] after:w-full after:bg-black">
@@ -116,7 +116,7 @@ export default function DashboardPage() {
 			<div className="mx-6 flex h-full">
 				<div className="my-2 w-full">
 					{layoutView === 'layout-grid' ? (
-						isPending ? (
+						isFetching ? (
 							<div className="flex flex-wrap gap-5">
 								<SkeletonCard />
 								<SkeletonCard />
@@ -126,15 +126,15 @@ export default function DashboardPage() {
 							</div>
 						) : (
 							<div className="flex flex-wrap gap-5">
-								{projects.projects && projects.projects.length === 0 ? (
+								{projects?.projects && projects.projects.length === 0 ? (
 									<div className="mt-5 w-full text-center text-xs">No Projects Found. Start Creating Your First Project!</div>
 								) : (
-									projects.projects.map((item) => <DashboardProductItem key={item.id} item={item} />)
+									projects?.projects.map((item) => <DashboardProductItem key={item.id} item={item} />)
 								)}
 							</div>
 						)
 					) : (
-						<TableProject isPending={isPending} data={projects?.projects ?? []} />
+						<TableProject isPending={isFetching} data={projects?.projects ?? []} />
 					)}
 				</div>
 			</div>

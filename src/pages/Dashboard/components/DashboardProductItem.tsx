@@ -1,3 +1,4 @@
+import { eDispatchType } from '@/@types/dispatch.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import logo from '@/assets/logos/trans-logo.png';
@@ -14,11 +15,13 @@ import {
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
+import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowUpRight, Dot, Plus, Trash2 } from 'lucide-react';
+import { useContext } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -29,6 +32,7 @@ type Props = {
 export default function DashboardProductItem({ item }: Props) {
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const navigate = useNavigate();
+	const { dispatch } = useContext(AppContext);
 
 	const deleteProjectMutate = useMutation({
 		mutationFn: (payload: { id: string }) => ProjectApis.prototype.deleteProject(payload),
@@ -37,6 +41,10 @@ export default function DashboardProductItem({ item }: Props) {
 	const favoriteProjectMutate = useMutation({
 		mutationFn: ProjectApis.prototype.favoriteProject,
 	});
+
+	const previewDashboardProject = () => {
+		dispatch({ type: eDispatchType.ADD_PROJECT_PREVIEW, payload: item });
+	};
 
 	const onDeleteProject = (id: string) => {
 		deleteProjectMutate.mutate(
@@ -141,7 +149,7 @@ export default function DashboardProductItem({ item }: Props) {
 						<span>Open</span>
 					</ContextMenuItem>
 
-					<ContextMenuItem className="flex items-center justify-start space-x-3 text-sm">
+					<ContextMenuItem onSelect={previewDashboardProject} className="flex items-center justify-start space-x-3 text-sm">
 						<DashboardIcon />
 						<span>Dashboard</span>
 					</ContextMenuItem>
