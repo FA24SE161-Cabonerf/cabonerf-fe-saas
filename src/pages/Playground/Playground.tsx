@@ -206,7 +206,7 @@ export default function Playground() {
 				isNull
 			);
 
-			socket.emit('gateway:connector-create', { data: value, projectId: params.pid });
+			socket.emit('gateway:connector-create', value);
 		},
 		[params.pid]
 	);
@@ -215,6 +215,9 @@ export default function Playground() {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			addNodes(data);
 			setIsLoading(false);
+		});
+
+		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
 			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
 				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
