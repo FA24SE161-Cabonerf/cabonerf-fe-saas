@@ -9,7 +9,7 @@ import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Check } from 'lucide-react';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 export default function MainHeader() {
 	const { organizationId } = useParams<{ organizationId: string }>();
@@ -43,7 +43,8 @@ export default function MainHeader() {
 									<div className="mx-8 my-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600">organizations</div>
 
 									{organizations.data?.data.data.map((org) => (
-										<div
+										<Link
+											to={`/dashboard/${org.id}`}
 											key={org.id}
 											className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
 										>
@@ -53,7 +54,7 @@ export default function MainHeader() {
 											{organizationId === org.id && (
 												<Check size={15} className="absolute left-2 top-1/2 ml-0 -translate-y-1/2" />
 											)}
-										</div>
+										</Link>
 									))}
 								</div>
 							}

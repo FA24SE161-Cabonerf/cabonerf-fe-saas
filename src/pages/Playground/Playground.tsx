@@ -25,23 +25,25 @@ import {
 	NodeTypes,
 	Panel,
 	ReactFlow,
-	useEdgesState,
-	useNodesState,
 	useReactFlow,
 	useUpdateNodeInternals,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
+import Cursors from '@/components/Cursor';
 import CustomSuccessSooner from '@/components/CustomSooner';
 import WarningSooner from '@/components/WarningSooner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
+import useCursorStateSynced from '@/hooks/useCursorStateSynced';
+import useEdgesStateSynced from '@/hooks/useEdgesStateSynced';
+import useNodesStateSynced from '@/hooks/useNodesStateSynced';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
@@ -49,10 +51,10 @@ import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
 import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
-import { ReloadIcon } from '@radix-ui/react-icons';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -63,18 +65,18 @@ const customNode: NodeTypes = {
 	text: TextNode,
 };
 
+const onDragOver = (event: DragEvent) => {
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'move';
+};
+
 export default function Playground() {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const {
-		deleteElements,
-		setViewport,
-		addNodes,
-		addEdges,
-		setNodes: setMoreNodes,
-		setEdges: setMoreEdges,
-	} = useReactFlow<Node<CabonerfNodeData>>();
-	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
-	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+	const { deleteElements, setViewport, addNodes, addEdges, screenToFlowPosition } = useReactFlow<Node<CabonerfNodeData>>();
+
+	const [nodes, setNodes, onNodesChange] = useNodesStateSynced();
+	const [edges, setEdges, onEdgesChange] = useEdgesStateSynced();
+	const [cursors, onMouseMove] = useCursorStateSynced();
 
 	const updateNodeInternal = useUpdateNodeInternals();
 
@@ -193,24 +195,6 @@ export default function Playground() {
 		};
 	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal, params.pid]);
 
-	const onConnect = useCallback(
-		(param: Connection) => {
-			const value = omitBy(
-				{
-					projectId: params.pid,
-					startProcessId: param.source,
-					endProcessId: param.target,
-					startExchangesId: param.sourceHandle,
-					endExchangesId: param.targetHandle,
-				},
-				isNull
-			);
-
-			socket.emit('gateway:connector-create', value);
-		},
-		[params.pid]
-	);
-
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			addNodes(data);
@@ -229,24 +213,60 @@ export default function Playground() {
 	}, [addNodes, playgroundDispatch]);
 
 	useEffect(() => {
-		setMoreNodes((nodes) =>
+		setNodes((nodes) =>
 			nodes.map((item) => ({
 				...item,
 				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
 				draggable: sheetState.process === undefined ? true : false,
 			}))
 		);
-		setMoreEdges((edge) =>
+		setEdges((edge) =>
 			edge.map((item) => ({
 				...item,
 				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
 				draggable: sheetState.process === undefined ? true : false,
 			}))
 		);
-	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
+	}, [sheetState.process, setViewport, setNodes, setEdges]);
+
+	const onDrop = (event: DragEvent) => {
+		event.preventDefault();
+
+		const type = event.dataTransfer.getData('application/reactflow');
+		const position = screenToFlowPosition({
+			x: event.clientX - 80,
+			y: event.clientY - 20,
+		});
+		const newNode: Node = {
+			id: `${Date.now()}`,
+			type,
+			position,
+			data: { label: `${type}` },
+		};
+
+		setNodes((prev) => [...prev, newNode as Node<CabonerfNodeData>]);
+	};
+
+	const onConnect = useCallback(
+		(param: Connection) => {
+			const value = omitBy(
+				{
+					projectId: params.pid,
+					startProcessId: param.source,
+					endProcessId: param.target,
+					startExchangesId: param.sourceHandle,
+					endExchangesId: param.targetHandle,
+				},
+				isNull
+			);
+
+			socket.emit('gateway:connector-create', value);
+		},
+		[params.pid]
+	);
 
 	const handleNodeDragStop = useCallback(
-		(_event: MouseEvent, node: Node<CabonerfNodeData>) => {
+		(_event: MouseEvent, node: any) => {
 			const data = { id: node.id, x: node.position.x, y: node.position.y };
 			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
 		},
@@ -310,7 +330,11 @@ export default function Playground() {
 								onEdgesChange={onEdgesChange}
 								onlyRenderVisibleElements
 								onNodeDragStop={handleNodeDragStop}
+								onPointerMove={onMouseMove}
+								onDrop={onDrop}
+								onDragOver={onDragOver}
 							>
+								<Cursors cursors={cursors} />
 								<Background bgColor="#f4f3f3" />
 								<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 								<Panel position="top-left">
