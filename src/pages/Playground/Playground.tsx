@@ -137,6 +137,10 @@ export default function Playground() {
 		};
 		socket.connect();
 
+		if (params.pid) {
+			socket.emit('gateway:join-room', { projectId: params.pid });
+		}
+
 		socket.on('gateway:delete-process-success', (data) => {
 			deleteElements({ nodes: [{ id: data }] });
 			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
@@ -182,9 +186,12 @@ export default function Playground() {
 		});
 
 		return () => {
+			// Leave room
+			socket.emit('gateway:leave-room', params.pid);
+
 			socket.disconnect();
 		};
-	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal]);
+	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal, params.pid]);
 
 	const onConnect = useCallback(
 		(param: Connection) => {
@@ -208,6 +215,9 @@ export default function Playground() {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			addNodes(data);
 			setIsLoading(false);
+		});
+
+		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
 			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
 				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
@@ -235,9 +245,13 @@ export default function Playground() {
 		);
 	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
 
-	const handleNodeDragStop = useCallback((_event: MouseEvent, node: Node<CabonerfNodeData>) => {
-		socket.emit('gateway:node-update-position', { id: node.id, x: node.position.x, y: node.position.y });
-	}, []);
+	const handleNodeDragStop = useCallback(
+		(_event: MouseEvent, node: Node<CabonerfNodeData>) => {
+			const data = { id: node.id, x: node.position.x, y: node.position.y };
+			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
+		},
+		[params.pid]
+	);
 
 	const handlePanelClick = useCallback(() => {
 		if (sheetState.process) {
@@ -266,7 +280,7 @@ export default function Playground() {
 		};
 		setIsLoading(true);
 		//Emit event to Nodebased Server
-		socket.emit('gateway:cabonerf-node-create', newNode);
+		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
 	if (isFetching) return <LoadingProject />;

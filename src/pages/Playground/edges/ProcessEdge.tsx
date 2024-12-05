@@ -9,6 +9,7 @@ import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
 import { BaseEdge, Edge, EdgeLabelRenderer, EdgeProps, getSimpleBezierPath, useReactFlow } from '@xyflow/react';
 import { Ellipsis } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 type CustomEdge = Edge<CabonerfEdgeData, 'process'>;
 
@@ -46,6 +47,7 @@ function getGradient(percentage: number): Gradient {
 }
 
 function ProcessEdge(data: EdgeProps<CustomEdge>) {
+	const params = useParams<{ pid: string }>();
 	const {
 		playgroundState: { impactCategory },
 	} = useContext(PlaygroundContext);
@@ -144,7 +146,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 	}, [deleteElements]);
 
 	const handleDeleteEdge = (id: string) => {
-		socket.emit('gateway:connector-delete', id);
+		socket.emit('gateway:connector-delete', { data: id, projectId: params.pid });
 	};
 
 	return (

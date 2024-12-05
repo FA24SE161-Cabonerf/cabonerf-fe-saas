@@ -76,6 +76,8 @@ type Insensity = {
 	unit: string;
 	description: string;
 	icon: string;
+	ref: string;
+	ref_description: string;
 };
 
 type LifeCycleStageBreakdown = {
