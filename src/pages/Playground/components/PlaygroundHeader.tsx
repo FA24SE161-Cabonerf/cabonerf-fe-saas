@@ -27,7 +27,7 @@ import { z } from 'zod';
 
 const projectInformation = z.object({
 	name: z.string(),
-	description: z.string(),
+	description: z.string().optional(),
 	location: z.string(),
 });
 
@@ -81,7 +81,7 @@ function PlaygroundHeader({ id }: Props) {
 		if (currentInformation !== undefined && changingValue !== undefined) {
 			if (!isOpenEditProject && areObjectsDifferent(currentInformation, changingValue) === true) {
 				updateProjectInformationMutate.mutate(
-					{ id, payload: changingValue },
+					{ id, payload: { ...changingValue, description: changingValue.description ?? '' } },
 					{
 						onSuccess: (data) => {
 							playgroundDispatch({

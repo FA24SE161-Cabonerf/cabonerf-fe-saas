@@ -10,6 +10,7 @@ import socket from '@/socket.io';
 import { Edge, Node, useReactFlow } from '@xyflow/react';
 import { Leaf, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
+import { useParams } from 'react-router-dom';
 
 const colors = [
 	{
@@ -44,6 +45,8 @@ function lightenColor({ hex, amount }: { hex: string; amount: number }) {
 
 const ContextMenuProcess = React.memo(
 	forwardRef<HTMLDivElement, unknown>((_, ref) => {
+		const params = useParams<{ pid: string }>();
+
 		const { deleteElements, setNodes, setEdges, fitView } = useReactFlow<Node<CabonerfNodeData>, Edge<CabonerfEdgeData>>();
 		const id = useId();
 		const { sheetDispatch } = useContext(SheetbarContext);
@@ -61,7 +64,7 @@ const ContextMenuProcess = React.memo(
 
 		const handleDeleteNodeProcess = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 			event.stopPropagation();
-			socket.emit('gateway:cabonerf-node-delete', app.contextMenuSelector?.process.id);
+			socket.emit('gateway:cabonerf-node-delete', { data: app.contextMenuSelector?.process.id, projectId: params.pid });
 
 			dispatch({
 				type: eDispatchType.ADD_DELETE_PROCESSES_IDS,
@@ -93,8 +96,11 @@ const ContextMenuProcess = React.memo(
 
 		const handleChangeColor = (backgroundColor: string, id: string) => {
 			socket.emit('gateway:node-update-color', {
-				id: id,
-				color: backgroundColor,
+				data: {
+					id: id,
+					color: backgroundColor,
+				},
+				projectId: params.pid,
 			});
 
 			socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
