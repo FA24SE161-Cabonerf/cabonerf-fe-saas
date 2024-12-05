@@ -45,7 +45,7 @@ function ToolboxLifeCycleStages() {
 		};
 
 		//Emit event to Nodebased Server
-		socket.emit('gateway:cabonerf-node-create', newNode);
+		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: data.pid });
 	};
 
 	return (
