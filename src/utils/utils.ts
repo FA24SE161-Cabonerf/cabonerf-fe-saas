@@ -227,6 +227,7 @@ export function formatLargeNumber(num: number): string {
 		return num.toString(); // Số nhỏ hơn 1,000 không thay đổi
 	}
 }
+
 export function stringToColor(str: string) {
 	let colour = '#';
 	let hash = 0;

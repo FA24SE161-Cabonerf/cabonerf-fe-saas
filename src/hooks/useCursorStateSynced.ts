@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
-import ydoc from '@/yjsdoc/ydoc';
 import { stringToColor } from '@/utils/utils';
+import { getOrCreateYDoc } from '@/pages/Playground/yjsdoc/ydoc-cache';
+import { useParams } from 'react-router-dom';
 
-const cursorsMap = ydoc.getMap<Cursor>('cursors');
-const cursorId = ydoc.clientID.toString();
-const cursorColor = stringToColor(cursorId);
-
-const MAX_IDLE_TIME = 10000;
+const MAX_IDLE_TIME = 2000;
 
 export type Cursor = {
 	id: string;
@@ -18,6 +15,14 @@ export type Cursor = {
 };
 
 export function useCursorStateSynced() {
+	const params = useParams<{ pid: string }>();
+
+	const ydoc = getOrCreateYDoc(params.pid ?? 'default');
+	const cursorsMap = ydoc.getMap<Cursor>('cursors');
+
+	const cursorId = ydoc.clientID.toString();
+	const cursorColor = stringToColor(cursorId);
+
 	const [cursors, setCursors] = useState<Cursor[]>([]);
 	const { screenToFlowPosition } = useReactFlow();
 
@@ -30,7 +35,7 @@ export function useCursorStateSynced() {
 				cursorsMap.delete(id);
 			}
 		}
-	}, []);
+	}, [cursorsMap]);
 
 	const onMouseMove = useCallback(
 		(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -47,7 +52,7 @@ export function useCursorStateSynced() {
 				timestamp: Date.now(),
 			});
 		},
-		[screenToFlowPosition]
+		[cursorColor, cursorId, cursorsMap, screenToFlowPosition]
 	);
 
 	useEffect(() => {
@@ -64,9 +69,9 @@ export function useCursorStateSynced() {
 			cursorsMap.unobserve(observer);
 			window.clearInterval(timer);
 		};
-	}, [flush]);
+	}, [cursorsMap, flush]);
 
-	const cursorsWithoutSelf = useMemo(() => cursors.filter(({ id }) => id !== cursorId), [cursors]);
+	const cursorsWithoutSelf = useMemo(() => cursors.filter(({ id }) => id !== cursorId), [cursorId, cursors]);
 
 	return [cursorsWithoutSelf, onMouseMove] as const;
 }

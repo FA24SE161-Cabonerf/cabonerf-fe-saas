@@ -1,6 +1,7 @@
 import { PlaygroundDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
 import logo from '@/assets/logos/1024.png';
+import MyAvatar from '@/components/MyAvatar';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -35,9 +36,10 @@ type ProjectInformation = z.infer<typeof projectInformation>;
 
 type Props = {
 	id: string;
+	users: { userId: string; userName: string; userAvatar: string; projectId: string }[];
 };
 
-function PlaygroundHeader({ id }: Props) {
+function PlaygroundHeader({ id, users }: Props) {
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const [isOpenEditProject, setIsOpenEditProject] = useState<boolean>(false);
 	const popoverRef = useRef<HTMLDivElement>(null);
@@ -183,6 +185,13 @@ function PlaygroundHeader({ id }: Props) {
 						</PopoverContent>
 					</Popover>
 					<div className="mr-3 flex items-center space-x-2">
+						<div className="flex">
+							<div className="group flex">
+								{users.map((item) => (
+									<MyAvatar key={item.userId} className="h-6 w-6" urlAvatar={item.userAvatar} fallBackContent="" />
+								))}
+							</div>
+						</div>
 						<button className="rounded-sm bg-[#f3f3f3] px-2.5 py-1.5 text-xs font-medium text-[#333333] hover:bg-gray-200">
 							Invite
 						</button>

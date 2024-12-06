@@ -71,6 +71,8 @@ const onDragOver = (event: DragEvent) => {
 };
 
 export default function Playground() {
+	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
+
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const {
 		deleteElements,
@@ -101,6 +103,12 @@ export default function Playground() {
 		refetchOnMount: true,
 	});
 
+	const lifeCycleStagesQuery = useQuery({
+		queryKey: ['life-cycle-stage'],
+		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
+		staleTime: 60_000 * 120,
+	});
+
 	const project = projectData?.data.data;
 
 	useEffect(() => {
@@ -108,12 +116,6 @@ export default function Playground() {
 
 		document.title = `${projectName} — Cabonerf`;
 	}, [playgroundState.projectInformation?.name]);
-
-	const lifeCycleStagesQuery = useQuery({
-		queryKey: ['life-cycle-stage'],
-		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
-		staleTime: 60_000 * 120,
-	});
 
 	useEffect(() => {
 		if (project) {
@@ -140,9 +142,24 @@ export default function Playground() {
 		};
 		socket.connect();
 
+		const infor_user = {
+			userId: app.userProfile?.id,
+			userName: app.userProfile?.fullName,
+			userAvatar: app.userProfile?.profilePictureUrl,
+			projectId: params.pid,
+		};
+
 		if (params.pid) {
-			socket.emit('gateway:join-room', { projectId: params.pid });
+			socket.emit('gateway:join-room', infor_user);
 		}
+
+		socket.on('gateway:user-connect-to-project', (data) => {
+			setUsers(data);
+		});
+
+		socket.on('gateway:user-leave-room-success', (data) => {
+			setUsers(data);
+		});
 
 		socket.on('gateway:delete-process-success', (data) => {
 			// deleteElements({ nodes: [{ id: data }] });
@@ -191,11 +208,58 @@ export default function Playground() {
 
 		return () => {
 			// Leave room
-			socket.emit('gateway:leave-room', params.pid);
+			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
 
 			socket.disconnect();
 		};
-	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal, params.pid]);
+	}, [
+		app.userProfile?.id,
+		appDispatch,
+		addEdges,
+		deleteElements,
+		setEdges,
+		setNodes,
+		updateNodeInternal,
+		params.pid,
+		app.userProfile?.fullName,
+		app.userProfile?.profilePictureUrl,
+		setUsers,
+	]);
+
+	useEffect(() => {
+		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
+			addNodes(data);
+			setIsLoading(false);
+		});
+
+		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
+			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
+				className: 'rounded-2xl p-2 w-[350px]',
+				style: {
+					border: `1px solid #dedede`,
+					backgroundColor: `#fff`,
+				},
+			});
+		});
+	}, [addNodes]);
+
+	useEffect(() => {
+		setMoreNodes((nodes) => {
+			return nodes.map((item) => ({
+				...item,
+				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
+				draggable: sheetState.process === undefined ? true : false,
+			}));
+		});
+
+		setMoreEdges((edge) =>
+			edge.map((item) => ({
+				...item,
+				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
+				draggable: sheetState.process === undefined ? true : false,
+			}))
+		);
+	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
 
 	const onDrop = (event: DragEvent) => {
 		event.preventDefault();
@@ -232,41 +296,6 @@ export default function Playground() {
 		},
 		[params.pid]
 	);
-
-	useEffect(() => {
-		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
-			addNodes(data);
-			setIsLoading(false);
-		});
-
-		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
-			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'rounded-2xl p-2 w-[350px]',
-				style: {
-					border: `1px solid #dedede`,
-					backgroundColor: `#fff`,
-				},
-			});
-		});
-	}, [addNodes]);
-
-	useEffect(() => {
-		setMoreNodes((nodes) => {
-			return nodes.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}));
-		});
-
-		setMoreEdges((edge) =>
-			edge.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}))
-		);
-	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
 
 	const handleNodeDragStop = useCallback(
 		(_event: MouseEvent, node: any) => {
@@ -312,13 +341,14 @@ export default function Playground() {
 		<React.Fragment>
 			<PlaygroundControlContextProvider>
 				<div className="relative h-[calc(100vh-59px)] text-[#333333]">
-					<PlaygroundHeader id={project?.id as string} />
+					<PlaygroundHeader users={users} id={project?.id as string} />
 					<ContextMenu>
 						<ContextMenuTrigger>
 							<ReactFlow
 								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 								className="relative"
 								nodeTypes={customNode}
+								minZoom={0.3}
 								edgeTypes={customEdge}
 								nodes={nodes}
 								edges={edges}
