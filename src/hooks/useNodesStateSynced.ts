@@ -36,18 +36,28 @@ function useNodesStateSynced(): [Node[], React.Dispatch<React.SetStateAction<Nod
 
 		for (const change of changes) {
 			if (change.type === 'add' || change.type === 'replace') {
-				nodesMap.set(change.item.id, change.item);
-			} else if (change.type === 'remove' && nodesMap.has(change.id)) {
-				const deletedNode = nodesMap.get(change.id)!;
-				const connectedEdges = getConnectedEdges([deletedNode], [...edgesMap.values()]);
-
-				nodesMap.delete(change.id);
-
-				for (const edge of connectedEdges) {
-					edgesMap.delete(edge.id);
+				if (change.item) {
+					nodesMap.set(change.item.id, change.item);
+				} else {
+					console.warn(`Add/Replace operation with undefined item:`, change);
 				}
-			} else {
-				nodesMap.set(change.id, nextNodes.find((n) => n.id === change.id)!);
+			} else if (change.type === 'remove' && nodesMap.has(change.id)) {
+				const deletedNode = nodesMap.get(change.id);
+				if (deletedNode) {
+					const connectedEdges = getConnectedEdges([deletedNode], [...edgesMap.values()]);
+					nodesMap.delete(change.id);
+					for (const edge of connectedEdges) {
+						edgesMap.delete(edge.id);
+					}
+				}
+				console.log(`Node with id ${change.id} was removed successfully.`);
+			} else if (change.type !== 'remove') {
+				const nodeToSet = nextNodes.find((n) => n.id === change.id);
+				if (nodeToSet) {
+					nodesMap.set(change.id, nodeToSet);
+				} else {
+					console.warn(`Node with id ${change.id} not found in nextNodes`);
+				}
 			}
 		}
 	}, []);

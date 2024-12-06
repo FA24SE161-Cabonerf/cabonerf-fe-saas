@@ -5,7 +5,7 @@ const ydoc = new Y.Doc();
 
 const baseURL = import.meta.env.VITE_GATEWAY_DEV_URL;
 
-const provider = new SocketIOProvider(baseURL, 'room-name', ydoc, {});
+const provider = new SocketIOProvider(baseURL, 'm2y22', ydoc, {});
 
 provider.on('status', ({ status }: { status: string }) => {
 	console.log(status); // Logs "connected" or "disconnected"
