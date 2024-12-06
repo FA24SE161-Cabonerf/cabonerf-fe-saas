@@ -1,6 +1,6 @@
 import { CabonerfNode, CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CreateConnectorRes } from '@/@types/connector.type';
-import { eDispatchType, PlaygroundDispatch } from '@/@types/dispatch.type';
+import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
@@ -73,7 +73,7 @@ const onDragOver = (event: DragEvent) => {
 
 export default function Playground() {
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
-
+	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const { screenToFlowPosition } = useReactFlow<Node<CabonerfNodeData>>();
 
@@ -84,7 +84,6 @@ export default function Playground() {
 	const updateNodeInternal = useUpdateNodeInternals();
 
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
-	const { sheetState } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string }>();
 
@@ -223,16 +222,6 @@ export default function Playground() {
 			setNodes((nodes) => [...nodes, data]);
 			setIsLoading(false);
 		});
-
-		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
-			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'rounded-2xl p-2 w-[350px]',
-				style: {
-					border: `1px solid #dedede`,
-					backgroundColor: `#fff`,
-				},
-			});
-		});
 	}, [setNodes]);
 
 	const onDrop = (event: DragEvent) => {
@@ -278,6 +267,18 @@ export default function Playground() {
 		},
 		[params.pid]
 	);
+
+	const handlePanelClick = useCallback(() => {
+		if (sheetState.process) {
+			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
+		}
+	}, [sheetDispatch, sheetState]);
+
+	const handleNodeDragging = useCallback(() => {
+		if (sheetState.process) {
+			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
+		}
+	}, [sheetDispatch, sheetState]);
 
 	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
 		// Get properties of screen
@@ -336,6 +337,8 @@ export default function Playground() {
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
 								onlyRenderVisibleElements
+								onNodeDrag={handleNodeDragging}
+								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}
 								onPointerMove={onMouseMove}
 								onDrop={onDrop}
