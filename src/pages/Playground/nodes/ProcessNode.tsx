@@ -20,6 +20,8 @@ export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const connection = useConnection();
 
+	console.log(data);
+
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
