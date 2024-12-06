@@ -31,14 +31,13 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import Cursors from '@/components/Cursor';
-import CustomSuccessSooner from '@/components/CustomSooner';
 import WarningSooner from '@/components/WarningSooner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
@@ -72,6 +71,8 @@ const onDragOver = (event: DragEvent) => {
 };
 
 export default function Playground() {
+	const nodeEditingId = useRef<string>('');
+
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
 	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -224,6 +225,26 @@ export default function Playground() {
 		});
 	}, [setNodes]);
 
+	useEffect(() => {
+		if (sheetState.process) {
+			nodeEditingId.current = sheetState.process.id;
+			setNodes((prev) =>
+				prev.map((node) =>
+					node.id === nodeEditingId.current
+						? { ...node, selectable: false, deletable: false, focusable: false, draggable: false, className: 'blink' }
+						: node
+				)
+			);
+		} else {
+			setNodes((prev) =>
+				prev.map((node) =>
+					node.id === nodeEditingId.current ? { ...node, selectable: true, deletable: true, focusable: true, draggable: true } : node
+				)
+			);
+			nodeEditingId.current = '';
+		}
+	}, [setNodes, sheetState.process]);
+
 	const onDrop = (event: DragEvent) => {
 		event.preventDefault();
 
@@ -274,12 +295,6 @@ export default function Playground() {
 		}
 	}, [sheetDispatch, sheetState]);
 
-	const handleNodeDragging = useCallback(() => {
-		if (sheetState.process) {
-			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
-		}
-	}, [sheetDispatch, sheetState]);
-
 	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
 		// Get properties of screen
 		const screenWidth = window.innerWidth;
@@ -301,16 +316,16 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
-	const onNodeClick: NodeMouseHandler = useCallback(
-		(_, clicked) => {
-			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+	// const onNodeClick: NodeMouseHandler = useCallback(
+	// 	(_, clicked) => {
+	// 		setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
 
-			window.setTimeout(() => {
-				setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
-			}, 3000);
-		},
-		[setNodes]
-	);
+	// 		window.setTimeout(() => {
+	// 			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+	// 		}, 3000);
+	// 	},
+	// 	[setNodes]
+	// );
 
 	if (isFetching) return <LoadingProject />;
 
@@ -325,19 +340,18 @@ export default function Playground() {
 								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 								className="relative"
 								nodeTypes={customNode}
-								minZoom={0.3}
+								minZoom={0.4}
+								maxZoom={4}
 								edgeTypes={customEdge}
 								nodes={nodes}
 								edges={edges}
 								zoomOnDoubleClick={false}
-								onNodeClick={onNodeClick}
 								onConnect={onConnect}
 								proOptions={{ hideAttribution: true }}
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
 								onlyRenderVisibleElements
-								onNodeDrag={handleNodeDragging}
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}
 								onPointerMove={onMouseMove}
