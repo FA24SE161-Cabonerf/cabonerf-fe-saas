@@ -1,6 +1,6 @@
 import { CabonerfNode, CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { CreateConnectorRes } from '@/@types/connector.type';
-import { eDispatchType, PlaygroundDispatch, SheetBarDispatch } from '@/@types/dispatch.type';
+import { eDispatchType, PlaygroundDispatch } from '@/@types/dispatch.type';
 import ProjectApis from '@/apis/project.apis';
 import { AppContext } from '@/contexts/app.context';
 import LoadingProject from '@/pages/Playground/components/LoadingProject';
@@ -22,6 +22,7 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
+	NodeMouseHandler,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -30,7 +31,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -74,15 +75,7 @@ export default function Playground() {
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const {
-		deleteElements,
-		setViewport,
-		addNodes,
-		addEdges,
-		setNodes: setMoreNodes,
-		setEdges: setMoreEdges,
-		screenToFlowPosition,
-	} = useReactFlow<Node<CabonerfNodeData>>();
+	const { screenToFlowPosition } = useReactFlow<Node<CabonerfNodeData>>();
 
 	const [nodes, setNodes, onNodesChange] = useNodesStateSynced();
 	const [edges, setEdges, onEdgesChange] = useEdgesStateSynced();
@@ -91,7 +84,7 @@ export default function Playground() {
 	const updateNodeInternal = useUpdateNodeInternals();
 
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
-	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
+	const { sheetState } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string }>();
 
@@ -190,7 +183,7 @@ export default function Playground() {
 									...item,
 									data: {
 										...item.data,
-										exchanges: [...item.data.exchanges, sanitizedData.updatedProcess.exchange],
+										exchanges: [...(item.data.exchanges as never), sanitizedData.updatedProcess.exchange],
 									},
 								};
 							}
@@ -216,8 +209,6 @@ export default function Playground() {
 	}, [
 		app.userProfile?.id,
 		appDispatch,
-		addEdges,
-		deleteElements,
 		setEdges,
 		setNodes,
 		updateNodeInternal,
@@ -229,7 +220,7 @@ export default function Playground() {
 
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
-			addNodes(data);
+			setNodes((nodes) => [...nodes, data]);
 			setIsLoading(false);
 		});
 
@@ -242,25 +233,7 @@ export default function Playground() {
 				},
 			});
 		});
-	}, [addNodes]);
-
-	useEffect(() => {
-		setMoreNodes((nodes) => {
-			return nodes.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}));
-		});
-
-		setMoreEdges((edge) =>
-			edge.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}))
-		);
-	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
+	}, [setNodes]);
 
 	const onDrop = (event: DragEvent) => {
 		event.preventDefault();
@@ -306,15 +279,6 @@ export default function Playground() {
 		[params.pid]
 	);
 
-	const handlePanelClick = useCallback(() => {
-		if (sheetState.process) {
-			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
-			setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
-		}
-	}, [setViewport, sheetDispatch, sheetState]);
-
-	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
-
 	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
 		// Get properties of screen
 		const screenWidth = window.innerWidth;
@@ -336,6 +300,17 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
+	const onNodeClick: NodeMouseHandler = useCallback(
+		(_, clicked) => {
+			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+
+			window.setTimeout(() => {
+				setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+			}, 3000);
+		},
+		[setNodes]
+	);
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -353,11 +328,9 @@ export default function Playground() {
 								edgeTypes={customEdge}
 								nodes={nodes}
 								edges={edges}
-								panOnDrag={canPaneScrollAndDrag}
 								zoomOnDoubleClick={false}
-								preventScrolling={canPaneScrollAndDrag}
+								onNodeClick={onNodeClick}
 								onConnect={onConnect}
-								onPaneClick={handlePanelClick}
 								proOptions={{ hideAttribution: true }}
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}

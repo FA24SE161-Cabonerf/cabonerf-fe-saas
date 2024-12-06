@@ -18,7 +18,6 @@ function Cursors({ cursors }: { cursors: Cursor[] }) {
 						style={{
 							transform: translate,
 							position: 'absolute',
-							zIndex: 50,
 							pointerEvents: 'none',
 							userSelect: 'none',
 							filter: 'drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5))', // Shadow

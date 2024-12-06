@@ -21,13 +21,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow, useUpdateNodeInternals } from '@xyflow/react';
 import DOMPurify from 'dompurify';
-import { ChevronsUpDown, Package, Pen, Plus } from 'lucide-react';
+import { ChevronsUpDown, Package, Pen, Plus, X } from 'lucide-react';
 import React, { useContext, useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 function SheetbarSide() {
-	const { setNodes, fitView } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const updateNodeInternals = useUpdateNodeInternals();
@@ -124,6 +124,7 @@ function SheetbarSide() {
 									impacts: sheetState.process.impacts,
 									exchanges: newExchanges,
 									lifeCycleStage: sheetState.process.lifeCycleStage,
+									library: sheetState.process.library,
 								},
 							});
 
@@ -133,18 +134,7 @@ function SheetbarSide() {
 					});
 				});
 
-				const productExchangeLength = productExchangeInput.length;
-				const dynamicZoom = 2.2 - (productExchangeLength + 1) * 0.09;
-
-				setTimeout(() => {
-					updateNodeInternals(sheetState.process?.id as string);
-					fitView({
-						nodes: [{ id: sheetState.process?.id as string }],
-						maxZoom: dynamicZoom, // Use the incremental zoom level
-						duration: 700,
-						includeHiddenNodes: false,
-					});
-				}, 0);
+				updateNodeInternals(sheetState.process?.id as string);
 			},
 
 			onError: (error) => {
@@ -191,6 +181,7 @@ function SheetbarSide() {
 										impacts: sheetState.process.impacts,
 										exchanges: sheetState.process.exchanges,
 										lifeCycleStage: newNodeInformation.lifeCycleStage,
+										library: sheetState.process.library, // Add the missing 'library' property
 									},
 								});
 								setIsUpdate(false);
@@ -209,8 +200,11 @@ function SheetbarSide() {
 		<Dialog modal={true}>
 			<div className="absolute right-0 top-0 mt-[59px] h-full w-[420px] overflow-auto border-l border-[#eeeeee] bg-white">
 				{/* Header */}
-				<div className="sticky left-0 right-0 top-0 z-50 mb-1 bg-white">
+				<div className="sticky left-0 right-0 top-0 z-50 mb-1 flex items-center justify-between bg-white">
 					<div className="px-5 py-3 text-[13px] font-medium">Edit process detail</div>
+					<button onClick={() => sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE })} className="px-5">
+						<X size={16} />
+					</button>
 				</div>
 				<div className="relative px-5">
 					<div className="flex items-start space-x-2">

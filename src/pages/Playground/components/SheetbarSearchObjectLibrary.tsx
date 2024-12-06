@@ -1,9 +1,5 @@
-import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
-import { CommonResponse } from '@/@types/common.type';
 import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
-import EmissionCompartmentApis from '@/apis/emisisonCompartment.apis';
-import { ExchangeApis } from '@/apis/exchange.apis';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
 import { EmissionSubstancesApis } from '@/apis/substance.api';
 import ChemicalFormula from '@/components/ChemicalFormula';
@@ -23,22 +19,18 @@ import {
 import { useDebounce } from '@/hooks/useDebounce';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { isUnprocessableEntity } from '@/utils/error';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { Node, useReactFlow } from '@xyflow/react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import { isUndefined, omitBy } from 'lodash';
 import { Copy, ListFilter, Search, X } from 'lucide-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { toast } from 'sonner';
 const LIMIT_SIZE_PAGE = 7;
 
-function SheetbarSearch() {
-	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
+function SheetbarSearchObjectLibrary() {
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const [searchText, setSearchText] = useState<string>('');
@@ -49,14 +41,7 @@ function SheetbarSearch() {
 
 	// Fetch substances
 	const { data, fetchNextPage, isFetching, hasNextPage, isLoading } = useInfiniteQuery({
-		queryKey: [
-			'substances',
-			sheetState.queryParams.input,
-			sheetState.queryParams.keyword,
-			sheetState.queryParams.emissionCompartmentId,
-			sheetState.queryParams.impactCategoryId,
-			sheetState.queryParams.methodId,
-		],
+		queryKey: ['object-libaries'],
 		queryFn: ({ pageParam, queryKey }) => {
 			const sanitizeQueryParam = omitBy(sheetState.queryParams, isUndefined);
 
@@ -88,13 +73,6 @@ function SheetbarSearch() {
 		});
 	}, [sheetDispatch, playgroundState.impactMethod, searchTextDebounced]);
 
-	// Fetch emission compartment
-	const { data: emissionCompartment } = useQuery({
-		queryKey: ['emission-compartment'],
-		queryFn: EmissionCompartmentApis.prototype.getListEmissionCompartment,
-		staleTime: 60 * 1000 * 10,
-	});
-
 	// Get impact category
 	const { data: impactCategoriesCachedData } = useQuery({
 		queryKey: ['impact_categories', playgroundState.impactMethod],
@@ -103,75 +81,11 @@ function SheetbarSearch() {
 		staleTime: 60 * 1000 * 10,
 	});
 
-	// Add new exchange
-	const addNewExchangeMutate = useMutation({
-		mutationFn: ExchangeApis.prototype.createElementaryExchange,
-		onSuccess: (data) => {
-			const newExchanges = data.data.data;
-
-			setNodes((nodes) => {
-				return nodes.map((node) => {
-					if (node.id === sheetState.process?.id) {
-						const newProcess: Node<CabonerfNodeData> = {
-							...node,
-							data: {
-								...node.data,
-								exchanges: newExchanges,
-							},
-						};
-
-						sheetDispatch({
-							type: SheetBarDispatch.SET_NODE,
-							payload: {
-								id: sheetState.process.id,
-								name: sheetState.process.name,
-								description: sheetState.process.description,
-								projectId: sheetState.process.projectId,
-								color: sheetState.process.color,
-								overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
-								impacts: sheetState.process.impacts,
-								exchanges: newExchanges,
-								lifeCycleStage: sheetState.process.lifeCycleStage,
-								library: sheetState.process.library,
-							},
-						});
-
-						return newProcess;
-					}
-					return node;
-				});
-			});
-		},
-		onError(err) {
-			toast.error(err.message);
-		},
-	});
-
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
 			fetchNextPage();
 		}
 	}, [isFetching, fetchNextPage]);
-
-	const handleAddNewExchange = ({ substanceId }: { substanceId: string }) => {
-		const processId = sheetState.process?.id as string;
-
-		addNewExchangeMutate.mutate(
-			{
-				processId: processId,
-				emissionSubstanceId: substanceId,
-				input: sheetState.queryParams.input as string,
-			},
-			{
-				onError: (error) => {
-					if (isUnprocessableEntity<CommonResponse<string>>(error)) {
-						const formError = error.response?.data.data;
-						toast(formError);
-					}
-				},
-			}
-		);
-	};
 
 	useEffect(() => {
 		return () => {
@@ -243,29 +157,6 @@ function SheetbarSearch() {
 										</DropdownMenuSubContent>
 									</DropdownMenuPortal>
 								</DropdownMenuSub>
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger>
-										<span>Emission compartment</span>
-									</DropdownMenuSubTrigger>
-									<DropdownMenuPortal>
-										<DropdownMenuSubContent>
-											{emissionCompartment?.data.data.map((item) => (
-												<DropdownMenuItem
-													key={item.id}
-													onClick={() => {
-														sheetDispatch({
-															type: SheetBarDispatch.MODIFY_QUERY_PARAMS,
-															payload: { emissionCompartmentId: item.id },
-														});
-														setFilterEmissionCompartment(item.name);
-													}}
-												>
-													<span className="text-xs text-gray-500">{item.name}</span>
-												</DropdownMenuItem>
-											))}
-										</DropdownMenuSubContent>
-									</DropdownMenuPortal>
-								</DropdownMenuSub>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -305,7 +196,7 @@ function SheetbarSearch() {
 					)}
 				</div>
 				{/* List Substance */}
-				{isLoading || !data?.pages?.length || addNewExchangeMutate.isPending ? (
+				{isLoading || !data?.pages?.length ? (
 					<div className="flex items-center justify-center">
 						<div className="flex items-center p-5">
 							<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -346,7 +237,6 @@ function SheetbarSearch() {
 
 										return (
 											<div
-												onClick={() => !isAdded && handleAddNewExchange({ substanceId: item.id })}
 												key={item.id}
 												className={clsx(
 													'relative z-10 flex w-full flex-col items-start justify-between space-y-3 px-5 py-4 transition-all hover:bg-[#efefef]',
@@ -427,4 +317,4 @@ function SheetbarSearch() {
 	);
 }
 
-export default React.memo(SheetbarSearch);
+export default React.memo(SheetbarSearchObjectLibrary);

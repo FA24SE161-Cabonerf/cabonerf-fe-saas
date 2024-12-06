@@ -103,6 +103,7 @@ function ExchangeItem({ data, isInput }: Props) {
 									impacts: newProcess.data.impacts,
 									exchanges: newProcess.data.exchanges,
 									lifeCycleStage: sheetState.process.lifeCycleStage,
+									library: sheetState.process.library, // Add this line
 								},
 							});
 
@@ -160,6 +161,7 @@ function ExchangeItem({ data, isInput }: Props) {
 										impacts: newProcess.data.impacts,
 										exchanges: newProcess.data.exchanges,
 										lifeCycleStage: sheetState.process.lifeCycleStage,
+										library: sheetState.process.library,
 									},
 								});
 

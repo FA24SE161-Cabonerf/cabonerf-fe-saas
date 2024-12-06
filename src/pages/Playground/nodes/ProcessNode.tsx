@@ -6,7 +6,6 @@ import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess
 import HandleProductItem from '@/pages/Playground/components/HandleProductItem';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
-import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
@@ -20,10 +19,7 @@ export type CabonerfNodeProps = NodeReactFlow<CabonerfNodeData, 'process'>;
 function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const connection = useConnection();
 
-	console.log(data);
-
 	const { playgroundState } = useContext(PlaygroundContext);
-	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
 
@@ -96,11 +92,11 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			ref={triggerRef}
 			style={{
 				border: `3px solid ${data.data.color}`,
-				zIndex: 40,
+				zIndex: 0,
 			}}
 			className={clsx(`relative w-[370px] rounded-[28px] bg-white transition-transform`, {
 				'scale-105': data.dragging,
-				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.id === sheetState.process?.id,
+				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.selected,
 			})}
 		>
 			{/* Default Target */}
