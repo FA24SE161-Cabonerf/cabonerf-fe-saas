@@ -8,7 +8,7 @@ export default function DashboardLayout() {
 	const { pathname } = useLocation();
 
 	const path = pathname.split('/')[1];
-	console.log(pathname);
+
 	return (
 		<CommonLayout
 			sidebar={

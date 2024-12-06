@@ -92,7 +92,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			ref={triggerRef}
 			style={{
 				border: `3px solid ${data.data.color}`,
-				zIndex: 0,
+				zIndex: 40,
 			}}
 			className={clsx(`relative w-[370px] rounded-[28px] bg-white transition-transform`, {
 				'scale-105': data.dragging,

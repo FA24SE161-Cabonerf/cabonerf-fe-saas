@@ -96,7 +96,7 @@ export default function OrganizationPage() {
 						<div className="text-sm font-medium">Organization name</div>
 						<div className="mt-1 text-xs text-[#71717A]">The name associated with this organization</div>
 
-						<div className="mt-2 w-1/2 rounded-md border bg-[#f7f7f8] px-3 py-[6px] text-sm text-[#71717A] shadow-sm">
+						<div className="mt-2 w-1/2 cursor-not-allowed rounded-md border bg-[#f7f7f8] px-3 py-[6px] text-sm text-[#71717A] shadow-sm">
 							{organizationQuery.data?.data.data.name}
 						</div>
 					</div>
@@ -105,7 +105,7 @@ export default function OrganizationPage() {
 						<div className="text-sm font-medium">Organization description</div>
 						<div className="mt-1 text-xs text-[#71717A]">The name associated with this organization</div>
 
-						<div className="mt-2 w-1/2 rounded-md border bg-[#f7f7f8] px-3 py-[6px] text-sm text-[#71717A] shadow-sm">
+						<div className="mt-2 w-1/2 cursor-not-allowed rounded-md border bg-[#f7f7f8] px-3 py-[6px] text-sm text-[#71717A] shadow-sm">
 							{organizationQuery.data?.data.data.description ?? 'Nothing'}
 						</div>
 					</div>
@@ -113,7 +113,7 @@ export default function OrganizationPage() {
 						<div className="text-sm font-medium">Organization industry</div>
 						<div className="mt-1 text-xs text-[#71717A]">All industries associated with this organization</div>
 
-						<div className="mt-2 grid w-[60%] grid-cols-12 overflow-hidden rounded-lg border">
+						<div className="mt-2 grid w-[70%] grid-cols-12 overflow-hidden rounded-lg border">
 							{/* Header */}
 							<div className="col-span-full grid grid-cols-12 rounded-t-lg bg-gray-100 px-4 py-2">
 								<div className="col-span-1 text-left text-[13px] font-bold text-gray-700">No</div>
@@ -122,16 +122,22 @@ export default function OrganizationPage() {
 							</div>
 
 							{/* Rows */}
-							{organizationQuery.data?.data.data.industryCodes.map((item, index) => (
-								<div
-									key={item.code}
-									className="col-span-full grid grid-cols-12 items-center border-b bg-white px-4 py-3 last:border-none hover:bg-gray-50"
-								>
-									<div className="col-span-1 text-[12px] font-medium text-gray-800">{index + 1}</div>
-									<div className="col-span-7 text-[12px] text-gray-800">{item.name}</div>
-									<div className="col-span-4 text-center text-[12px] text-gray-800">{item.code}</div>
+							{organizationQuery.data?.data.data.industryCodes.length === 0 ? (
+								<div className="col-span-full items-center border-b bg-white px-4 py-2 text-center text-xs last:border-none hover:bg-gray-50">
+									No data founded
 								</div>
-							))}
+							) : (
+								organizationQuery.data?.data.data.industryCodes.map((item, index) => (
+									<div
+										key={item.code}
+										className="col-span-full grid grid-cols-12 items-center border-b bg-white px-4 py-2 last:border-none hover:bg-gray-50"
+									>
+										<div className="col-span-1 text-[12px] font-medium text-gray-800">{index + 1}</div>
+										<div className="col-span-7 text-[12px] text-gray-800">{item.name}</div>
+										<div className="col-span-4 text-center text-[12px] text-gray-800">{item.code}</div>
+									</div>
+								))
+							)}
 						</div>
 					</div>
 					<div className="mt-5">

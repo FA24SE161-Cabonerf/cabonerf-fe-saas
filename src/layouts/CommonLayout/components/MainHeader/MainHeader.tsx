@@ -9,10 +9,17 @@ import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Check } from 'lucide-react';
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
+function extractSegment(url: string) {
+	const match = url.match(/^\/(organization|dashboard)(\/|$)/); // Matches "/organization" or "/dashboard" with or without an ID
+	return match ? match[1] : null; // Return the matched segment ('organization' or 'dashboard') or null if no match
+}
 
 export default function MainHeader() {
 	const { organizationId } = useParams<{ organizationId: string }>();
+	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	const organizations = useQuery({
 		queryKey: ['organizations'],
@@ -43,8 +50,8 @@ export default function MainHeader() {
 									<div className="mx-8 my-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600">organizations</div>
 
 									{organizations.data?.data.data.map((org) => (
-										<Link
-											to={`/dashboard/${org.id}`}
+										<button
+											onClick={() => navigate(`/${extractSegment(pathname)}/${org.id}`)}
 											key={org.id}
 											className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
 										>
@@ -54,7 +61,7 @@ export default function MainHeader() {
 											{organizationId === org.id && (
 												<Check size={15} className="absolute left-2 top-1/2 ml-0 -translate-y-1/2" />
 											)}
-										</Link>
+										</button>
 									))}
 								</div>
 							}

@@ -340,7 +340,7 @@ export default function Playground() {
 								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 								className="relative"
 								nodeTypes={customNode}
-								minZoom={0.4}
+								minZoom={0.3}
 								maxZoom={4}
 								edgeTypes={customEdge}
 								nodes={nodes}
