@@ -9,6 +9,7 @@ import TAB_TITLES from '@/constants/tab.titles';
 import { AppContext } from '@/contexts/app.context';
 import { registerSchema, tRegisterSchema } from '@/schemas/validation/register.schema';
 import { isUnprocessableEntity } from '@/utils/error';
+import { saveCurrentOrganizationToLocalStorage } from '@/utils/local_storage';
 import { disableCopyPaste } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -62,6 +63,7 @@ export default function RegisterPage() {
 						const defaultOrg = orgData?.find((item) => item.default === true);
 
 						if (defaultOrg) {
+							saveCurrentOrganizationToLocalStorage({ orgId: defaultOrg.id, orgName: defaultOrg.name });
 							navigate(`/dashboard/${defaultOrg.id}`);
 						} else {
 							console.error('No default organization found');

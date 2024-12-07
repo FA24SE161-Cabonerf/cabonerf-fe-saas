@@ -1,6 +1,7 @@
 import { OrganizeApis } from '@/apis/organiza.apis';
+import { AppContext } from '@/contexts/app.context';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
@@ -8,6 +9,9 @@ type Props = {
 };
 
 const RedirectToDefaultOrganization = ({ pathName }: Props) => {
+	const {
+		app: { currentOrganization },
+	} = useContext(AppContext);
 	const { search } = useLocation();
 	const navigate = useNavigate();
 	console.log(search);
@@ -23,12 +27,12 @@ const RedirectToDefaultOrganization = ({ pathName }: Props) => {
 			const defaultOrg = organizationsQuery.data.data.data.find((org) => org.default === true);
 
 			if (defaultOrg) {
-				navigate(`/${pathName}/${defaultOrg.id}`);
+				navigate(`/${pathName}/${currentOrganization?.orgId}`);
 			} else {
 				console.error('No default organization found.');
 			}
 		}
-	}, [organizationsQuery.data, navigate, pathName]);
+	}, [organizationsQuery.data, navigate, pathName, currentOrganization]);
 
 	return <p></p>;
 };

@@ -22,7 +22,7 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
-	NodeMouseHandler,
+	addEdge,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -55,6 +55,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
+import { DevTools } from '@/components/devtools';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -179,6 +180,7 @@ export default function Playground() {
 					setNodes((nodes) =>
 						nodes.map((item) => {
 							if (item.id === sanitizedData.updatedProcess?.processId) {
+								// Đảm bảo thêm handle mới vào exchanges
 								return {
 									...item,
 									data: {
@@ -191,9 +193,15 @@ export default function Playground() {
 						})
 					)
 				);
-				updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
+
+				// Đợi React Flow render lại node để đảm bảo handle tồn tại
+				setTimeout(() => {
+					updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
+
+					// Thêm edge vào sau khi handle được thêm
+					setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
+				}, 0);
 			}
-			setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 		});
 
 		socket.on('connect_error', (error) => {
@@ -365,7 +373,7 @@ export default function Playground() {
 									<PlaygroundActionToolbar />
 								</Panel>
 								<PlaygroundToolBoxV2 />
-
+								<DevTools />
 								<Panel position="bottom-center">
 									<PlaygroundControls
 										lifeCycleStageBreakdown={project?.lifeCycleStageBreakdown as LifeCycleStageBreakdown[]}

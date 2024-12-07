@@ -203,7 +203,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			{/* Delete */}
 			{appContext.deleteProcessesIds.includes(data.id) && (
 				<>
-					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[22px] border-[1px] border-gray-100 bg-gray-100/80"></div>
+					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] border-[1px] border-gray-100 bg-gray-100/80"></div>
 					<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
 						<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
 					</div>

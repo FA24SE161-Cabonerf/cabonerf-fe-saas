@@ -1,3 +1,4 @@
+import { eDispatchType } from '@/@types/dispatch.type';
 import { OrganizeApis } from '@/apis/organiza.apis';
 import BreadcrumbWithMenu from '@/components/BreadcrumbMenu';
 import MyAvatar from '@/components/MyAvatar';
@@ -5,18 +6,19 @@ import { Breadcrumb, BreadcrumbList } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import { AppContext } from '@/contexts/app.context';
 import ProfileDropdown from '@/layouts/CommonLayout/components/ProfileDropdown';
+import { saveCurrentOrganizationToLocalStorage } from '@/utils/local_storage';
 import { useQuery } from '@tanstack/react-query';
 import { Bell, Check } from 'lucide-react';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-
 function extractSegment(url: string) {
 	const match = url.match(/^\/(organization|dashboard)(\/|$)/); // Matches "/organization" or "/dashboard" with or without an ID
 	return match ? match[1] : null; // Return the matched segment ('organization' or 'dashboard') or null if no match
 }
-
 export default function MainHeader() {
+	const { dispatch } = useContext(AppContext);
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
@@ -27,6 +29,21 @@ export default function MainHeader() {
 		enabled: true,
 		staleTime: 60 * 1000 * 60,
 	});
+
+	const handleUpdateOrganizationId = (payload: { orgId: string; orgName: string }) => {
+		dispatch({
+			type: eDispatchType.UPDATE_ORGANIZATION_ID,
+			payload: {
+				orgId: payload.orgId,
+				orgName: payload.orgName,
+			},
+		});
+		saveCurrentOrganizationToLocalStorage({
+			orgId: payload.orgId,
+			orgName: payload.orgName,
+		});
+		navigate(`/${extractSegment(pathname)}`);
+	};
 
 	return (
 		<header className="fixed left-0 right-0 top-0 bg-backgroundBehide p-2.5">
@@ -51,7 +68,7 @@ export default function MainHeader() {
 
 									{organizations.data?.data.data.map((org) => (
 										<button
-											onClick={() => navigate(`/${extractSegment(pathname)}/${org.id}`)}
+											onClick={() => handleUpdateOrganizationId({ orgId: org.id, orgName: org.name })}
 											key={org.id}
 											className="relative flex w-full cursor-pointer items-center rounded-[6px] py-1 pl-8 duration-75 hover:bg-gray-200"
 										>

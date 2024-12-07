@@ -17,6 +17,7 @@ type ObjectLibrary = {
 	lifeCycleStage: LifeCycleStages;
 	impacts: Omit<Impact & { unitLevel: number; systemLevel: number; overallImpactContribution: number }, 'value'>[];
 	exchanges: Exchange[];
+	location?: string;
 };
 
 export type { ObjectLibrary };

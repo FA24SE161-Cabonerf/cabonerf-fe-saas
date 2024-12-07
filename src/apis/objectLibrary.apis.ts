@@ -6,10 +6,10 @@ import _ from 'lodash';
 
 interface QueryParams {
 	organizationId: string;
-	pageCurrent?: number;
+	pageCurrent: number;
 	pageSize?: number;
-	methodId?: string;
 	keyword?: string;
+	systemBoundaryId?: string;
 }
 
 export default class ObjectLibraryApis {
