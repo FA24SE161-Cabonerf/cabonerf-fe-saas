@@ -116,7 +116,7 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 	};
 	return (
 		<TooltipProvider delayDuration={200}>
-			<div className="relative w-auto transform rounded-[15px] border-[0.5px] border-gray-50 bg-white shadow-xl duration-300">
+			<div className="relative w-auto transform rounded-[15px] border-[0.5px] border-gray-100 bg-white shadow-2xl duration-300">
 				<div className="flex items-center space-x-2 p-1.5">
 					<ControlItem duration={ZOOM} onAction={reactflow.zoomIn}>
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20} color={'currentColor'} fill={'none'}>

@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 
 const colors = [
 	{
-		bg: '#FFB454', // Cam đậm hơn pastel
+		bg: '#fbbf24', // Cam đậm hơn pastel
 		border: '#FFB454', // Cam rực rỡ, nổi bật
 	},
 	{
