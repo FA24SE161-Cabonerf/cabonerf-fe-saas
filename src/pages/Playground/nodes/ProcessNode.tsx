@@ -11,6 +11,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
 import clsx from 'clsx';
 import DOMPurify from 'dompurify';
+import { DatabaseZap, Info } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -94,7 +95,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				border: `3px solid ${data.data.color}`,
 				zIndex: 40,
 			}}
-			className={clsx(`relative w-[370px] rounded-[28px] bg-white transition-transform`, {
+			className={clsx(`relative w-[380px] rounded-[28px] bg-white transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.selectable === false,
 			})}
@@ -163,14 +164,15 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 									</div>
 								</button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent className="max-h-[400px] w-[700px] overflow-y-scroll p-2">
-								<div className="grid grid-cols-12 px-2 py-1">
+							<DropdownMenuContent className="max-h-[400px] w-[650px] overflow-y-scroll scroll-smooth p-0">
+								<div className="sticky left-0 right-0 top-0 grid grid-cols-12 border-b bg-white px-2 py-1.5">
 									<div className="col-span-8 mx-auto text-sm font-semibold">Impact Category</div>
 									<div className="col-span-2 text-sm font-semibold">Unit Level</div>
 									<div className="col-span-2 text-sm font-semibold">System Level</div>
 								</div>
+
 								{data.data.impacts.map((item, index) => (
-									<div key={index} className="grid grid-cols-12 space-y-1">
+									<div key={index} className="grid grid-cols-12 space-y-1 px-2 py-0.5">
 										<div className="col-span-8 flex items-center space-x-3">
 											<div
 												dangerouslySetInnerHTML={{
@@ -184,8 +186,8 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 												</span>
 											</div>
 										</div>
-										<div className="col-span-2 text-sm">{formatWithExponential(item.unitLevel)}</div>
-										<div className="col-span-2 text-sm">{formatWithExponential(item.systemLevel)}</div>
+										<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.unitLevel)}</div>
+										<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.systemLevel)}</div>
 									</div>
 								))}
 							</DropdownMenuContent>
@@ -212,7 +214,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 
 			<div className="flex items-start gap-1">
 				{productExchangeInput.length > 0 && (
-					<div className="mb-5 space-y-1">
+					<div className="mb-2 space-y-1">
 						{productExchangeInput.map((item) => (
 							<HandleProductItem data={item} key={item.id} />
 						))}
@@ -220,10 +222,33 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				)}
 
 				{productExchangeOutput && (
-					<div className="mb-5 ml-auto">
+					<div className="mb-2 ml-auto">
 						<HandleProductItem isReverse data={productExchangeOutput} />
 					</div>
 				)}
+			</div>
+
+			<div className="mx-2 mb-2 flex items-center justify-end space-x-1">
+				{data.data.library && (
+					<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100">
+						<div
+							style={{ backgroundColor: data.data.color }}
+							className="invisible absolute -top-5 left-1/2 w-fit -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+						>
+							Data Set
+						</div>
+						<DatabaseZap width={14} height={14} />
+					</div>
+				)}
+				<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100">
+					<div
+						style={{ backgroundColor: data.data.color }}
+						className="invisible absolute -top-5 left-1/2 w-fit -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+					>
+						Process Details
+					</div>
+					<Info width={14} height={14} />
+				</div>
 			</div>
 
 			{/* Context Menu */}

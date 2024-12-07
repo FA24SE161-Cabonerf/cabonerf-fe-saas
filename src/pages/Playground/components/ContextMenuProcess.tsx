@@ -8,13 +8,14 @@ import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import socket from '@/socket.io';
 import { Edge, Node, useReactFlow } from '@xyflow/react';
+import clsx from 'clsx';
 import { Leaf, Trash2 } from 'lucide-react';
 import React, { forwardRef, useContext, useEffect, useId } from 'react';
 import { useParams } from 'react-router-dom';
 
 const colors = [
 	{
-		bg: '#FFB454', // Cam đậm hơn pastel
+		bg: '#fbbf24', // Cam đậm hơn pastel
 		border: '#FFB454', // Cam rực rỡ, nổi bật
 	},
 	{
@@ -110,6 +111,8 @@ const ContextMenuProcess = React.memo(
 			});
 		};
 
+		const isObjectLib = app.contextMenuSelector?.process.library;
+
 		return (
 			<div
 				id={id}
@@ -121,7 +124,7 @@ const ContextMenuProcess = React.memo(
 				}}
 				className="transition-all duration-300"
 			>
-				<div className="w-[230px] rounded-[10px] border-[0.5px] border-gray-200 bg-white shadow-xl transition-all duration-500">
+				<div className="w-[230px] rounded-[10px] border-[0.3px] bg-white shadow-md transition-all duration-500">
 					<div className="px-3 py-2 text-sm font-medium">Edit process</div>
 					<Separator />
 					<div className="py-2 text-gray-400">
@@ -151,8 +154,12 @@ const ContextMenuProcess = React.memo(
 							<span className="px-3 py-1 text-xs">Options</span>
 							<div className="p-1">
 								<button
+									disabled={isObjectLib}
 									onClick={handleEditDetail}
-									className="flex w-full items-center space-x-2 rounded-[5px] px-[10px] py-2 font-normal text-black hover:bg-[#22c55e] hover:text-white"
+									className={clsx(`flex w-full items-center space-x-2 rounded-[5px] px-[10px] py-2 font-normal`, {
+										'text-black hover:bg-[#22c55e] hover:text-white': isObjectLib === false,
+										'cursor-not-allowed text-gray-400': isObjectLib,
+									})}
 								>
 									<Leaf size={15} />
 									<span className="text-[12px]">Edit Elementary Exchanges</span>
