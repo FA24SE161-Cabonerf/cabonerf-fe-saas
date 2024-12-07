@@ -305,7 +305,7 @@ function SheetbarSearch() {
 					)}
 				</div>
 				{/* List Substance */}
-				{isLoading || !data?.pages?.length || addNewExchangeMutate.isPending ? (
+				{isLoading || !data?.pages?.length ? (
 					<div className="flex items-center justify-center">
 						<div className="flex items-center p-5">
 							<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -317,6 +317,7 @@ function SheetbarSearch() {
 						next={handleFetchNext}
 						height={550}
 						hasMore={hasNextPage}
+						className="relative"
 						dataLength={data.pages.length}
 						loader={
 							<div className="flex items-center justify-center">
@@ -333,6 +334,11 @@ function SheetbarSearch() {
 							</div>
 						}
 					>
+						{addNewExchangeMutate.isPending && (
+							<div className="absolute inset-0 z-50 flex items-center justify-center rounded-b-[14px] bg-gray-100 bg-opacity-50">
+								<ReloadIcon className="h-4 w-4 animate-spin" />
+							</div>
+						)}
 						{data.pages.map((item, index) => (
 							<React.Fragment key={index}>
 								{item.list.length > 0 ? (
@@ -389,7 +395,6 @@ function SheetbarSearch() {
 													</div>
 													<div className="text-sm italic text-gray-500">{item.substance.chemicalName}</div>
 												</div>
-
 												<div className="mt-1 flex w-full flex-wrap">
 													{item.factors.map((factor) => (
 														<div key={factor.id} className="flex basis-1/2 items-center space-x-2 text-sm text-gray-500">

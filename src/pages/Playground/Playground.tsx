@@ -16,13 +16,13 @@ import socket from '@/socket.io';
 import { useQuery } from '@tanstack/react-query';
 
 import {
+	addEdge,
 	Background,
 	Connection,
 	Edge,
 	EdgeTypes,
 	MiniMap,
 	Node,
-	addEdge,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -39,6 +39,7 @@ import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import Cursors from '@/components/Cursor';
 import WarningSooner from '@/components/WarningSooner';
+import { DevTools } from '@/components/devtools';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
 import useCursorStateSynced from '@/hooks/useCursorStateSynced';
@@ -54,8 +55,8 @@ import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
+import { StickyNote, Type } from 'lucide-react';
 import { flushSync } from 'react-dom';
-import { DevTools } from '@/components/devtools';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -230,6 +231,10 @@ export default function Playground() {
 		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
 			setNodes((nodes) => [...nodes, data]);
 			setIsLoading(false);
+		});
+
+		socket.on('gateway:created-object-library', (data: CabonerfNode) => {
+			setNodes((nodes) => [...nodes, data]);
 		});
 	}, [setNodes]);
 
@@ -416,7 +421,7 @@ export default function Playground() {
 																width: 20,
 																fill: 'none',
 																color: 'currentColor',
-																strokeWidth: 1.5,
+																strokeWidth: 2,
 															},
 														})
 													),
@@ -427,17 +432,13 @@ export default function Playground() {
 								</div>
 								<Separator className="bg-[#eeeeee]" />
 								<div className="p-[5px]">
-									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
-										{/* <Package size={18} color="#6b7280" /> */}
-
+									<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+										<StickyNote size={18} strokeWidth={1.5} />
 										<span className="text-[12px] capitalize">Add Note</span>
 									</ContextMenuItem>
-									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+									<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+										<Type size={18} strokeWidth={1.5} />
 										<span className="text-[12px] capitalize">Add Text</span>
-										{/* <Package size={18} color="#6b7280" /> */}
-									</ContextMenuItem>
-									<ContextMenuItem className="flex items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
-										<span className="text-[12px] capitalize">Sort By</span>
 										{/* <Package size={18} color="#6b7280" /> */}
 									</ContextMenuItem>
 								</div>
