@@ -6,7 +6,6 @@ import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess
 import HandleProductItem from '@/pages/Playground/components/HandleProductItem';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
-import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
@@ -21,7 +20,6 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const connection = useConnection();
 
 	const { playgroundState } = useContext(PlaygroundContext);
-	const { sheetState } = useContext(SheetbarContext);
 	const { app: appContext } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
 
@@ -94,10 +92,11 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			ref={triggerRef}
 			style={{
 				border: `3px solid ${data.data.color}`,
+				zIndex: 40,
 			}}
 			className={clsx(`relative w-[370px] rounded-[28px] bg-white transition-transform`, {
 				'scale-105': data.dragging,
-				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.id === sheetState.process?.id,
+				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.selectable === false,
 			})}
 		>
 			{/* Default Target */}
@@ -204,7 +203,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			{/* Delete */}
 			{appContext.deleteProcessesIds.includes(data.id) && (
 				<>
-					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[22px] border-[1px] border-gray-100 bg-gray-100/80"></div>
+					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] border-[1px] border-gray-100 bg-gray-100/80"></div>
 					<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
 						<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
 					</div>

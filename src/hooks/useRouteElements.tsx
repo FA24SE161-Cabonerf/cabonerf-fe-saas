@@ -33,7 +33,7 @@ export default function useRouteElements() {
 						},
 						{
 							path: 'dashboard',
-							element: <RedirectToDefaultOrganization />,
+							element: <RedirectToDefaultOrganization pathName="dashboard" />,
 						},
 						{
 							path: 'dashboard/:organizationId',
@@ -46,6 +46,10 @@ export default function useRouteElements() {
 						},
 						{
 							path: 'organization',
+							element: <RedirectToDefaultOrganization pathName="organization" />,
+						},
+						{
+							path: 'organization/:organizationId',
 							element: <OrganizationPage />,
 						},
 						{

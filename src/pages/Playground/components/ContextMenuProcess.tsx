@@ -80,17 +80,6 @@ const ContextMenuProcess = React.memo(
 					payload: { ...app.contextMenuSelector.process },
 				});
 				contextDispatch({ type: ContextDispatch.CLOSE_CONTEXT_MENU });
-
-				const length = app.contextMenuSelector.process?.exchanges.filter(
-					(item) => item.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000' && item.input === true
-				).length;
-
-				await fitView({
-					nodes: [{ id: app.contextMenuSelector.process.id }],
-					maxZoom: 2.2 - 0.09 * length,
-					duration: 700,
-					includeHiddenNodes: false,
-				});
 			}
 		};
 

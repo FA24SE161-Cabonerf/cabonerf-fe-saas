@@ -132,6 +132,7 @@ function SheetbarSearch() {
 								impacts: sheetState.process.impacts,
 								exchanges: newExchanges,
 								lifeCycleStage: sheetState.process.lifeCycleStage,
+								library: sheetState.process.library,
 							},
 						});
 

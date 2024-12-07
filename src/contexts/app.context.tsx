@@ -2,7 +2,12 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import { User } from '@/@types/user.type';
-import { getTokenFromLocalStorage, getUserProfileFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
+import {
+	getCurrentOrganizationFromLocalStorage,
+	getTokenFromLocalStorage,
+	getUserProfileFromLocalStorage,
+	TOKEN_KEY_NAME,
+} from '@/utils/local_storage';
 import React, { createContext, Dispatch, useMemo, useReducer } from 'react';
 
 type Props = {
@@ -16,6 +21,7 @@ type State = {
 	impactCategory: ImpactCategory | undefined;
 	selectCheckbox: string[];
 	deleteProcessesIds: string[];
+	currentOrganization: { orgId: string; orgName: string } | null;
 };
 
 type LoginAction = {
@@ -88,6 +94,14 @@ type CloseCheckbox = {
 	type: eDispatchType.CLOSE_CHECKBOX;
 };
 
+type UpdateOrganizationId = {
+	type: eDispatchType.UPDATE_ORGANIZATION_ID;
+	payload: {
+		orgId: string;
+		orgName: string;
+	};
+};
+
 type Action =
 	| LoginAction
 	| RegisterAction
@@ -101,7 +115,8 @@ type Action =
 	| SelectCheckbox
 	| ClearCheckbox
 	| SelectAllCheckbox
-	| CloseCheckbox;
+	| CloseCheckbox
+	| UpdateOrganizationId;
 
 type AppContext = {
 	app: State;
@@ -116,6 +131,7 @@ const initialAppStateContext: AppContext = {
 		impactCategory: undefined,
 		deleteProcessesIds: [],
 		selectCheckbox: [],
+		currentOrganization: getCurrentOrganizationFromLocalStorage(),
 	},
 	dispatch: () => {},
 };
@@ -210,6 +226,9 @@ const reducer = (state: State, action: Action) => {
 		case eDispatchType.CLOSE_CHECKBOX:
 			return { ...state, selectCheckbox: [] };
 
+		case eDispatchType.UPDATE_ORGANIZATION_ID:
+			return { ...state, currentOrganizationId: action.payload };
+
 		default:
 			return state;
 	}
@@ -223,6 +242,7 @@ export default function AppProvider({ children }: Props) {
 		impactCategory: initialAppStateContext.app.impactCategory,
 		deleteProcessesIds: initialAppStateContext.app.deleteProcessesIds,
 		selectCheckbox: initialAppStateContext.app.selectCheckbox,
+		currentOrganization: initialAppStateContext.app.currentOrganization,
 	});
 
 	const context = useMemo(() => {

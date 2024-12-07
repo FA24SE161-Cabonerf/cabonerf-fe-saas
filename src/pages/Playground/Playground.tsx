@@ -22,26 +22,28 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
+	addEdge,
 	NodeTypes,
 	Panel,
 	ReactFlow,
-	useEdgesState,
-	useNodesState,
 	useReactFlow,
 	useUpdateNodeInternals,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
-import CustomSuccessSooner from '@/components/CustomSooner';
+import Cursors from '@/components/Cursor';
 import WarningSooner from '@/components/WarningSooner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
+import useCursorStateSynced from '@/hooks/useCursorStateSynced';
+import useEdgesStateSynced from '@/hooks/useEdgesStateSynced';
+import useNodesStateSynced from '@/hooks/useNodesStateSynced';
 import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
@@ -49,10 +51,11 @@ import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
 import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
 import { flushSync } from 'react-dom';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { DevTools } from '@/components/devtools';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -63,32 +66,41 @@ const customNode: NodeTypes = {
 	text: TextNode,
 };
 
+const onDragOver = (event: DragEvent) => {
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'move';
+};
+
 export default function Playground() {
+	const nodeEditingId = useRef<string>('');
+
+	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
+	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const {
-		deleteElements,
-		setViewport,
-		addNodes,
-		addEdges,
-		setNodes: setMoreNodes,
-		setEdges: setMoreEdges,
-	} = useReactFlow<Node<CabonerfNodeData>>();
-	const [nodes, setNodes, onNodesChange] = useNodesState<Node<CabonerfNodeData>>([]);
-	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+	const { screenToFlowPosition } = useReactFlow<Node<CabonerfNodeData>>();
+
+	const [nodes, setNodes, onNodesChange] = useNodesStateSynced();
+	const [edges, setEdges, onEdgesChange] = useEdgesStateSynced();
+	const [cursors, onMouseMove] = useCursorStateSynced();
 
 	const updateNodeInternal = useUpdateNodeInternals();
 
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
-	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string }>();
 
 	const { data: projectData, isFetching } = useQuery({
-		queryKey: ['projects', { pid: params.pid }],
-		queryFn: () => ProjectApis.prototype.getProjectById({ pid: params.pid as string }),
+		queryKey: ['projects', params.pid],
+		queryFn: ({ queryKey }) => ProjectApis.prototype.getProjectById({ pid: queryKey[1] as string }),
 		enabled: Boolean(params.pid),
 		staleTime: 0,
 		refetchOnMount: true,
+	});
+
+	const lifeCycleStagesQuery = useQuery({
+		queryKey: ['life-cycle-stage'],
+		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
+		staleTime: 60_000 * 120,
 	});
 
 	const project = projectData?.data.data;
@@ -99,16 +111,12 @@ export default function Playground() {
 		document.title = `${projectName} — Cabonerf`;
 	}, [playgroundState.projectInformation?.name]);
 
-	const lifeCycleStagesQuery = useQuery({
-		queryKey: ['life-cycle-stage'],
-		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
-		staleTime: 60_000 * 120,
-	});
-
 	useEffect(() => {
-		if (project?.processes) {
+		if (project) {
+			console.log('Vao day');
 			setEdges(project.connectors);
 			setNodes(project.processes);
+
 			playgroundDispatch({
 				type: PlaygroundDispatch.SET_PROJECT_INFOR,
 				payload: {
@@ -117,19 +125,10 @@ export default function Playground() {
 					location: project.location,
 				},
 			});
+
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: project.method.id });
 		}
-	}, [
-		playgroundDispatch,
-		project?.method.id,
-		project?.processes,
-		project?.connectors,
-		setEdges,
-		setNodes,
-		project?.name,
-		project?.description,
-		project?.location,
-	]);
+	}, [playgroundDispatch, project, setEdges, setNodes]);
 
 	useEffect(() => {
 		socket.auth = {
@@ -137,13 +136,30 @@ export default function Playground() {
 		};
 		socket.connect();
 
+		const infor_user = {
+			userId: app.userProfile?.id,
+			userName: app.userProfile?.fullName,
+			userAvatar: app.userProfile?.profilePictureUrl,
+			projectId: params.pid,
+		};
+
 		if (params.pid) {
-			socket.emit('gateway:join-room', { projectId: params.pid });
+			socket.emit('gateway:join-room', infor_user);
 		}
 
+		socket.on('gateway:user-connect-to-project', (data) => {
+			console.log(data);
+			setUsers(data);
+		});
+
+		socket.on('gateway:user-leave-room-success', (data) => {
+			setUsers(data);
+		});
+
 		socket.on('gateway:delete-process-success', (data) => {
-			deleteElements({ nodes: [{ id: data }] });
+			// deleteElements({ nodes: [{ id: data }] });
 			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
+			setEdges((edges) => edges.filter((item) => item.id !== data));
 		});
 
 		socket.on('gateway:error-create-edge', (data) => {
@@ -164,11 +180,12 @@ export default function Playground() {
 					setNodes((nodes) =>
 						nodes.map((item) => {
 							if (item.id === sanitizedData.updatedProcess?.processId) {
+								// Đảm bảo thêm handle mới vào exchanges
 								return {
 									...item,
 									data: {
 										...item.data,
-										exchanges: [...item.data.exchanges, sanitizedData.updatedProcess.exchange],
+										exchanges: [...(item.data.exchanges as never), sanitizedData.updatedProcess.exchange],
 									},
 								};
 							}
@@ -176,9 +193,15 @@ export default function Playground() {
 						})
 					)
 				);
-				updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
+
+				// Đợi React Flow render lại node để đảm bảo handle tồn tại
+				setTimeout(() => {
+					updateNodeInternal(sanitizedData.updatedProcess?.processId as string);
+
+					// Thêm edge vào sau khi handle được thêm
+					setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
+				}, 0);
 			}
-			setEdges((edges) => [...edges, sanitizedData.connector as Edge]);
 		});
 
 		socket.on('connect_error', (error) => {
@@ -187,11 +210,66 @@ export default function Playground() {
 
 		return () => {
 			// Leave room
-			socket.emit('gateway:leave-room', params.pid);
+			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
 
 			socket.disconnect();
 		};
-	}, [app.userProfile?.id, appDispatch, addEdges, deleteElements, setEdges, setNodes, updateNodeInternal, params.pid]);
+	}, [
+		app.userProfile?.id,
+		appDispatch,
+		setEdges,
+		setNodes,
+		updateNodeInternal,
+		params.pid,
+		app.userProfile?.fullName,
+		app.userProfile?.profilePictureUrl,
+		setUsers,
+	]);
+
+	useEffect(() => {
+		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
+			setNodes((nodes) => [...nodes, data]);
+			setIsLoading(false);
+		});
+	}, [setNodes]);
+
+	useEffect(() => {
+		if (sheetState.process) {
+			nodeEditingId.current = sheetState.process.id;
+			setNodes((prev) =>
+				prev.map((node) =>
+					node.id === nodeEditingId.current
+						? { ...node, selectable: false, deletable: false, focusable: false, draggable: false, className: 'blink' }
+						: node
+				)
+			);
+		} else {
+			setNodes((prev) =>
+				prev.map((node) =>
+					node.id === nodeEditingId.current ? { ...node, selectable: true, deletable: true, focusable: true, draggable: true } : node
+				)
+			);
+			nodeEditingId.current = '';
+		}
+	}, [setNodes, sheetState.process]);
+
+	const onDrop = (event: DragEvent) => {
+		event.preventDefault();
+
+		const type = event.dataTransfer.getData('application/reactflow');
+		const position = screenToFlowPosition({
+			x: event.clientX - 80,
+			y: event.clientY - 20,
+		});
+		const newNode: Node = {
+			id: `${Date.now()}`,
+			type,
+			position,
+			data: { label: `${type}` },
+		};
+
+		setNodes((prev) => [...prev, newNode as Node<CabonerfNodeData>]);
+	};
 
 	const onConnect = useCallback(
 		(param: Connection) => {
@@ -211,42 +289,8 @@ export default function Playground() {
 		[params.pid]
 	);
 
-	useEffect(() => {
-		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
-			addNodes(data);
-			setIsLoading(false);
-		});
-
-		socket.on('gateway:create-process-success-self', (data: CabonerfNode) => {
-			toast(<CustomSuccessSooner data={data.data.lifeCycleStage} />, {
-				className: 'rounded-2xl p-2 w-[350px]',
-				style: {
-					border: `1px solid #dedede`,
-					backgroundColor: `#fff`,
-				},
-			});
-		});
-	}, [addNodes, playgroundDispatch]);
-
-	useEffect(() => {
-		setMoreNodes((nodes) =>
-			nodes.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}))
-		);
-		setMoreEdges((edge) =>
-			edge.map((item) => ({
-				...item,
-				hidden: sheetState.process?.id ? item.id !== sheetState.process.id : false,
-				draggable: sheetState.process === undefined ? true : false,
-			}))
-		);
-	}, [sheetState.process, setViewport, setMoreNodes, setMoreEdges]);
-
 	const handleNodeDragStop = useCallback(
-		(_event: MouseEvent, node: Node<CabonerfNodeData>) => {
+		(_event: MouseEvent, node: any) => {
 			const data = { id: node.id, x: node.position.x, y: node.position.y };
 			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
 		},
@@ -256,11 +300,8 @@ export default function Playground() {
 	const handlePanelClick = useCallback(() => {
 		if (sheetState.process) {
 			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
-			setViewport({ x: 0, y: 0, zoom: 0.7 }, { duration: 800 });
 		}
-	}, [setViewport, sheetDispatch, sheetState]);
-
-	const canPaneScrollAndDrag = useMemo(() => sheetState.process === undefined, [sheetState.process]);
+	}, [sheetDispatch, sheetState]);
 
 	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
 		// Get properties of screen
@@ -283,41 +324,56 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
+	// const onNodeClick: NodeMouseHandler = useCallback(
+	// 	(_, clicked) => {
+	// 		setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+
+	// 		window.setTimeout(() => {
+	// 			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+	// 		}, 3000);
+	// 	},
+	// 	[setNodes]
+	// );
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
 		<React.Fragment>
 			<PlaygroundControlContextProvider>
 				<div className="relative h-[calc(100vh-59px)] text-[#333333]">
-					<PlaygroundHeader id={project?.id as string} />
+					<PlaygroundHeader users={users} id={project?.id as string} />
 					<ContextMenu>
 						<ContextMenuTrigger>
 							<ReactFlow
 								defaultViewport={{ zoom: 0.7, x: 0, y: 0 }}
 								className="relative"
 								nodeTypes={customNode}
+								minZoom={0.3}
+								maxZoom={4}
 								edgeTypes={customEdge}
 								nodes={nodes}
 								edges={edges}
-								panOnDrag={canPaneScrollAndDrag}
 								zoomOnDoubleClick={false}
-								preventScrolling={canPaneScrollAndDrag}
 								onConnect={onConnect}
-								onPaneClick={handlePanelClick}
 								proOptions={{ hideAttribution: true }}
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
 								onlyRenderVisibleElements
+								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}
+								onPointerMove={onMouseMove}
+								onDrop={onDrop}
+								onDragOver={onDragOver}
 							>
+								<Cursors cursors={cursors} />
 								<Background bgColor="#f4f3f3" />
 								<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 								<Panel position="top-left">
 									<PlaygroundActionToolbar />
 								</Panel>
 								<PlaygroundToolBoxV2 />
-
+								<DevTools />
 								<Panel position="bottom-center">
 									<PlaygroundControls
 										lifeCycleStageBreakdown={project?.lifeCycleStageBreakdown as LifeCycleStageBreakdown[]}

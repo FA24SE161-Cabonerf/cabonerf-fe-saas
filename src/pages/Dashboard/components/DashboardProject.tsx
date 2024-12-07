@@ -31,8 +31,6 @@ function DashboardProject() {
 		}
 	};
 
-	console.log(previewProject?.description);
-
 	return (
 		<Dialog open={isOpenDialog} onOpenChange={handleDialogClose}>
 			<DialogContent className="h-[90%] max-w-[75%] overflow-y-scroll">

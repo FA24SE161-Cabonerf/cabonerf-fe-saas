@@ -39,9 +39,30 @@ export const getUserProfileFromLocalStorage = (): User | null => {
 	}
 };
 
+export const saveCurrentOrganizationToLocalStorage = (org: { orgId: string; orgName: string }) => {
+	const orgInfo = JSON.stringify(org);
+	return localStorage.setItem('organization', orgInfo);
+};
+
+export const getCurrentOrganizationFromLocalStorage = (): { orgId: string; orgName: string } | null => {
+	const org = localStorage.getItem('organization');
+
+	if (!org) {
+		return null;
+	}
+
+	try {
+		return JSON.parse(org);
+	} catch (error) {
+		console.error('Failed to parse user profile from local storage:', error);
+		return null;
+	}
+};
+
 // Utility function to clear specific tokens or the entire localStorage
 export const clearResouceInLocalStorage = (): void => {
 	localStorage.removeItem(TOKEN_KEY_NAME.ACCESS_TOKEN);
 	localStorage.removeItem(TOKEN_KEY_NAME.REFRESH_TOKEN);
 	localStorage.removeItem(USER_PROFILE_KEY_NAME);
+	localStorage.removeItem('organizationId');
 };

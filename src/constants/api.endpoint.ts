@@ -71,7 +71,12 @@ class CONNECTOR {
 	public static CONNECTOR = '/connectors';
 }
 
+class OBJECT_LIBRARY {
+	public static OBJECT_LIBRARY = '/object-library';
+}
+
 export {
+	OBJECT_LIBRARY,
 	WORKSPACE_ENDPOINT,
 	CONNECTOR,
 	PROCESS,

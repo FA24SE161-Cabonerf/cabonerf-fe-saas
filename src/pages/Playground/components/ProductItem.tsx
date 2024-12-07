@@ -168,6 +168,7 @@ export default function ProductItem({ data }: Props) {
 											name: _newProcess.data.name,
 											overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
 											projectId: _newProcess.data.projectId,
+											library: _newProcess.data.library, // Add this line
 										},
 									});
 								}
