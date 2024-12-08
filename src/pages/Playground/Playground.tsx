@@ -202,6 +202,10 @@ export default function Playground() {
 					setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
 				}, 0);
 			}
+
+			setTimeout(() => {
+				setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
+			}, 0);
 		});
 
 		socket.on('connect_error', (error) => {
@@ -239,6 +243,18 @@ export default function Playground() {
 
 	useEffect(() => {
 		if (sheetState.process) {
+			// Reset node cũ trước khi xử lý node mới
+			if (nodeEditingId.current) {
+				setNodes((prev) =>
+					prev.map((node) =>
+						node.id === nodeEditingId.current
+							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+							: node
+					)
+				);
+			}
+
+			// Cập nhật node mới
 			nodeEditingId.current = sheetState.process.id;
 			setNodes((prev) =>
 				prev.map((node) =>
@@ -248,12 +264,17 @@ export default function Playground() {
 				)
 			);
 		} else {
-			setNodes((prev) =>
-				prev.map((node) =>
-					node.id === nodeEditingId.current ? { ...node, selectable: true, deletable: true, focusable: true, draggable: true } : node
-				)
-			);
-			nodeEditingId.current = '';
+			// Reset node cuối cùng khi process không còn tồn tại
+			if (nodeEditingId.current) {
+				setNodes((prev) =>
+					prev.map((node) =>
+						node.id === nodeEditingId.current
+							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+							: node
+					)
+				);
+				nodeEditingId.current = '';
+			}
 		}
 	}, [setNodes, sheetState.process]);
 
