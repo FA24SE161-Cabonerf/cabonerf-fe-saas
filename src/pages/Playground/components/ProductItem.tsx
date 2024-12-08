@@ -132,6 +132,7 @@ export default function ProductItem({ data }: Props) {
 			},
 			{
 				onSuccess: (data) => {
+					console.log(data);
 					const newProcess = data.data.data; //{processId: string, exchange: Exchange}[]
 					const newExchangesMap = new Map(newProcess.map((ex) => [ex.processId, ex.exchange]));
 
@@ -140,7 +141,7 @@ export default function ProductItem({ data }: Props) {
 							if (newExchangesMap.has(node.id)) {
 								const newExchange = newExchangesMap.get(node.id);
 
-								const updateExchange = node.data.exchanges.map((ex) => {
+								const updateExchange = (node.data.exchanges as Exchange[]).map((ex) => {
 									if (ex.id === newExchange?.id) {
 										return newExchange;
 									}

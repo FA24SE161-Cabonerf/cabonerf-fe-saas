@@ -42,7 +42,7 @@ export default function MainHeader() {
 			orgId: payload.orgId,
 			orgName: payload.orgName,
 		});
-		navigate(`/${extractSegment(pathname)}`);
+		navigate(`/${extractSegment(pathname)}/${payload.orgId}`);
 	};
 
 	return (

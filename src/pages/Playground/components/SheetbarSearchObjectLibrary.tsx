@@ -111,6 +111,12 @@ function SheetbarSearchObjectLibrary() {
 		socket.emit('gateway:create-object-library', { data: newNode, projectId: pid });
 	};
 
+	useEffect(() => {
+		return () => {
+			socket.off('gateway:create-object-library');
+		};
+	}, []);
+
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
 			fetchNextPage();

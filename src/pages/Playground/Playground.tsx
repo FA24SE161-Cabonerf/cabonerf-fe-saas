@@ -149,7 +149,6 @@ export default function Playground() {
 		}
 
 		socket.on('gateway:user-connect-to-project', (data) => {
-			console.log(data);
 			setUsers(data);
 		});
 

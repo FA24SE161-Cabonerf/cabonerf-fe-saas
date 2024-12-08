@@ -216,14 +216,14 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				{productExchangeInput.length > 0 && (
 					<div className="mb-2 space-y-1">
 						{productExchangeInput.map((item) => (
-							<HandleProductItem data={item} key={item.id} />
+							<HandleProductItem library={data.data.library} processId={data.id} data={item} key={item.id} />
 						))}
 					</div>
 				)}
 
 				{productExchangeOutput && (
 					<div className="mb-2 ml-auto">
-						<HandleProductItem isReverse data={productExchangeOutput} />
+						<HandleProductItem library={data.data.library} processId={data.id} isReverse data={productExchangeOutput} />
 					</div>
 				)}
 			</div>
