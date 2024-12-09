@@ -2,8 +2,10 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
+import ErrorSooner from '@/components/ErrorSooner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import WarningSooner from '@/components/WarningSooner';
+import { isBadRequestError, isUnprocessableEntity } from '@/utils/error';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Handle, Node, Position, useConnection, useReactFlow } from '@xyflow/react';
@@ -149,6 +151,18 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 						});
 					});
 				},
+				onError: (err) => {
+					if (isUnprocessableEntity<{ data: null; message: string; status: string }>(err)) {
+						setUnitExchange(data.unit);
+						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
+							className: 'rounded-2xl p-1.5 ',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
+					}
+				},
 			}
 		);
 	};
@@ -165,19 +179,6 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 				unitId: unitExchange.id,
 				value: Number(valueExchange),
 			};
-
-			console.log(nameProduct);
-			if (nameProduct === '') {
-				toast(<WarningSooner message={`Product out's name can not be blank.`} />, {
-					className: 'rounded-2xl p-2 w-[350px]',
-					style: {
-						border: `1px solid #dedede`,
-						backgroundColor: `#fff`,
-					},
-				});
-				setNameProduct(data.name);
-				return;
-			}
 
 			updateProductExchangeMutate.mutate(
 				{
@@ -213,6 +214,18 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 								return node;
 							});
 						});
+					},
+					onError: (err) => {
+						if (isUnprocessableEntity<{ data: null; message: string; status: string }>(err)) {
+							setNameProduct(data.name);
+							toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
+								className: 'rounded-2xl p-1.5 ',
+								style: {
+									border: `1px solid #dedede`,
+									backgroundColor: `#fff`,
+								},
+							});
+						}
 					},
 				}
 			);
