@@ -3,12 +3,14 @@ import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import WarningSooner from '@/components/WarningSooner';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Handle, Node, Position, useConnection, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import { ChevronLeft, Unplug } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
 	data: Exchange;
@@ -111,6 +113,7 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 			unitId: unit.id,
 			value: Number(calculatedValue),
 		};
+
 		updateProductExchangeMutate.mutate(
 			{
 				id: data.id,
@@ -162,6 +165,19 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 				unitId: unitExchange.id,
 				value: Number(valueExchange),
 			};
+
+			console.log(nameProduct);
+			if (nameProduct === '') {
+				toast(<WarningSooner message={`Product out's name can not be blank.`} />, {
+					className: 'rounded-2xl p-2 w-[350px]',
+					style: {
+						border: `1px solid #dedede`,
+						backgroundColor: `#fff`,
+					},
+				});
+				setNameProduct(data.name);
+				return;
+			}
 
 			updateProductExchangeMutate.mutate(
 				{

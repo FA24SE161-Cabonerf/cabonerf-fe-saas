@@ -23,6 +23,7 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
+	NodeMouseHandler,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -350,10 +351,22 @@ export default function Playground() {
 
 	// const onNodeClick: NodeMouseHandler = useCallback(
 	// 	(_, clicked) => {
-	// 		setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+	// 		setNodes((prev) =>
+	// 			prev.map((node) =>
+	// 				node.id === clicked.id
+	// 					? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+	// 					: node
+	// 			)
+	// 		);
 
 	// 		window.setTimeout(() => {
-	// 			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false } : node)));
+	// 			setNodes((prev) =>
+	// 				prev.map((node) =>
+	// 					node.id === clicked.id
+	// 						? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+	// 						: node
+	// 				)
+	// 			);
 	// 		}, 3000);
 	// 	},
 	// 	[setNodes]
