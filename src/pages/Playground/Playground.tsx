@@ -149,7 +149,6 @@ export default function Playground() {
 		}
 
 		socket.on('gateway:user-connect-to-project', (data) => {
-			console.log(data);
 			setUsers(data);
 		});
 
@@ -203,6 +202,10 @@ export default function Playground() {
 					setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
 				}, 0);
 			}
+
+			setTimeout(() => {
+				setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
+			}, 0);
 		});
 
 		socket.on('connect_error', (error) => {
@@ -240,6 +243,18 @@ export default function Playground() {
 
 	useEffect(() => {
 		if (sheetState.process) {
+			// Reset node cũ trước khi xử lý node mới
+			if (nodeEditingId.current) {
+				setNodes((prev) =>
+					prev.map((node) =>
+						node.id === nodeEditingId.current
+							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+							: node
+					)
+				);
+			}
+
+			// Cập nhật node mới
 			nodeEditingId.current = sheetState.process.id;
 			setNodes((prev) =>
 				prev.map((node) =>
@@ -249,12 +264,17 @@ export default function Playground() {
 				)
 			);
 		} else {
-			setNodes((prev) =>
-				prev.map((node) =>
-					node.id === nodeEditingId.current ? { ...node, selectable: true, deletable: true, focusable: true, draggable: true } : node
-				)
-			);
-			nodeEditingId.current = '';
+			// Reset node cuối cùng khi process không còn tồn tại
+			if (nodeEditingId.current) {
+				setNodes((prev) =>
+					prev.map((node) =>
+						node.id === nodeEditingId.current
+							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
+							: node
+					)
+				);
+				nodeEditingId.current = '';
+			}
 		}
 	}, [setNodes, sheetState.process]);
 
@@ -316,7 +336,6 @@ export default function Playground() {
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
 			projectId: project?.id as string,
-			color: '#a3a3a3',
 			lifeCycleStageId: payload.lifeCycleStageId,
 			position: {
 				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
@@ -419,7 +438,7 @@ export default function Playground() {
 															properties: {
 																height: 20,
 																width: 20,
-																fill: 'none',
+																fill: 'currentColor',
 																color: 'currentColor',
 																strokeWidth: 2,
 															},

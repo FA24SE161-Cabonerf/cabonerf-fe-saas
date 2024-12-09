@@ -39,17 +39,43 @@ type CustomSVG = {
 	};
 };
 
-export const updateSVGAttributes = ({ svgString, properties }: CustomSVG) => {
-	if (properties)
-		return svgString
-			.replace(/width="\d+"/, `width="${properties?.width}"`)
-			.replace(/height="\d+"/, `height="${properties?.height}"`)
-			.replace(/fill="[^"]*"/, `fill="${properties?.fill}"`)
-			.replace(/stroke="[^"]*"/, `stroke="${properties?.color}"`)
-			.replace(/stroke-width="[^"]*"/, `strokeWidth=${properties.strokeWidth}`)
-			.replace(/stroke-linejoin"/, `strokeLinejoin`)
-			.replace(/stroke-linecap"/, `strokeLinecap`);
-	else return svgString;
+export const updateSVGAttributes = ({ svgString, properties }: CustomSVG): string => {
+	// Validate input to ensure svgString is a valid string
+	if (!svgString || typeof svgString !== 'string') {
+		throw new Error('Invalid svgString. It must be a non-empty string.');
+	}
+
+	if (!properties) return svgString;
+
+	let updatedSVG = svgString;
+
+	// Replace or add width
+	if (properties.width) {
+		updatedSVG = updatedSVG.replace(/width="[^"]*"/, `width="${properties.width}"`);
+	}
+
+	// Replace or add height
+	if (properties.height) {
+		updatedSVG = updatedSVG.replace(/height="[^"]*"/, `height="${properties.height}"`);
+	}
+
+	// Replace or add fill color
+	if (properties.fill) {
+		updatedSVG = updatedSVG.replace(/fill="[^"]*"/, `fill="${properties.fill}"`);
+	}
+
+	// Replace or add stroke color
+	if (properties.color) {
+		updatedSVG = updatedSVG.replace(/stroke="[^"]*"/, `stroke="${properties.color}"`);
+		updatedSVG = updatedSVG.replace(/color="[^"]*"/, `color="${properties.color}"`);
+	}
+
+	// Replace or add stroke width
+	if (properties.strokeWidth) {
+		updatedSVG = updatedSVG.replace(/stroke-width="[^"]*"/, `stroke-width="${properties.strokeWidth}"`);
+	}
+
+	return updatedSVG;
 };
 
 export function formatWithExponential(value, decimalPlaces = 2) {

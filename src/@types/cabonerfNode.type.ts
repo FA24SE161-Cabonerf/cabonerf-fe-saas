@@ -11,6 +11,7 @@ interface CabonerfNodeData {
 	description: string;
 	projectId: string;
 	color: string;
+	bgColor: string;
 	library: boolean;
 	lifeCycleStage: LifeCycleStages;
 	overallProductFlowRequired: number;

@@ -35,7 +35,6 @@ function ToolboxLifeCycleStages() {
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
 			projectId: data.pid as string,
-			color: '#a3a3a3',
 			lifeCycleStageId: payload.lifeCycleStageId,
 			position: {
 				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),

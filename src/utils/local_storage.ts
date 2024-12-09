@@ -64,5 +64,5 @@ export const clearResouceInLocalStorage = (): void => {
 	localStorage.removeItem(TOKEN_KEY_NAME.ACCESS_TOKEN);
 	localStorage.removeItem(TOKEN_KEY_NAME.REFRESH_TOKEN);
 	localStorage.removeItem(USER_PROFILE_KEY_NAME);
-	localStorage.removeItem('organizationId');
+	localStorage.removeItem('organization');
 };

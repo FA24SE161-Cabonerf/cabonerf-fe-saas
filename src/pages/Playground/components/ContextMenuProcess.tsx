@@ -15,24 +15,24 @@ import { useParams } from 'react-router-dom';
 
 const colors = [
 	{
-		bg: '#fbbf24', // Cam đậm hơn pastel
-		border: '#FFB454', // Cam rực rỡ, nổi bật
+		bg: '#fcd34d', // Cam đậm hơn pastel
+		border: '#eab308', // Cam rực rỡ, nổi bật
 	},
 	{
-		bg: '#22c55e', // Xanh lá pastel đậm hơn
-		border: '#22c55e', // Xanh lá đậm hơn, sống động
+		bg: '#60a5fa', // Xanh lá pastel đậm hơn
+		border: '#2563eb', // Xanh lá đậm hơn, sống động
 	},
 	{
-		bg: '#3b82f6', // Xanh dương pastel đậm hơn
-		border: '#3b82f6', // Xanh dương đậm
+		bg: '#4ade80', // Xanh dương pastel đậm hơn
+		border: '#16a34a', // Xanh dương đậm
 	},
 	{
-		bg: '#ef4444', // Đỏ pastel đậm
-		border: '#ef4444', // Đỏ rực rỡ, mạnh mẽ
+		bg: '#f87171', // Đỏ pastel đậm
+		border: '#f43f5e', // Đỏ rực rỡ, mạnh mẽ
 	},
 	{
-		bg: '#a3a3a3', // Tím pastel đậm hơn
-		border: '#a3a3a3', // Tím đậm, tinh tế
+		bg: '#111827', // Tím pastel đậm hơn
+		border: '#525252', // Tím đậm, tinh tế
 	},
 ];
 
@@ -84,18 +84,21 @@ const ContextMenuProcess = React.memo(
 			}
 		};
 
-		const handleChangeColor = (backgroundColor: string, id: string) => {
+		const handleChangeColor = (color: string, backgroundColor: string, id: string) => {
 			socket.emit('gateway:node-update-color', {
 				data: {
 					id: id,
-					color: backgroundColor,
+					bgColor: backgroundColor,
+					color: color,
 				},
 				projectId: params.pid,
 			});
 
-			socket.on('gateway:update-process-color-success', (dataColor: { id: string; color: string }) => {
+			socket.on('gateway:update-process-color-success', (dataColor: { id: string; bgColor: string; color: string }) => {
 				setNodes((nodes) => {
-					return nodes.map((node) => (node.id === dataColor.id ? { ...node, data: { ...node.data, color: dataColor.color } } : node));
+					return nodes.map((node) =>
+						node.id === dataColor.id ? { ...node, data: { ...node.data, bgColor: dataColor.bgColor, color: dataColor.color } } : node
+					);
 				});
 
 				setEdges((edges) => {
@@ -103,7 +106,7 @@ const ContextMenuProcess = React.memo(
 						edge.source === dataColor.id
 							? {
 									...edge,
-									style: { ...edge.style, stroke: dataColor.color },
+									style: { ...edge.style, stroke: dataColor.bgColor },
 								}
 							: edge
 					);
@@ -133,11 +136,11 @@ const ContextMenuProcess = React.memo(
 							<div className="flex justify-between px-3">
 								{colors.map((item) => (
 									<button
-										onClick={() => handleChangeColor(item.bg, app.contextMenuSelector?.process.id as string)}
+										onClick={() => handleChangeColor(item.border, item.bg, app.contextMenuSelector?.process.id as string)}
 										key={item.bg}
 										className="size-9 transform rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-110 active:scale-100"
 										style={{
-											border: `1px solid ${item.border}`,
+											border: `1px solid ${item.bg}`,
 											backgroundColor: item.bg,
 										}}
 										onMouseEnter={(e) => {
