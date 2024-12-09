@@ -3,8 +3,9 @@ import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Handle, Position, useConnection } from '@xyflow/react';
+import { Handle, Node, Position, useConnection, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import { ChevronLeft, Unplug } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -14,9 +15,12 @@ type Props = {
 	isReverse?: boolean;
 	processId: string;
 	library: boolean;
+	bgColor: string;
 };
 
-function HandleProductItem({ processId, data, library, isReverse = false }: Props) {
+function HandleProductItem({ processId, data, library, isReverse = false, bgColor }: Props) {
+	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
+
 	const { fromNode, fromHandle, toNode, toHandle } = useConnection();
 
 	const [isUpdate, setIsUpdate] = useState<boolean>(false);
@@ -107,12 +111,47 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 			unitId: unit.id,
 			value: Number(calculatedValue),
 		};
-		console.log(updatedProductItem);
+		updateProductExchangeMutate.mutate(
+			{
+				id: data.id,
+				payload: updatedProductItem,
+			},
+			{
+				onSuccess: (data) => {
+					const newProcess = data.data.data; //{processId: string, exchange: Exchange}[]
+					const newExchangesMap = new Map(newProcess.map((ex) => [ex.processId, ex.exchange]));
+
+					setNodes((nodes) => {
+						return nodes.map((node) => {
+							if (newExchangesMap.has(node.id)) {
+								const newExchange = newExchangesMap.get(node.id);
+
+								const updateExchange = (node.data.exchanges as Exchange[]).map((ex) => {
+									if (ex.id === newExchange?.id) {
+										return newExchange;
+									}
+									return ex;
+								});
+
+								const _newProcess = {
+									...node,
+									data: {
+										...node.data,
+										exchanges: updateExchange,
+									},
+								};
+								return _newProcess;
+							}
+							return node;
+						});
+					});
+				},
+			}
+		);
 	};
 
 	const handleBlur = (event: React.FocusEvent<HTMLDivElement, Element>) => {
-		if (handleItemRef.current && handleItemRef.current.contains(event.relatedTarget as Node)) {
-			console.log('Khong can update');
+		if (handleItemRef.current && handleItemRef.current.contains(event.relatedTarget)) {
 			return;
 		}
 
@@ -124,33 +163,73 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 				value: Number(valueExchange),
 			};
 
-			console.log(updatedProductItem);
+			updateProductExchangeMutate.mutate(
+				{
+					id: data.id,
+					payload: updatedProductItem,
+				},
+				{
+					onSuccess: (data) => {
+						const newProcess = data.data.data; //{processId: string, exchange: Exchange}[]
+						const newExchangesMap = new Map(newProcess.map((ex) => [ex.processId, ex.exchange]));
 
+						setNodes((nodes) => {
+							return nodes.map((node) => {
+								if (newExchangesMap.has(node.id)) {
+									const newExchange = newExchangesMap.get(node.id);
+
+									const updateExchange = (node.data.exchanges as Exchange[]).map((ex) => {
+										if (ex.id === newExchange?.id) {
+											return newExchange;
+										}
+										return ex;
+									});
+
+									const _newProcess = {
+										...node,
+										data: {
+											...node.data,
+											exchanges: updateExchange,
+										},
+									};
+									return _newProcess;
+								}
+								return node;
+							});
+						});
+					},
+				}
+			);
 			return;
 		}
 	};
 
 	return (
 		<div
-			className={clsx(`relative border-b-[0.5px] border-t-[0.5px] py-[1px] pl-3 pr-2`, {
-				'rounded-r-xl border-[0.5px] border-l-0': isReverse === false,
-				'rounded-l-xl border-[0.5px] border-r-0': isReverse === true,
+			className={clsx(`relative bg-gray-100 bg-opacity-20 py-[2px] pl-3 pr-2`, {
+				'rounded-r-xl': isReverse === false,
+				'rounded-l-xl': isReverse === true,
 			})}
 		>
-			{/* <div
-				className={clsx(`absolute inset-0 flex items-center justify-center bg-gray-200 opacity-45`, {
-					'rounded-r-[11px]': isReverse === false,
-					'rounded-l-[11px]': isReverse === true,
-				})}
-			>
-				<ReloadIcon className="h-4 w-4 animate-spin text-gray-800" />
-			</div> */}
+			{updateProductExchangeMutate.isPending && (
+				<div
+					className={clsx(`absolute inset-0 flex items-center justify-center bg-gray-200 opacity-45`, {
+						'rounded-r-[11px]': isReverse === false,
+						'rounded-l-[11px]': isReverse === true,
+					})}
+				>
+					<ReloadIcon className="h-4 w-4 animate-spin text-gray-800" />
+				</div>
+			)}
+
 			<Handle
 				isConnectableEnd={isValidUnitGroup}
-				className={clsx(`overf absolute rounded-full`, {
-					'-left-[1px] size-[9px] border-[2px] border-green-500 bg-white ring-[3px] ring-[#f4f3f3]': isReverse === false,
-					'-right-[2px] size-[9px] border-[2px] border-green-500 bg-green-500 ring-[3px] ring-[#f4f3f3]': isReverse === true,
-				})}
+				className={clsx(`overf absolute size-[6px] rounded-full ring-[2px] ring-[#f4f3f3]`)}
+				style={{
+					border: `2px solid ${bgColor}`,
+					backgroundColor: isReverse ? bgColor : '#fff',
+					boxShadow: `0 0 0 3px ${isReverse}`,
+				}}
 				id={data.id}
 				position={isReverse ? Position.Right : Position.Left}
 				type={isReverse ? 'source' : 'target'}
@@ -170,7 +249,7 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 						value={nameProduct}
 						disabled={library}
 						onChange={handleChangeName}
-						className="w-full rounded-[2px] px-1 text-[11px] outline-none transition-all focus:bg-white disabled:bg-white"
+						className="w-full rounded-[2px] bg-transparent px-1 text-[11px] font-medium text-white outline-none transition-all focus:bg-white focus:text-black disabled:bg-transparent"
 					/>
 					<div className="flex w-full items-center space-x-1">
 						<input
@@ -180,12 +259,12 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 							disabled={library}
 							onChange={handleChangeValueExchange}
 							onBlur={handleBlur}
-							className="w-[40%] rounded-[2px] px-1 text-[11px] outline-none transition-all focus:bg-white disabled:bg-white"
+							className="w-[40%] rounded-[2px] bg-transparent px-1 text-[11px] font-medium text-white outline-none transition-all focus:bg-white focus:text-black disabled:bg-transparent"
 						/>
 						<DropdownMenu>
 							<DropdownMenuTrigger
 								disabled={library}
-								className="w-fit rounded p-0.5 px-2 text-[11px] font-semibold hover:bg-gray-50"
+								className="w-fit rounded p-0.5 px-2 text-[11px] font-semibold text-white hover:bg-gray-50 hover:bg-opacity-10 focus:outline-none"
 							>
 								{unitExchange.name}
 							</DropdownMenuTrigger>
@@ -212,7 +291,7 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 										))}
 									</div>
 									<DropdownMenu>
-										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
+										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 text-black hover:bg-[#f0f0f0]">
 											<ChevronLeft size={15} />
 											<div className="text-[13px]">Select unit group</div>
 										</DropdownMenuTrigger>
@@ -231,8 +310,8 @@ function HandleProductItem({ processId, data, library, isReverse = false }: Prop
 						</DropdownMenu>
 					</div>
 				</div>
-				<button className="flex items-center justify-center rounded p-0.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-500">
-					<Unplug size={10} color="red" />
+				<button className="flex items-center justify-center rounded p-0.5 transition duration-150 ease-in-out hover:bg-gray-100 hover:bg-opacity-20 focus:outline-none">
+					<Unplug size={10} color="white" />
 				</button>
 			</div>
 		</div>

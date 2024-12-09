@@ -336,7 +336,6 @@ export default function Playground() {
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
 			projectId: project?.id as string,
-			color: '#a3a3a3',
 			lifeCycleStageId: payload.lifeCycleStageId,
 			position: {
 				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
@@ -439,7 +438,7 @@ export default function Playground() {
 															properties: {
 																height: 20,
 																width: 20,
-																fill: 'none',
+																fill: 'currentColor',
 																color: 'currentColor',
 																strokeWidth: 2,
 															},

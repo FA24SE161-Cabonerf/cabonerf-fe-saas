@@ -28,6 +28,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const contextMenuRef = useRef<HTMLDivElement>(null);
 
 	const isTarget = connection.inProgress && connection.fromNode.id !== data.id;
+
 	const unitValue = useMemo(
 		() => data.data.impacts.find((item) => item.impactCategory.id === playgroundState.impactCategory?.id)?.unitLevel,
 		[data.data.impacts, playgroundState.impactCategory?.id]
@@ -92,10 +93,11 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			onContextMenu={handleTriggerContextMenu}
 			ref={triggerRef}
 			style={{
-				border: `3px solid ${data.data.color}`,
 				zIndex: 40,
+				backgroundColor: data.data.bgColor,
+				boxShadow: `0 5px 14px -3px ${data.data.bgColor}`,
 			}}
-			className={clsx(`relative w-[380px] rounded-[28px] bg-white transition-transform`, {
+			className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
 				'scale-105': data.dragging,
 				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.selectable === false,
 			})}
@@ -141,19 +143,23 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 					</div>
 					{/* CTA */}
 				</div>
-				<div className="mt-3 flex justify-between break-words text-xl font-medium">{data.data.name}</div>
+				<div className="mt-3 flex justify-between break-words text-xl font-semibold text-white">{data.data.name}</div>
 				<div className="mt-4">
-					{data.data.impacts.length > 0 && (
+					{playgroundState.impactCategory && data.data.impacts.length > 0 && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<button className="flex items-center space-x-2 rounded p-0.5 text-xs hover:bg-gray-100">
+								<button className="flex items-center space-x-2 rounded p-0.5 text-xs text-white transition-all hover:bg-gray-100 hover:bg-opacity-20">
 									<div
 										dangerouslySetInnerHTML={{
 											__html: DOMPurify.sanitize(
 												updateSVGAttributes({
-													svgString: data.data.impacts.find(
-														(item) => item.impactCategory.id === playgroundState.impactCategory?.id
-													)?.impactCategory.iconUrl as string,
+													svgString: playgroundState.impactCategory?.iconUrl ?? ('' as string),
+													properties: {
+														color: '#fff',
+														fill: 'none',
+														height: 20,
+														width: 20,
+													},
 												})
 											),
 										}}
@@ -205,49 +211,61 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			{/* Delete */}
 			{appContext.deleteProcessesIds.includes(data.id) && (
 				<>
-					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] border-[1px] border-gray-100 bg-gray-100/80"></div>
+					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] bg-gray-100 bg-gray-100/30"></div>
 					<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
 						<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
 					</div>
 				</>
 			)}
 
-			<div className="flex items-start gap-1">
+			<div className="flex items-start justify-between gap-1">
 				{productExchangeInput.length > 0 && (
-					<div className="mb-2 space-y-1">
+					<div className="mb-2 w-1/2 space-y-1">
 						{productExchangeInput.map((item) => (
-							<HandleProductItem library={data.data.library} processId={data.id} data={item} key={item.id} />
+							<HandleProductItem
+								bgColor={data.data.bgColor}
+								library={data.data.library}
+								processId={data.id}
+								data={item}
+								key={item.id}
+							/>
 						))}
 					</div>
 				)}
 
 				{productExchangeOutput && (
-					<div className="mb-2 ml-auto">
-						<HandleProductItem library={data.data.library} processId={data.id} isReverse data={productExchangeOutput} />
+					<div className="mb-2 ml-auto w-1/2">
+						<HandleProductItem
+							bgColor={data.data.bgColor}
+							library={data.data.library}
+							processId={data.id}
+							isReverse
+							data={productExchangeOutput}
+						/>
 					</div>
 				)}
 			</div>
 
-			<div className="mx-2 mb-2 flex items-center justify-end space-x-1">
+			<div className="mx-3 flex items-center justify-end space-x-1 pb-3">
 				{data.data.library && (
-					<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100">
+					<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100 hover:bg-opacity-20">
 						<div
 							style={{ backgroundColor: data.data.color }}
-							className="invisible absolute -top-5 left-1/2 w-fit -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+							className="invisible absolute -top-5 left-1/2 -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
 						>
 							Data Set
 						</div>
-						<DatabaseZap width={14} height={14} />
+						<DatabaseZap width={14} height={14} color="white" />
 					</div>
 				)}
-				<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100">
+				<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100 hover:bg-opacity-20">
 					<div
 						style={{ backgroundColor: data.data.color }}
-						className="invisible absolute -top-5 left-1/2 w-fit -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+						className="invisible absolute -top-5 left-1/2 -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
 					>
 						Process Details
 					</div>
-					<Info width={14} height={14} />
+					<Info width={14} height={14} color="white" />
 				</div>
 			</div>
 

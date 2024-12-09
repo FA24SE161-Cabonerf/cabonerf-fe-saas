@@ -239,7 +239,7 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 
 				<PlaygroundControlMenu
 					lifeCycleStageBreakdown={lifeCycleStageBreakdownData}
-					impacts={impactsData}
+					impacts={[]}
 					contributionBreakdown={contributionBreakdownResult}
 				/>
 			</div>

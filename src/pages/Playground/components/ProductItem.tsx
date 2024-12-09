@@ -165,6 +165,7 @@ export default function ProductItem({ data }: Props) {
 											description: _newProcess.data.description,
 											exchanges: _newProcess.data.exchanges,
 											impacts: _newProcess.data.impacts,
+											bgColor: _newProcess.data.bgColor,
 											lifeCycleStage: _newProcess.data.lifeCycleStage,
 											name: _newProcess.data.name,
 											overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
