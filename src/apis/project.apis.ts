@@ -61,6 +61,10 @@ class ProjectApis {
 			`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.FAVORITE}`
 		);
 	}
+
+	public exportToExcel(payload: { projectId: string }) {
+		return httpService.get<CommonResponse<any>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.EXPORT}`);
+	}
 }
 
 export default ProjectApis;
