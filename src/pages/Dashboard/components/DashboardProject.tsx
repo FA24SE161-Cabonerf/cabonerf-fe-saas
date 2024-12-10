@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AppContext } from '@/contexts/app.context';
 import { formatDate, formatLargeNumber, updateSVGAttributes } from '@/utils/utils';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 function DashboardProject() {
 	const {
@@ -15,6 +15,10 @@ function DashboardProject() {
 		dispatch,
 	} = useContext(AppContext);
 	const [isOpenDialog, setIsOpenDialog] = useState<boolean>(Boolean(previewProject));
+
+	const impact_category = useMemo(() => {
+		return previewProject?.impacts.find((item) => item.impactCategory.id === '123e4567-e89b-12d3-a456-426614174000');
+	}, [previewProject?.impacts]);
 
 	useEffect(() => {
 		if (previewProject !== undefined) {
@@ -31,6 +35,8 @@ function DashboardProject() {
 		}
 	};
 
+	console.log(previewProject);
+
 	return (
 		<Dialog open={isOpenDialog} onOpenChange={handleDialogClose}>
 			<DialogContent className="h-[90%] max-w-[75%] overflow-y-scroll">
@@ -39,8 +45,11 @@ function DashboardProject() {
 					<DialogHeader className="mx-auto mt-10 flex w-full justify-center !text-center text-4xl font-bold">
 						{previewProject?.name}
 					</DialogHeader>
-					<DialogDescription className="mx-auto mt-8 w-fit rounded bg-stone-100 px-4 py-0.5 text-[18px] font-semibold text-black">
-						25.8 kg CO2-Eq per {previewProject?.functionalUnit}
+					<DialogDescription className="mx-auto mt-8 w-fit space-x-2 rounded bg-stone-100 px-4 py-0.5 text-[18px] font-semibold text-black">
+						<span>{impact_category?.value}</span>
+						<span>{impact_category?.impactCategory.midpointImpactCategory.unit.name}</span>
+						<span>per</span>
+						<span>{previewProject?.functionalUnit}</span>
 					</DialogDescription>
 
 					<TabsList className="mx-auto mt-6 grid w-[500px] grid-cols-3 bg-white shadow-none">
