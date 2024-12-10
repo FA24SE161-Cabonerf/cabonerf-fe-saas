@@ -4,8 +4,7 @@ import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
 import ErrorSooner from '@/components/ErrorSooner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import WarningSooner from '@/components/WarningSooner';
-import { isBadRequestError, isUnprocessableEntity } from '@/utils/error';
+import { isUnprocessableEntity } from '@/utils/error';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Handle, Node, Position, useConnection, useReactFlow } from '@xyflow/react';
@@ -293,7 +292,7 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 						<DropdownMenu>
 							<DropdownMenuTrigger
 								disabled={library}
-								className="w-fit rounded p-0.5 px-2 text-[11px] font-semibold text-white hover:bg-gray-50 hover:bg-opacity-10 focus:outline-none"
+								className="w-fit rounded p-0.5 px-2 text-[11px] font-semibold text-white hover:bg-gray-50 hover:bg-opacity-10 focus:outline-none disabled:bg-transparent"
 							>
 								{unitExchange.name}
 							</DropdownMenuTrigger>

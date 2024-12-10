@@ -2,6 +2,7 @@ import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
 import { LifeCycleStages } from '@/@types/lifeCycleStage.type';
+import { IndustryCode } from '@/@types/organization.type';
 
 interface Workspace {
 	id: string;
@@ -67,6 +68,7 @@ type GetProjectListResponse = Omit<Project<Impact[]>, 'processes' | 'connectors'
 	workspace: Workspace;
 	intensity: Insensity[];
 	functionalUnit: string;
+	industryCode: IndustryCode;
 };
 
 type Insensity = {

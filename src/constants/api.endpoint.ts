@@ -33,6 +33,7 @@ class PROJECT_ENDPOINT {
 	public static UPDATE_PROJECT = this.PROJECT;
 	public static CALCULATE_PROJECT = '/calculation';
 	public static FAVORITE = '/favorite';
+	public static EXPORT = '/export';
 }
 
 class WORKSPACE_ENDPOINT {

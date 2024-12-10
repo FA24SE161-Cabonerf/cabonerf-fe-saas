@@ -1,5 +1,6 @@
 import { GetProjectListResponse } from '@/@types/project.type';
 import ImpactMethodApis from '@/apis/impactMethod.apis';
+import { IndustryCodeApis } from '@/apis/industryCode.apis';
 import ProjectApis from '@/apis/project.apis';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -34,7 +35,9 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 	const { organizationId } = useParams<{ organizationId: string }>();
 	const [openDialogCreateProject, setOpenDialogCreateProject] = useState<boolean>(false);
 	const [openMethodDropdown, setOpenMethodDropdown] = useState<boolean>(false);
+	const [openIndustryDropdown, setOpenIndustryDropdown] = useState<boolean>(false);
 	const [value, setValue] = useState('');
+	const [industryValue, setIndustryValue] = useState('');
 
 	const form = useForm<CreateProjectSchema>({
 		resolver: zodResolver(createProjectSchema),
@@ -44,6 +47,7 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 			methodId: '',
 			name: '',
 			organizationId: organizationId,
+			industryCodeId: '',
 		},
 	});
 
@@ -51,6 +55,11 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 		queryKey: ['impact_methods'],
 		queryFn: ImpactMethodApis.prototype.getImpactMethods,
 		staleTime: 60_000,
+	});
+
+	const { data: industryData } = useQuery({
+		queryKey: ['industry_code', organizationId],
+		queryFn: ({ queryKey }) => IndustryCodeApis.prototype.getListIndustryCodeByOrganizationId({ orgId: queryKey[1] }),
 	});
 
 	useEffect(() => {
@@ -87,6 +96,9 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 					},
 				});
 				queryClient.refetchQueries({ queryKey: ['projects'] });
+			},
+			onError: (error) => {
+				toast(error.message);
 			},
 		});
 	};
@@ -155,6 +167,78 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 															<Textarea id="description" placeholder="Describe your project" {...field} />
 														</FormControl>
 														<FormMessage className="font-normal" />
+													</FormItem>
+												)}
+											/>
+											<FormField
+												control={form.control}
+												name="industryCodeId"
+												render={() => (
+													<FormItem className="relative items-start">
+														<FormLabel htmlFor="methodId">Industry Code</FormLabel>
+														<FormControl>
+															<div className="w-full">
+																<Button
+																	id="methodId"
+																	variant="outline"
+																	role="combobox"
+																	type="button"
+																	aria-expanded={openIndustryDropdown}
+																	onClick={() => setOpenIndustryDropdown(!openIndustryDropdown)}
+																	className="w-full justify-between font-normal"
+																>
+																	{industryValue
+																		? industryData?.data.data.find((framework) => framework.name === industryValue)?.name
+																		: 'Choose industry code...'}
+																	<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+																</Button>
+
+																{openIndustryDropdown && (
+																	<div className="mt-2 w-full rounded-lg border shadow-md">
+																		<Command>
+																			<CommandInput placeholder="Search industry code..." />
+																			<CommandList>
+																				<CommandEmpty>No framework found.</CommandEmpty>
+																				<CommandGroup>
+																					{industryData ? (
+																						industryData.data.data.map((industry) => (
+																							<CommandItem
+																								key={industry.name}
+																								value={industry.name}
+																								onSelect={(currentValue) => {
+																									form.setValue(
+																										'industryCodeId',
+																										form.getValues('industryCodeId') === industry.id
+																											? ''
+																											: industry.id
+																									);
+																									setIndustryValue(
+																										currentValue === industryValue ? '' : currentValue
+																									);
+																									setOpenIndustryDropdown(false); // Close dropdown after selection
+																								}}
+																							>
+																								<Check
+																									className={cn(
+																										'mr-2 h-4 w-4',
+																										industryValue === industry.name ? 'opacity-100' : 'opacity-0'
+																									)}
+																								/>
+																								{industry.name}
+																							</CommandItem>
+																						))
+																					) : (
+																						<div>Nothing</div>
+																					)}
+																				</CommandGroup>
+																			</CommandList>
+																		</Command>
+																	</div>
+																)}
+															</div>
+														</FormControl>
+
+														<span className="text-[12.8px] text-red-500">{form.formState.errors.methodId?.message}</span>
 													</FormItem>
 												)}
 											/>
