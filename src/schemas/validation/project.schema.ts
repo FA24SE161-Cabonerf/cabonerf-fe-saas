@@ -9,9 +9,8 @@ export const createProjectSchema = z.object({
 		message: 'Please specify the project location.',
 	}),
 	methodId: z.string().uuid({ message: 'Please choose one method above.' }),
-	organizationId: z.string().uuid({
-		message: 'Ensure the workspace ID is correct.',
-	}),
+	organizationId: z.string().uuid(),
+	industryCodeId: z.string().uuid(),
 });
 
 export type CreateProjectSchema = z.infer<typeof createProjectSchema>;

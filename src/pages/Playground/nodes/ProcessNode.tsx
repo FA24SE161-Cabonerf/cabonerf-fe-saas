@@ -95,7 +95,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 			style={{
 				zIndex: 40,
 				backgroundColor: data.data.bgColor,
-				boxShadow: `0 5px 14px -3px ${data.data.bgColor}`,
+				boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
 			}}
 			className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
 				'scale-105': data.dragging,

@@ -29,4 +29,4 @@ type OrgMember = {
 	hasJoined: boolean;
 };
 
-export type { Organization, OrgMember };
+export type { Organization, OrgMember, IndustryCode };
