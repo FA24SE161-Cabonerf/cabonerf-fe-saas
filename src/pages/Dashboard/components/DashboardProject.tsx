@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AppContext } from '@/contexts/app.context';
-import { formatDate, formatLargeNumber, updateSVGAttributes } from '@/utils/utils';
+import { formatDate, formatLargeNumber, formatPercentage2, updateSVGAttributes } from '@/utils/utils';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 function DashboardProject() {
@@ -19,6 +19,10 @@ function DashboardProject() {
 	const impact_category = useMemo(() => {
 		return previewProject?.impacts.find((item) => item.impactCategory.id === '123e4567-e89b-12d3-a456-426614174000');
 	}, [previewProject?.impacts]);
+
+	const preview_category_climatechange = useMemo(() => {
+		return previewProject?.lifeCycleStageBreakdown?.find((item) => item.id === '123e4567-e89b-12d3-a456-426614174000');
+	}, [previewProject?.lifeCycleStageBreakdown]);
 
 	useEffect(() => {
 		if (previewProject !== undefined) {
@@ -184,6 +188,42 @@ function DashboardProject() {
 										))}
 								</div>
 							</TooltipProvider>
+						</div>
+					</TabsContent>
+
+					<TabsContent value="lifecycle" className="mt-7">
+						<div>
+							<h2 className="mb-8 mt-10 text-center text-xl font-medium">What life cycle stage has the highest impact?</h2>
+							<div className="w-[500px] space-y-3 p-3">
+								{preview_category_climatechange?.lifeCycleStage &&
+									preview_category_climatechange.lifeCycleStage.map((item) => (
+										<div key={item.id} className="flex w-full items-center gap-2">
+											<div className="relative h-[40px] w-[90%] overflow-hidden rounded-xl outline-dashed outline-[1px] outline-gray-200">
+												<div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 items-center space-x-2 text-sm font-medium">
+													<div
+														dangerouslySetInnerHTML={{
+															__html: updateSVGAttributes({
+																svgString: item.iconUrl,
+																properties: { height: 18, width: 18, fill: 'black', color: 'black' },
+															}),
+														}}
+													/>
+													<span className="text-[black]">{item.name}</span>
+												</div>
+												<div
+													style={{ height: '100%', width: `${item.percent * 100}%` }}
+													className="z-10 rounded-md bg-[#4ade80] transition-all duration-500 ease-in-out"
+												></div>
+											</div>
+											<div className="group relative w-[10%] text-right text-[13px] font-semibold">
+												<span>{formatPercentage2(item.percent * 100, 0)}</span>
+												<div className="invisible absolute -top-5 right-0 rounded bg-black px-1 text-[11px] text-white group-hover:visible">
+													{item.percent}
+												</div>
+											</div>
+										</div>
+									))}
+							</div>
 						</div>
 					</TabsContent>
 				</Tabs>
