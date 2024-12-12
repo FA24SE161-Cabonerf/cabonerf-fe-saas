@@ -1,3 +1,4 @@
+import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { ImpactMethod } from '@/@types/impactMethod.type';
@@ -23,7 +24,7 @@ interface Impact {
 	impactCategory: Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>;
 }
 
-interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = unknown> {
+interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = CabonerfEdgeData[]> {
 	id: string;
 	name: string;
 	description: string;

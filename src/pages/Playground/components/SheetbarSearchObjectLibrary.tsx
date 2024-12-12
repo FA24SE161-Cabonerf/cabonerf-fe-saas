@@ -186,7 +186,7 @@ function SheetbarSearchObjectLibrary() {
 						height={550}
 						hasMore={hasNextPage}
 						dataLength={data.pages.length}
-						className="relative"
+						className="relative min-h-[550px]"
 						loader={
 							<div className="flex items-center justify-center">
 								<div className="flex items-center">
@@ -208,7 +208,9 @@ function SheetbarSearchObjectLibrary() {
 									item.objectLibraryList.map((item) => {
 										const fromColor = dataColor.find((c) => c.id === item.systemBoundary.boundaryFrom);
 										const toColor = dataColor.find((c) => c.id === item.systemBoundary.boundaryTo);
-
+										const output = item.exchanges.find(
+											(i) => i.input === false && i.exchangesType.id === '723e4567-e89b-12d3-a456-426614174000'
+										);
 										return (
 											<button
 												disabled={isLoadingAddProcess}
@@ -396,7 +398,7 @@ function SheetbarSearchObjectLibrary() {
 														<div className="flex items-center justify-between">
 															<div className="text-xs text-[#525252]">Data set: {currentOrganization?.orgName}</div>
 															<div className="text-xs">
-																per {item.exchanges[0].value} {item.exchanges[0].unit.name} {item.exchanges[0].name}
+																per {output?.value} {output?.unit.name} {output?.name}
 															</div>
 														</div>
 													</div>

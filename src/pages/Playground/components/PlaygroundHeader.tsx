@@ -93,21 +93,45 @@ function PlaygroundHeader({ id, users }: Props) {
 
 		if (currentInformation !== undefined && changingValue !== undefined) {
 			if (!isOpenEditProject && areObjectsDifferent(currentInformation, changingValue) === true) {
-				updateProjectInformationMutate.mutate(
-					{ id, payload: { ...changingValue, description: changingValue.description ?? '' } },
-					{
-						onSuccess: (data) => {
-							playgroundDispatch({
-								type: PlaygroundDispatch.SET_PROJECT_INFOR,
-								payload: {
-									description: data.data.data.description,
-									location: data.data.data.location,
-									name: data.data.data.name,
+				hotToast.promise(
+					new Promise((resolve, reject) => {
+						updateProjectInformationMutate.mutate(
+							{ id, payload: { ...changingValue, description: changingValue.description ?? '' } },
+							{
+								onSuccess: (data) => {
+									resolve(true);
+									playgroundDispatch({
+										type: PlaygroundDispatch.SET_PROJECT_INFOR,
+										payload: {
+											description: data.data.data.description,
+											location: data.data.data.location,
+											name: data.data.data.name,
+										},
+									});
 								},
-							});
+								onError: (error) => {
+									reject(false);
+									toast(error.message);
+								},
+							}
+						);
+					}),
+					{
+						loading: <p className="text-sm">Updating your project...</p>,
+						success: null,
+						error: null,
+					},
+					{
+						position: 'top-center',
+						error: {
+							style: {
+								visibility: 'hidden',
+							},
 						},
-						onError: (error) => {
-							toast(error.message);
+						success: {
+							style: {
+								visibility: 'hidden',
+							},
 						},
 					}
 				);

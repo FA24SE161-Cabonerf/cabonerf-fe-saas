@@ -23,9 +23,10 @@ class ProjectApis {
 	}
 
 	public async getProjectById(payload: { pid: string }) {
-		return httpService.get<CommonResponse<Project<Impact[], Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]>>>(
+		const respone = await httpService.get<CommonResponse<Project<Impact[], Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]>>>(
 			`${PROJECT_ENDPOINT.PROJECT}/${payload.pid}`
 		);
+		return respone.data.data;
 	}
 
 	public async updateImpactMethodProject(payload: { pid: string; mid: string }) {

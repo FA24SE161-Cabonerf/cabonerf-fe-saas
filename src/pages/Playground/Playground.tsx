@@ -89,7 +89,7 @@ export default function Playground() {
 	const { app, dispatch: appDispatch } = useContext(AppContext);
 	const params = useParams<{ pid: string }>();
 
-	const { data: projectData, isFetching } = useQuery({
+	const { data: project, isFetching } = useQuery({
 		queryKey: ['projects', params.pid],
 		queryFn: ({ queryKey }) => ProjectApis.prototype.getProjectById({ pid: queryKey[1] as string }),
 		enabled: Boolean(params.pid),
@@ -102,8 +102,6 @@ export default function Playground() {
 		queryFn: LifeCycleStagesApis.prototype.getAllLifeCycleStages,
 		staleTime: 60_000 * 120,
 	});
-
-	const project = projectData?.data.data;
 
 	useEffect(() => {
 		const projectName = playgroundState.projectInformation?.name ?? 'Loading...';
