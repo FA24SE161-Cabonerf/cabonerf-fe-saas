@@ -50,6 +50,8 @@ function SheetbarSearchObjectLibrary() {
 		app: { currentOrganization, userProfile },
 	} = useContext(AppContext);
 
+	console.log(currentOrganization);
+
 	const [queryParams] = useReducer(reducer, {
 		organizationId: currentOrganization?.orgId as string,
 	});

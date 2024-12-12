@@ -7,7 +7,7 @@ let ydocSingleton: Y.Doc | null = null; // Singleton instance
 
 const useYjsDoc = () => {
 	const { projectId } = useParams<{ projectId: string }>(); // Lấy projectId từ URL params
-	const baseURL = import.meta.env.VITE_GATEWAY_DEV_URL;
+	const baseURL = import.meta.env.VITE_GATEWAY_PRODUCTION_URL;
 
 	const ydoc = useMemo(() => {
 		if (!ydocSingleton) {

@@ -3,6 +3,7 @@ import ImpactMethodApis from '@/apis/impactMethod.apis';
 import { IndustryCodeApis } from '@/apis/industryCode.apis';
 import ProjectApis from '@/apis/project.apis';
 import ButtonSubmitForm from '@/components/ButtonSubmitForm';
+import ErrorSooner from '@/components/ErrorSooner';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -17,6 +18,7 @@ import DashboardProductItem from '@/pages/Dashboard/components/DashboardProductI
 import SkeletonCard from '@/pages/Dashboard/components/SkeletonCard';
 import { queryClient } from '@/queryClient';
 import { CreateProjectSchema, createProjectSchema } from '@/schemas/validation/project.schema';
+import { isBadRequestError } from '@/utils/error';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -59,7 +61,7 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 
 	const { data: industryData } = useQuery({
 		queryKey: ['industry_code', organizationId],
-		queryFn: ({ queryKey }) => IndustryCodeApis.prototype.getListIndustryCodeByOrganizationId({ orgId: queryKey[1] }),
+		queryFn: ({ queryKey }) => IndustryCodeApis.prototype.getListIndustryCodeByOrganizationId({ orgId: queryKey[1] as string }),
 	});
 
 	useEffect(() => {
@@ -98,7 +100,15 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 				queryClient.refetchQueries({ queryKey: ['projects'] });
 			},
 			onError: (error) => {
-				toast(error.message);
+				if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {
+					toast(<ErrorSooner message={error.response?.data.message as string} />, {
+						className: 'rounded-2xl p-2 w-[350px]',
+						style: {
+							border: `1px solid #dedede`,
+							backgroundColor: `#fff`,
+						},
+					});
+				}
 			},
 		});
 	};

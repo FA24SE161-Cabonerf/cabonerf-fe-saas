@@ -402,7 +402,7 @@ export default function Playground() {
 								onDragOver={onDragOver}
 							>
 								<Cursors cursors={cursors} />
-								<Background bgColor="#f4f3f3" />
+								{/* <Background bgColor="#f4f3f3" /> */}
 								<MiniMap offsetScale={2} position="bottom-left" pannable zoomable maskColor="#f5f5f5" nodeBorderRadius={3} />
 								<Panel position="top-left">
 									<PlaygroundActionToolbar />

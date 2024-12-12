@@ -28,7 +28,8 @@ type LoginAction = {
 	type: eDispatchType.LOGIN;
 	payload: {
 		isAuthenticated: boolean;
-		userProfile: User | null;
+		userProfile: User;
+		currentOrganization: { orgId: string; orgName: string };
 	};
 };
 
@@ -147,6 +148,7 @@ const reducer = (state: State, action: Action) => {
 				...state,
 				isAuthenticated: action.payload.isAuthenticated,
 				userProfile: action.payload.userProfile,
+				currentOrganization: action.payload.currentOrganization,
 			};
 		case eDispatchType.REGISTER:
 			return {

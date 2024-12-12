@@ -64,6 +64,7 @@ export default function LoginPage() {
 
 						if (defaultOrg) {
 							saveCurrentOrganizationToLocalStorage({ orgId: defaultOrg.id, orgName: defaultOrg.name });
+
 							navigate(`/dashboard/${defaultOrg.id}`);
 						} else {
 							console.error('No default organization found');
@@ -75,6 +76,10 @@ export default function LoginPage() {
 							payload: {
 								isAuthenticated: true,
 								userProfile: user,
+								currentOrganization: {
+									orgId: defaultOrg?.id as string,
+									orgName: defaultOrg?.name as string,
+								},
 							},
 						});
 
