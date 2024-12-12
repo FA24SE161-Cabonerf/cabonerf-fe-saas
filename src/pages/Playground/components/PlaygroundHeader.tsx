@@ -30,6 +30,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { toast as hotToast } from 'react-hot-toast';
 import { z } from 'zod';
 
 const projectInformation = z.object({
@@ -124,28 +125,52 @@ function PlaygroundHeader({ id, users }: Props) {
 	};
 
 	const handleSaveToObjectLibrary = () => {
-		saveToObjectLibraryMutate.mutate(id, {
-			onSuccess: (data) => {
-				toast(<SuccessSooner message={data.data.message} />, {
-					className: 'rounded-2xl p-2 w-[350px]',
-					style: {
-						border: `1px solid #dedede`,
-						backgroundColor: `#fff`,
+		hotToast.promise(
+			new Promise((resolve, reject) => {
+				saveToObjectLibraryMutate.mutate(id, {
+					onSuccess: (data) => {
+						toast(<SuccessSooner message={data.data.message} />, {
+							className: 'rounded-2xl p-2 w-[350px]',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
+						resolve(true);
+					},
+					onError: (error) => {
+						if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {
+							toast(<ErrorSooner message={error.response?.data.message as string} />, {
+								className: 'rounded-2xl p-2 w-[350px]',
+								style: {
+									border: `1px solid #dedede`,
+									backgroundColor: `#fff`,
+								},
+							});
+							reject(false);
+						}
 					},
 				});
+			}),
+			{
+				loading: <p className="text-sm">Saving your project to the Object Library...</p>,
+				success: null,
+				error: null,
 			},
-			onError: (error) => {
-				if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {
-					toast(<ErrorSooner message={error.response?.data.message as string} />, {
-						className: 'rounded-2xl p-2 w-[350px]',
-						style: {
-							border: `1px solid #dedede`,
-							backgroundColor: `#fff`,
-						},
-					});
-				}
-			},
-		});
+			{
+				position: 'top-center',
+				error: {
+					style: {
+						visibility: 'hidden',
+					},
+				},
+				success: {
+					style: {
+						visibility: 'hidden',
+					},
+				},
+			}
+		);
 	};
 
 	return (

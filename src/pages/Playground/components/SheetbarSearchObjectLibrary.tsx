@@ -20,6 +20,7 @@ import socket from '@/socket.io';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import clsx from 'clsx';
 import DOMPurify from 'dompurify';
 import { ListFilter, Search } from 'lucide-react';
 import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
@@ -45,12 +46,12 @@ const dataColor = [
 ];
 
 function SheetbarSearchObjectLibrary() {
+	const [isLoadingAddProcess, setIsLoadingAddProcess] = useState<boolean>(false);
 	const { pid } = useParams<{ pid: string }>();
+
 	const {
 		app: { currentOrganization, userProfile },
 	} = useContext(AppContext);
-
-	console.log(currentOrganization);
 
 	const [queryParams] = useReducer(reducer, {
 		organizationId: currentOrganization?.orgId as string,
@@ -87,6 +88,9 @@ function SheetbarSearchObjectLibrary() {
 	});
 
 	useEffect(() => {
+		socket.on('gateway:created-object-library', () => {
+			setIsLoadingAddProcess(false);
+		});
 		return () => {
 			setSearchText('');
 		};
@@ -109,15 +113,9 @@ function SheetbarSearchObjectLibrary() {
 			},
 			type: 'process',
 		};
-
+		setIsLoadingAddProcess(true);
 		socket.emit('gateway:create-object-library', { data: newNode, projectId: pid });
 	};
-
-	useEffect(() => {
-		return () => {
-			socket.off('gateway:create-object-library');
-		};
-	}, []);
 
 	const handleFetchNext = useCallback(() => {
 		if (!isFetching) {
@@ -188,6 +186,7 @@ function SheetbarSearchObjectLibrary() {
 						height={550}
 						hasMore={hasNextPage}
 						dataLength={data.pages.length}
+						className="relative"
 						loader={
 							<div className="flex items-center justify-center">
 								<div className="flex items-center">
@@ -211,10 +210,13 @@ function SheetbarSearchObjectLibrary() {
 										const toColor = dataColor.find((c) => c.id === item.systemBoundary.boundaryTo);
 
 										return (
-											<div
+											<button
+												disabled={isLoadingAddProcess}
 												key={item.id}
 												onClick={addNewObjectLibrary(item.id)}
-												className="cursor-pointer px-3 py-2.5 hover:bg-gray-50"
+												className={clsx(`block w-full cursor-pointer px-3 py-2.5 hover:bg-gray-50`, {
+													'cursor-wait': isLoadingAddProcess,
+												})}
 											>
 												<div className="flex h-full items-center">
 													<div className="flex w-[10%] items-center">
@@ -265,7 +267,7 @@ function SheetbarSearchObjectLibrary() {
 													</div>
 													{/* Name, Location, Boundary */}
 													<div className="w-[90%]">
-														<div className="font-semibold text-[#525252]">{item.name}</div>
+														<div className="text-left font-semibold text-[#525252]">{item.name}</div>
 														<div className="mt-1 flex justify-between">
 															{/* Location & Boundray */}
 															<div className="flex items-center space-x-5 text-xs">
@@ -324,7 +326,10 @@ function SheetbarSearchObjectLibrary() {
 																{item.impacts.length > 0 && (
 																	<DropdownMenu>
 																		<DropdownMenuTrigger asChild>
-																			<button className="flex items-center space-x-2 rounded p-0.5 text-xs outline-1 outline-gray-300 hover:bg-gray-200 hover:outline">
+																			<div
+																				onClick={(e) => e.stopPropagation()}
+																				className="flex items-center space-x-2 rounded p-0.5 text-xs outline-1 outline-gray-300 hover:bg-gray-200 hover:outline"
+																			>
 																				<div
 																					dangerouslySetInnerHTML={{
 																						__html: DOMPurify.sanitize(
@@ -347,7 +352,7 @@ function SheetbarSearchObjectLibrary() {
 																						{item.impacts[0].impactCategory.midpointImpactCategory.unit.name}
 																					</span>
 																				</div>
-																			</button>
+																			</div>
 																		</DropdownMenuTrigger>
 																		<DropdownMenuContent
 																			onWheel={(e) => e.stopPropagation()}
@@ -396,7 +401,7 @@ function SheetbarSearchObjectLibrary() {
 														</div>
 													</div>
 												</div>
-											</div>
+											</button>
 										);
 									})
 								) : (
@@ -406,6 +411,17 @@ function SheetbarSearchObjectLibrary() {
 								)}
 							</React.Fragment>
 						))}
+						{isLoadingAddProcess ? (
+							<div className="absolute bottom-0 left-1/2 flex h-[50px] -translate-x-1/2 scale-100 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-100 shadow-lg transition-all duration-300 ease-out">
+								<ReloadIcon className="h-3 animate-spin font-bold" />
+								<span className="visible text-[12px] font-semibold">Inserting...</span>
+							</div>
+						) : (
+							<div className="absolute bottom-0 left-1/2 -z-10 flex h-[50px] -translate-x-1/2 scale-95 items-center space-x-2 rounded-[18px] bg-black p-[15px] text-white opacity-0 shadow-lg transition-all duration-300 ease-out">
+								<ReloadIcon className="h-3 font-bold" />
+								<span className="invisible text-[12px] font-semibold">Inserting...</span>
+							</div>
+						)}
 					</InfiniteScroll>
 				)}
 			</div>
