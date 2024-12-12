@@ -1,7 +1,7 @@
 import * as Y from 'yjs';
 import { SocketIOProvider } from 'y-socket.io';
 
-const baseURL = import.meta.env.VITE_GATEWAY_DEV_URL;
+const baseURL = import.meta.env.VITE_GATEWAY_PRODUCTION_URL;
 
 const ydocsCache: Map<string, Y.Doc> = new Map();
 
