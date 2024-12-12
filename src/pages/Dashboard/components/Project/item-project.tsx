@@ -4,6 +4,7 @@ import ProjectApis from '@/apis/project.apis';
 import DashboardIcon from '@/common/icons/DashboardIcon';
 import DocumentIcon from '@/common/icons/DocumentIcon';
 import FavoriteIcon from '@/common/icons/FavoriteIcon';
+import ErrorSooner from '@/components/ErrorSooner';
 import MyAvatar from '@/components/MyAvatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
+import { isBadRequestError } from '@/utils/error';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowUpRight, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
@@ -72,6 +74,17 @@ function ItemProject({ item }: Props) {
 							onClick: () => alert('Processing'),
 						},
 					});
+				},
+				onError: (error) => {
+					if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {
+						toast(<ErrorSooner message={error.response?.data.message as string} />, {
+							className: 'rounded-2xl p-2 w-[350px]',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
+					}
 				},
 			}
 		);
