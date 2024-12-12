@@ -9,8 +9,15 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast as hotToast } from 'react-hot-toast';
+import { queryClient } from '@/queryClient';
+import { Edge, Node, useReactFlow } from '@xyflow/react';
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
+import { Impact, Project } from '@/@types/project.type';
+import { CabonerfEdgeData } from '@/@types/cabonerfEdge.type';
 
 function PlaygroundActionToolbar() {
+	const { getNodes, getEdges } = useReactFlow<Node<CabonerfNodeData>, Edge<CabonerfEdgeData>>();
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const params = useParams<{ pid: string; wid: string }>();
 
@@ -63,7 +70,63 @@ function PlaygroundActionToolbar() {
 	const updateSelectedImpactMethod = useCallback(
 		(id: string) => {
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: id });
-			updateProjectMethod.mutate({ pid: params.pid as string, mid: id });
+			hotToast.promise(
+				new Promise((resolve, reject) => {
+					updateProjectMethod.mutate(
+						{ pid: params.pid as string, mid: id },
+						{
+							onSuccess: (data) => {
+								const new_project = data.data.data;
+								const current_nodes = getNodes();
+								const current_edges = getEdges();
+
+								const nodes_new_project = new Map(new_project.processes.map((item) => [item.id, item]));
+
+								const project_converted: Project<Impact, Node<CabonerfNodeData>[], Edge<CabonerfEdgeData>[]> = {
+									...new_project,
+									processes: current_nodes.map((item) => {
+										const p = nodes_new_project.get(item.id);
+
+										return {
+											...item,
+											data: {
+												...item.data,
+												impacts: p?.impacts || [],
+												exchanges: p?.exchanges || [],
+											},
+										};
+									}),
+									connectors: current_edges,
+								};
+
+								queryClient.setQueryData(['projects', params.pid], project_converted);
+								resolve(true);
+							},
+							onError: () => {
+								reject(false);
+							},
+						}
+					);
+				}),
+				{
+					loading: <p className="text-sm">Changing your project impact method...</p>,
+					success: null,
+					error: null,
+				},
+				{
+					position: 'top-center',
+					error: {
+						style: {
+							visibility: 'hidden',
+						},
+					},
+					success: {
+						style: {
+							visibility: 'hidden',
+						},
+					},
+				}
+			);
 		},
 		[playgroundDispatch, params.pid, updateProjectMethod]
 	);
