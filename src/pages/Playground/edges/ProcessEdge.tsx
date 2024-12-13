@@ -115,15 +115,12 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 			const flattened: EdgeRecusive[] = [
 				{
 					...node,
-					subProcesses: [],
-					processEnd: node.processEnd, // Include processEnd
+					subProcesses: [], // Loại bỏ subProcesses để tránh tính lại
 				},
 			];
-
 			node.subProcesses.forEach((subProcess) => {
-				flattened.push(...flattenTree(subProcess));
+				flattened.push(...flattenTree(subProcess)); // Đệ quy phẳng hóa các node con
 			});
-
 			return flattened;
 		};
 

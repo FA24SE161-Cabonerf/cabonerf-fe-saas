@@ -161,15 +161,25 @@ export function transformProcessesv2(contributor: Contributor): TransformContrib
 	if (hasSubProcesses) {
 		newProcess.total = 0;
 
-		// Duyệt qua từng subProcess và thêm key processEnd
-		newProcess.subProcesses = contributor.subProcesses.map((subProcess) => {
-			const transformedSubProcess = transformProcessesv2(subProcess);
-			return {
-				...transformedSubProcess,
-				processEnd: contributor.processId, // Thêm processEnd với giá trị processId của cha
-			};
+		// Add the current process as a separate entry in subProcesses
+		newProcess.subProcesses.push({
+			processId: contributor.processId,
+			net: contributor.net,
+			subProcesses: [],
 		});
+
+		// Process subProcesses and add `processEnd` to each
+		newProcess.subProcesses.push(
+			...contributor.subProcesses.map((subProcess) => {
+				const transformedSubProcess = transformProcessesv2(subProcess);
+				return {
+					...transformedSubProcess,
+					processEnd: contributor.processId, // Add processEnd as the current process ID
+				};
+			})
+		);
 	} else {
+		// Leaf process: only add `net` value
 		newProcess.net = contributor.net;
 	}
 

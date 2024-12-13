@@ -56,6 +56,7 @@ import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
 import { StickyNote, Type } from 'lucide-react';
 import { flushSync } from 'react-dom';
+import { DevTools } from '@/components/devtools';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -210,6 +211,7 @@ export default function Playground() {
 
 		return () => {
 			// Leave room
+			console.log({ userId: app.userProfile?.id, projectId: params.pid });
 			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
 
 			socket.disconnect();
@@ -344,29 +346,6 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
-	// const onNodeClick: NodeMouseHandler = useCallback(
-	// 	(_, clicked) => {
-	// 		setNodes((prev) =>
-	// 			prev.map((node) =>
-	// 				node.id === clicked.id
-	// 					? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
-	// 					: node
-	// 			)
-	// 		);
-
-	// 		window.setTimeout(() => {
-	// 			setNodes((prev) =>
-	// 				prev.map((node) =>
-	// 					node.id === clicked.id
-	// 						? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
-	// 						: node
-	// 				)
-	// 			);
-	// 		}, 3000);
-	// 	},
-	// 	[setNodes]
-	// );
-
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -425,6 +404,7 @@ export default function Playground() {
 										</div>
 									)}
 								</Panel>
+								<DevTools />
 							</ReactFlow>
 						</ContextMenuTrigger>
 						<ContextMenuContent className="w-auto rounded-[10px] border-none p-0">
