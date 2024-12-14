@@ -57,7 +57,7 @@ function ItemProject({ item }: Props) {
 						pageSize: string;
 						totalPage: string;
 						projects: GetProjectListResponse[];
-					}>(['projects', organizationId], (oldData) => {
+					}>(['projects-organization', organizationId], (oldData) => {
 						if (!oldData) return oldData;
 
 						const updatedProjects = oldData.projects.filter((project) => project.id !== id);
@@ -100,7 +100,7 @@ function ItemProject({ item }: Props) {
 						pageSize: string;
 						totalPage: string;
 						projects: GetProjectListResponse[];
-					}>(['projects', organizationId], (oldData) => {
+					}>(['projects-organization', organizationId], (oldData) => {
 						if (!oldData) return oldData;
 
 						const updatedProjects = oldData.projects.map((project) =>

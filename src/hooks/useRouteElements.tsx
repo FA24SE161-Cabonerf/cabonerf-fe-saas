@@ -54,6 +54,10 @@ export default function useRouteElements() {
 						},
 						{
 							path: 'object-libraries',
+							element: <RedirectToDefaultOrganization pathName="object-libraries" />,
+						},
+						{
+							path: 'object-libraries/:organizationId',
 							element: <ObjectLibrariesPage />,
 						},
 					],

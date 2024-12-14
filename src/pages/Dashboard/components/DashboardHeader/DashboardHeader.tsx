@@ -97,7 +97,7 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 						onClick: () => alert('Processing'),
 					},
 				});
-				queryClient.refetchQueries({ queryKey: ['projects'] });
+				queryClient.refetchQueries({ queryKey: ['projects-organization'] });
 			},
 			onError: (error) => {
 				if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {

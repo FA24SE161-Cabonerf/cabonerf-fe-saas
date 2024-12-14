@@ -370,6 +370,7 @@ export default function Playground() {
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
+								onNodeDrag={() => console.log('Drag')}
 								onlyRenderVisibleElements
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}
