@@ -69,6 +69,8 @@ function PlaygroundActionToolbar() {
 
 	const updateSelectedImpactMethod = useCallback(
 		(id: string) => {
+			console.log('first');
+
 			playgroundDispatch({ type: PlaygroundDispatch.SET_IMPACT_METHOD, payload: id });
 			hotToast.promise(
 				new Promise((resolve, reject) => {
@@ -128,7 +130,7 @@ function PlaygroundActionToolbar() {
 				}
 			);
 		},
-		[playgroundDispatch, params.pid, updateProjectMethod]
+		[playgroundDispatch, updateProjectMethod, params.pid, getNodes, getEdges]
 	);
 
 	const updateSelectedImpactCategories = useCallback(

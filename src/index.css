@@ -104,4 +104,26 @@
 		-webkit-appearance: none;
 		margin: 0;
 	}
+
+	.rotate-y-0 {
+		transform: rotateY(0deg);
+	}
+	.rotate-y-90 {
+		transform: rotateY(90deg);
+	}
+	.rotate-y-180 {
+		transform: rotateY(180deg);
+	}
+	.rotate-y-270 {
+		transform: rotateY(270deg);
+	}
+	.rotate-y-360 {
+		transform: rotateY(360deg);
+	}
+	.perspective {
+		perspective: 1000px;
+	}
+	.backface-hidden {
+		backface-visibility: hidden;
+	}
 }

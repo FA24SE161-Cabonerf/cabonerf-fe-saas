@@ -36,7 +36,7 @@ export default function DashboardPage() {
 		error,
 		isFetching,
 	} = useQuery({
-		queryKey: ['projects', organizationId],
+		queryKey: ['projects-organization', organizationId],
 		queryFn: ({ queryKey }) => ProjectApis.prototype.getAllProjects({ organizationId: queryKey[1] as string }),
 		staleTime: 0,
 		refetchOnMount: true,

@@ -78,7 +78,7 @@ export const updateSVGAttributes = ({ svgString, properties }: CustomSVG): strin
 	return updatedSVG;
 };
 
-export function formatWithExponential(value, decimalPlaces = 2) {
+export function formatWithExponential(value: number, decimalPlaces = 2) {
 	const largeThreshold = 1e5;
 	const smallThreshold = 1e-3;
 
@@ -161,15 +161,25 @@ export function transformProcessesv2(contributor: Contributor): TransformContrib
 	if (hasSubProcesses) {
 		newProcess.total = 0;
 
-		// Duyệt qua từng subProcess và thêm key processEnd
-		newProcess.subProcesses = contributor.subProcesses.map((subProcess) => {
-			const transformedSubProcess = transformProcessesv2(subProcess);
-			return {
-				...transformedSubProcess,
-				processEnd: contributor.processId, // Thêm processEnd với giá trị processId của cha
-			};
+		// Add the current process as a separate entry in subProcesses
+		newProcess.subProcesses.push({
+			processId: contributor.processId,
+			net: contributor.net,
+			subProcesses: [],
 		});
+
+		// Process subProcesses and add `processEnd` to each
+		newProcess.subProcesses.push(
+			...contributor.subProcesses.map((subProcess) => {
+				const transformedSubProcess = transformProcessesv2(subProcess);
+				return {
+					...transformedSubProcess,
+					processEnd: contributor.processId, // Add processEnd as the current process ID
+				};
+			})
+		);
 	} else {
+		// Leaf process: only add `net` value
 		newProcess.net = contributor.net;
 	}
 
@@ -270,4 +280,29 @@ export function stringToColor(str: string) {
 	}
 
 	return colour.substring(0, 7);
+}
+
+export function timeAgo(dateString: string): string {
+	const inputDate = new Date(dateString);
+	const now = new Date();
+	const diffInSeconds = Math.floor((now.getTime() - inputDate.getTime()) / 1000);
+
+	const intervals: { [key: string]: number } = {
+		year: 31536000,
+		month: 2592000,
+		week: 604800,
+		day: 86400,
+		hour: 3600,
+		minute: 60,
+		second: 1,
+	};
+
+	for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+		const delta = Math.floor(diffInSeconds / secondsInUnit);
+		if (delta > 0) {
+			return `${delta} ${unit}${delta > 1 ? 's' : ''} ago`;
+		}
+	}
+
+	return 'just now';
 }

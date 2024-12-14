@@ -93,6 +93,13 @@ export default {
 				blink: 'blink 2s infinite',
 				fadeInUp: 'fadeInUp 0.5s ease-out',
 			},
+			rotate: {
+				'y-0': 'rotateY(0deg)',
+				'y-90': 'rotateY(90deg)',
+				'y-180': 'rotateY(180deg)',
+				'y-270': 'rotateY(270deg)',
+				'y-360': 'rotateY(360deg)',
+			},
 		},
 		fontFamily: {
 			sans: [
