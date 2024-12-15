@@ -3,20 +3,26 @@ import { SheetBarDispatch } from '@/@types/dispatch.type';
 import { Exchange, Unit } from '@/@types/exchange.type';
 import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
+import ErrorSooner from '@/components/ErrorSooner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useDeleteHandle from '@/hooks/useDeleteHandle';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
+import { queryClient } from '@/queryClient';
+import { isUnprocessableEntity } from '@/utils/error';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
-import { Check, ChevronLeft, Package, Trash2 } from 'lucide-react';
-import { useContext, useEffect, useState } from 'react';
+import { Check, ChevronLeft, Trash2 } from 'lucide-react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 type Props = {
 	data: Exchange;
 };
 
 export default function ProductItem({ data }: Props) {
+	const params = useParams<{ pid: string }>();
 	const deleteHandle = useDeleteHandle();
 	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
@@ -33,6 +39,10 @@ export default function ProductItem({ data }: Props) {
 		queryFn: UnitApis.prototype.getAllUnitGroup,
 		staleTime: 1_000 * 60 * 60,
 	});
+
+	const projectData = queryClient.getQueryData(['projects', params.pid]);
+	console.log(projectData);
+	const prevNode = useMemo(() => {}, []);
 
 	const { data: unit, isFetching: isFetchingUnit } = useQuery({
 		queryKey: ['unit-group', defaultUnitGroup],
@@ -180,42 +190,54 @@ export default function ProductItem({ data }: Props) {
 						});
 					});
 				},
+				onError: (err) => {
+					if (isUnprocessableEntity<{ data: null; message: string; status: string }>(err)) {
+						setNameProduct(data.name);
+						toast(<ErrorSooner message={err.response?.data.message ?? ''} />, {
+							className: 'rounded-2xl p-1.5 ',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
+					}
+				},
 			}
 		);
 	};
 
 	return (
-		<div className="relative rounded-md border border-gray-200 px-4 py-2.5">
-			<div className="exchange-substance before:bg-gray-200" />
+		<div className="relative flex flex-col space-y-2.5 rounded-md px-4">
 			{/* Name */}
-			<div className="flex items-center justify-between space-x-2">
-				<div className="flex w-[70%] max-w-[70%] space-x-3">
-					<div className="rounded-sm border bg-white p-1 shadow">
-						<Package size={22} fill="white" color="#166534" />
-					</div>
 
+			<div className="relative">
+				<div className="absolute -left-4 top-1/2 z-50 size-2 -translate-y-1/2 rounded-full border-[1px] border-gray-400 bg-white" />
+				<div className="absolute -left-[12.5px] top-1/2 z-10 h-[40px] w-[15px] rounded-bl-md border border-r-0 border-t-0" />
+				<div className="w-fit rounded-[6px] bg-blue-50 px-2 py-1 text-xs text-blue-600">Process Name: &lt;empty&gt;</div>
+			</div>
+			<div className="z-30 flex justify-between space-x-1 overflow-hidden rounded-md bg-[#f0f0f0] p-[3px]">
+				<div className="flex w-[65%] max-w-[65%]">
 					<input
-						className="w-full max-w-full self-stretch break-all rounded-[8px] bg-[#f0f0f0] px-2 py-0.5 text-[12px] font-medium outline-none focus:ring-1 focus:ring-green-700"
+						className="w-full max-w-full break-all rounded-[6px] bg-[#f0f0f0] px-2 text-[12px] font-medium outline-none transition-all focus:bg-white"
 						value={nameProduct}
 						id={`name2${data.id}`}
 						onChange={handleChangeName}
 					/>
 				</div>
-
-				<div className="flex w-[30%] min-w-[30%] space-x-1 rounded-sm">
+				<div className="flex w-[30%] min-w-[30%] items-center space-x-0.5">
 					<input
 						type="text"
 						id={`value2${data.id}`}
 						value={valueExchange}
 						onChange={handleChangeValueExchange}
-						className="z-40 w-[60%] min-w-[60%] rounded-[8px] bg-[#f0f0f0] px-2 py-2 text-xs outline-none focus:ring-1 focus:ring-green-700"
+						className="z-40 h-fit w-[50%] min-w-[50%] rounded bg-[#e3e2e2] px-2 py-1.5 text-xs outline-none transition-all focus:bg-white"
 					/>
 					<DropdownMenu>
-						<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">
+						<DropdownMenuTrigger className="ml-3 h-fit min-w-[60px] truncate rounded bg-[#f0f0f0] p-1.5 text-xs font-semibold hover:bg-[#e3e2e2]">
 							{unitExchange.name}
 						</DropdownMenuTrigger>
 
-						<DropdownMenuContent className="w-[270px] rounded-md border border-gray-200 p-0 shadow-lg">
+						<DropdownMenuContent className="mr-2 w-[270px] rounded-tr-md border border-gray-200 p-0 shadow-lg">
 							<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
 								<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
 									<div className="col-span-4">Unit</div>
@@ -230,7 +252,7 @@ export default function ProductItem({ data }: Props) {
 											<DropdownMenuItem
 												onClick={() => handleChangeUnit({ unit: item })}
 												key={index}
-												className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
+												className="!hover:bg-gray-50 grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 focus:outline-none"
 												aria-label={`Select unit ${item.name}`}
 											>
 												<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
@@ -260,11 +282,11 @@ export default function ProductItem({ data }: Props) {
 					</DropdownMenu>
 				</div>
 
-				<div className="flex w-[20%] justify-end space-x-2">
+				<div className="flex w-[20%] items-center justify-end space-x-2">
 					{isUpdate ? (
 						<button
 							onClick={() => handleUpdateProduct()}
-							className="flex items-center justify-center rounded-sm bg-green-100 p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+							className="mr-1 flex items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
 							disabled={updateProductExchangeMutate.isPending}
 							aria-label="Update Exchange"
 						>
@@ -277,7 +299,7 @@ export default function ProductItem({ data }: Props) {
 					) : (
 						<button
 							onClick={handleDeleteExchange}
-							className="flex items-center justify-center rounded-sm bg-red-100 p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+							className="mr-1 flex h-fit items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
 							disabled={deleteHandle.isPending}
 							aria-label="Delete Exchange"
 						>

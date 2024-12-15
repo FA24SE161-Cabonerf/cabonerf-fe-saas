@@ -23,6 +23,7 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
+	NodeMouseHandler,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -346,6 +347,16 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
+	const onNodeDrag: NodeMouseHandler = useCallback(
+		(_, clicked) => {
+			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: false } : node)));
+
+			window.setTimeout(() => {
+				setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: true } : node)));
+			}, 300);
+		},
+		[setNodes]
+	);
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -370,7 +381,7 @@ export default function Playground() {
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
-								onNodeDrag={() => console.log('Drag')}
+								onNodeDrag={onNodeDrag}
 								onlyRenderVisibleElements
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}

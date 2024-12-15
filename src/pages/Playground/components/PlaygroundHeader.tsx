@@ -32,6 +32,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { toast as hotToast } from 'react-hot-toast';
 import { z } from 'zod';
+import { getViewportForBounds, useReactFlow } from '@xyflow/react';
+import { toPng } from 'html-to-image';
 
 const projectInformation = z.object({
 	name: z.string(),
@@ -46,7 +48,19 @@ type Props = {
 	users: { userId: string; userName: string; userAvatar: string; projectId: string }[];
 };
 
+function downloadImage(dataUrl: string) {
+	const a = document.createElement('a');
+
+	a.setAttribute('download', 'reactflow.png');
+	a.setAttribute('href', dataUrl);
+	a.click();
+}
+
+const imageWidth = 1024;
+const imageHeight = 768;
+
 function PlaygroundHeader({ id, users }: Props) {
+	const { getNodes, getNodesBounds } = useReactFlow();
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const [isOpenEditProject, setIsOpenEditProject] = useState<boolean>(false);
 	const popoverRef = useRef<HTMLDivElement>(null);
@@ -139,6 +153,28 @@ function PlaygroundHeader({ id, users }: Props) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isOpenEditProject, form, playgroundState, updateProjectInformationMutate.mutate, id]);
+
+	const onExportToPng = () => {
+		// we calculate a transform for the nodes so that all nodes are visible
+		// we then overwrite the transform of the `.react-flow__viewport` element
+		// with the style option of the html-to-image library
+		const nodesBounds = getNodesBounds(getNodes());
+		const viewport = getViewportForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2, 2);
+
+		const viewportElement = document.querySelector('.react-flow__viewport');
+		if (viewportElement instanceof HTMLElement) {
+			toPng(viewportElement, {
+				backgroundColor: '#1a365d',
+				width: 2000,
+				height: 2000,
+				style: {
+					width: String(imageWidth),
+					height: String(imageHeight),
+					transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+				},
+			}).then(downloadImage);
+		}
+	};
 
 	const goBack = () => {
 		navigate('/');
@@ -333,7 +369,9 @@ function PlaygroundHeader({ id, users }: Props) {
 									<DropdownMenuLabel className="cursor-pointer text-xs">Publish options</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem className="cursor-pointer text-xs">Export to Excel</DropdownMenuItem>
-									<DropdownMenuItem className="cursor-pointer text-xs">Export to PNG</DropdownMenuItem>
+									<DropdownMenuItem onSelect={onExportToPng} className="cursor-pointer text-xs">
+										Export to PNG
+									</DropdownMenuItem>
 									<DropdownMenuItem className="cursor-pointer text-xs" onSelect={handleSaveToObjectLibrary}>
 										Save as <span className="ml-1 font-bold text-green-700">Object Library</span>
 									</DropdownMenuItem>
