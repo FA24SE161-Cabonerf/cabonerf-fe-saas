@@ -373,7 +373,7 @@ function SheetbarSide() {
 										Product Exchange
 									</AccordionTrigger>
 									<AccordionContent>
-										<ScrollableList className="h-full space-y-3 overflow-scroll p-2" data={productExchangeInput}>
+										<ScrollableList className="ml-1 h-full space-y-4 overflow-scroll p-2" data={productExchangeInput}>
 											{productExchangeInput.length > 0 ? (
 												productExchangeInput.map((item) => <ProductItem data={item} key={item.id} />)
 											) : (
