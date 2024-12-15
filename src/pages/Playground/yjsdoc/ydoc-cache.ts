@@ -1,10 +1,13 @@
-import * as Y from 'yjs';
-import { SocketIOProvider } from 'y-socket.io';
 import config from '@/config';
+import { SocketIOProvider } from 'y-socket.io';
+import * as Y from 'yjs';
 
 const baseURL = config.GATEWAY_BASE_URL as string;
 
+// Cache for Y.Doc instances keyed by project ID
 const ydocsCache: Map<string, Y.Doc> = new Map();
+
+// API key for Liveblocks
 
 export function getOrCreateYDoc(projectID: string): Y.Doc {
 	if (ydocsCache.has(projectID)) {

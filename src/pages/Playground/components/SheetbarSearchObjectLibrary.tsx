@@ -357,6 +357,7 @@ function SheetbarSearchObjectLibrary() {
 																			</div>
 																		</DropdownMenuTrigger>
 																		<DropdownMenuContent
+																			onClick={(e) => e.stopPropagation()}
 																			onWheel={(e) => e.stopPropagation()}
 																			className="h-[400px] w-[550px] overflow-scroll scroll-smooth p-0"
 																		>
