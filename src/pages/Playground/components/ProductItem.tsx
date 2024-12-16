@@ -136,42 +136,6 @@ export default function ProductItem({ isInput, data }: Props) {
 
 	const handleDeleteExchange = () => {
 		deleteHandle.mutate(data.id);
-		// deleteExchangeMutations.mutate(data.id, {
-		// 	onSuccess: (data) => {
-		// 		const newProductExchanges = data.data.data;
-
-		// 		setNodes((nodes) => {
-		// 			return nodes.map((node) => {
-		// 				if (node.id === sheetState.process?.id) {
-		// 					const _newProcess = {
-		// 						...node,
-		// 						data: { ...node.data, exchanges: newProductExchanges },
-		// 					};
-
-		// 					sheetDispatch({
-		// 						type: SheetBarDispatch.SET_NODE,
-		// 						payload: {
-		// 							id: _newProcess.id,
-		// 							color: _newProcess.data.color,
-		// 							description: _newProcess.data.description,
-		// 							exchanges: _newProcess.data.exchanges,
-		// 							impacts: _newProcess.data.impacts,
-		// 							lifeCycleStage: _newProcess.data.lifeCycleStage,
-		// 							name: _newProcess.data.name,
-		// 							overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
-		// 							projectId: _newProcess.data.projectId,
-		// 						},
-		// 					});
-		// 					return _newProcess;
-		// 				}
-		// 				return node;
-		// 			});
-		// 		});
-		// 	},
-		// 	onError: (error) => {
-		// 		toast(error.message);
-		// 	},
-		// });
 	};
 
 	const handleUpdateProduct = () => {
