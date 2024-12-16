@@ -360,7 +360,7 @@ export default function ProductItem({ isInput, data }: Props) {
 							</button>
 						)}
 					</div>
-					{isInput === false && (
+					{isInput === false && (getItemConnectors as ItemConnector[]).length > 0 && (
 						<>
 							{(getItemConnectors as ItemConnector[]).map((item, index, length) => (
 								<div key={item.id} className="">
@@ -396,7 +396,9 @@ export default function ProductItem({ isInput, data }: Props) {
 					)}
 				</div>
 			</TooltipProvider>
-			{isInput === false && (getItemConnectors as ItemConnector[]).map((item) => <div key={item.id} className="h-[35px]"></div>)}
+			{isInput === false &&
+				(getItemConnectors as ItemConnector[]).length > 0 &&
+				(getItemConnectors as ItemConnector[]).map((item) => <div key={item.id} className="h-[35px]"></div>)}
 		</div>
 	);
 }
