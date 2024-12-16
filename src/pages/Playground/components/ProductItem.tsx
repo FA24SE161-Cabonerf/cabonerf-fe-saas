@@ -48,9 +48,6 @@ export default function ProductItem({ isInput, data }: Props) {
 		staleTime: 1_000 * 60 * 60,
 	});
 
-	const projectData = queryClient.getQueryData(['projects', params.pid]);
-	console.log(projectData);
-
 	const { data: unit, isFetching: isFetchingUnit } = useQuery({
 		queryKey: ['unit-group', defaultUnitGroup],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
@@ -139,12 +136,6 @@ export default function ProductItem({ isInput, data }: Props) {
 	};
 
 	const handleUpdateProduct = () => {
-		console.log({
-			processId: sheetState.process?.id as string,
-			unitId: unitExchange.id,
-			value: Number(valueExchange),
-			name: nameProduct,
-		});
 		updateProductExchangeMutate.mutate(
 			{
 				id: data.id,
@@ -157,7 +148,6 @@ export default function ProductItem({ isInput, data }: Props) {
 			},
 			{
 				onSuccess: (data) => {
-					console.log(data);
 					const newProcess = data.data.data; //{processId: string, exchange: Exchange}[]
 					const newExchangesMap = new Map(newProcess.map((ex) => [ex.processId, ex.exchange]));
 
