@@ -32,7 +32,7 @@ type ItemConnector = {
 export default function ProductItem({ isInput, data }: Props) {
 	const params = useParams<{ pid: string }>();
 	const deleteHandle = useDeleteHandle();
-	const { setNodes, getEdges, getNode, getNodes } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes, fitView, getEdges, getNode, getNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 
 	const [unitExchange, setUnitExchange] = useState<Unit>(data.unit);
@@ -221,165 +221,181 @@ export default function ProductItem({ isInput, data }: Props) {
 		);
 	};
 
+	const handleViewNode = (id: string) => {
+		fitView({
+			nodes: [{ id: id }],
+			duration: 1100,
+			minZoom: 2,
+			maxZoom: 2,
+		});
+	};
+
 	return (
 		<div className="relative flex flex-col rounded-md px-4">
 			{/* Name */}
+			<TooltipProvider delayDuration={200}>
+				{isInput && (
+					<div className="relative mb-2.5">
+						<div className="absolute -left-4 top-1/2 z-50 size-2 -translate-y-1/2 rounded-full border border-gray-300 bg-white" />
+						<div className="absolute -left-[12.5px] top-1/2 z-10 h-[40px] w-[20px] rounded-bl-xl border-[1px] border-r-0 border-t-0 border-gray-300" />
 
-			{isInput && (
-				<div className="relative mb-2.5">
-					<div
-						style={{ backgroundColor: (getItemConnectors as ItemConnector).bg }}
-						className="absolute -left-4 top-1/2 z-50 size-2 -translate-y-1/2 rounded-full"
-					/>
-					<div
-						style={{
-							border: `1px solid ${(getItemConnectors as ItemConnector).bg}`,
-							borderTop: 'none',
-							borderRight: 'none',
-						}}
-						className="absolute -left-[12.5px] top-1/2 z-10 h-[40px] w-[20px] rounded-bl-xl"
-					/>
-					<div
-						style={{ color: (getItemConnectors as ItemConnector).bg }}
-						className="w-fit rounded-[6px] bg-gray-50 px-2 py-1 text-xs font-medium"
-					>
-						Process: {(getItemConnectors as ItemConnector).name === 'empty' ? <></> : (getItemConnectors as ItemConnector).name}
-					</div>
-				</div>
-			)}
-
-			<div className="relative z-30 flex justify-between space-x-1 rounded-md bg-[#f0f0f0] p-[3px]">
-				<div className="relative flex w-[65%] max-w-[65%]">
-					<input
-						className="w-full max-w-full break-all rounded-[6px] bg-[#f0f0f0] px-2 text-[12px] font-medium outline-none transition-all focus:bg-white"
-						value={nameProduct}
-						id={`name2${data.id}`}
-						onChange={handleChangeName}
-					/>
-					{isInput === false && <div className="absolute -left-[18px] top-1/2 z-10 size-2 -translate-y-1/2 rounded-full bg-black" />}
-				</div>
-				<div className="flex w-[30%] min-w-[30%] items-center space-x-0.5">
-					<input
-						type="text"
-						id={`value2${data.id}`}
-						value={valueExchange}
-						onChange={handleChangeValueExchange}
-						className="z-40 h-fit w-[50%] min-w-[50%] rounded bg-[#e3e2e2] px-2 py-1.5 text-xs outline-none transition-all focus:bg-white"
-					/>
-					<DropdownMenu>
-						<DropdownMenuTrigger className="ml-3 h-fit min-w-[60px] truncate rounded bg-[#f0f0f0] p-1.5 text-xs font-semibold hover:bg-[#e3e2e2]">
-							{unitExchange.name}
-						</DropdownMenuTrigger>
-
-						<DropdownMenuContent className="mr-2 w-[270px] rounded-tr-md border border-gray-200 p-0 shadow-lg">
-							<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
-								<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
-									<div className="col-span-4">Unit</div>
-									<div className="col-span-5">Value</div>
-									<div className="col-span-3 text-right">Default</div>
-								</div>
-								<div className="p-2">
-									{isFetchingUnit ? (
-										<div>Loading</div>
-									) : (
-										unit?.data.data.map((item, index) => (
-											<DropdownMenuItem
-												onClick={() => handleChangeUnit({ unit: item })}
-												key={index}
-												className="!hover:bg-gray-50 grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 focus:outline-none"
-												aria-label={`Select unit ${item.name}`}
-											>
-												<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
-												<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
-												<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
-											</DropdownMenuItem>
-										))
-									)}
-								</div>
-								<DropdownMenu>
-									<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
-										<ChevronLeft size={15} />
-										<div className="text-[13px]">Select unit group</div>
-									</DropdownMenuTrigger>
-
-									<DropdownMenuContent side="left">
-										<DropdownMenuLabel className="text-[13px]">Select unit group</DropdownMenuLabel>
-										{unitGroup?.data.data.map((unit_group) => (
-											<DropdownMenuItem key={unit_group.id} onClick={() => setDefaultUnitGroup(unit_group.id)}>
-												<div className="col-span-4 font-medium text-gray-700">{unit_group.name}</div>
-											</DropdownMenuItem>
-										))}
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-
-				<div className="flex w-[20%] items-center justify-end space-x-2">
-					{isUpdate ? (
-						<button
-							onClick={() => handleUpdateProduct()}
-							className="mr-1 flex items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-							disabled={updateProductExchangeMutate.isPending}
-							aria-label="Update Exchange"
-						>
-							{updateProductExchangeMutate.isPending ? (
-								<ReloadIcon className="h-4 w-4 animate-spin text-green-600" />
-							) : (
-								<Check className="h-4 w-4 text-green-600" />
-							)}
-						</button>
-					) : (
-						<button
-							onClick={handleDeleteExchange}
-							className="mr-1 flex h-fit items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-							disabled={deleteHandle.isPending}
-							aria-label="Delete Exchange"
-						>
-							{deleteHandle.isPending ? (
-								<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
-							) : (
-								<Trash2 className="h-4 w-4 text-red-600" />
-							)}
-						</button>
-					)}
-				</div>
-				{isInput === false && (
-					<>
-						{(getItemConnectors as ItemConnector[]).map((item, index, length) => (
-							<div key={item.id} className="">
+						<Tooltip>
+							<TooltipTrigger
+								onClick={() => handleViewNode((getItemConnectors as ItemConnector).id)}
+								id={(getItemConnectors as ItemConnector).id}
+								asChild
+							>
 								<div
-									className={`absolute h-[45px] w-[120px] max-w-[300px] overflow-visible border border-r-0 border-t-0`}
-									style={{
-										top: `${60 + index * 100}%`, // Dynamically calculate the `top` value
-										left: '-11.5px',
-										borderBottomLeftRadius: index === length.length - 1 ? 12 : 0,
-									}}
+									style={{ color: (getItemConnectors as ItemConnector).bg }}
+									className="w-fit cursor-pointer rounded-[6px] bg-gray-50 px-2 py-1 text-xs font-medium hover:bg-gray-100"
 								>
-									<TooltipProvider delayDuration={200}>
+									Process:{' '}
+									{(getItemConnectors as ItemConnector).name === 'empty' ? <></> : (getItemConnectors as ItemConnector).name}
+								</div>
+							</TooltipTrigger>
+							<TooltipContent className="flex flex-col font-medium" id={(getItemConnectors as ItemConnector).id}>
+								<div>Process: {(getItemConnectors as ItemConnector).name}</div>
+								<div className="text-[10px] font-normal">Click to view this node</div>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+				)}
+
+				<div className="relative z-30 flex justify-between space-x-1 rounded-md bg-[#f0f0f0] p-[3px]">
+					<div className="relative flex w-[65%] max-w-[65%]">
+						<input
+							className="w-full max-w-full break-all rounded-[6px] bg-[#f0f0f0] px-2 text-[12px] font-medium outline-none transition-all focus:bg-white"
+							value={nameProduct}
+							id={`name2${data.id}`}
+							onChange={handleChangeName}
+						/>
+						{isInput === false && (
+							<div className="absolute -left-[18px] top-1/2 z-10 size-2 -translate-y-1/2 rounded-full border border-gray-300 bg-white" />
+						)}
+					</div>
+					<div className="flex w-[30%] min-w-[30%] items-center space-x-0.5">
+						<input
+							type="text"
+							id={`value2${data.id}`}
+							value={valueExchange}
+							onChange={handleChangeValueExchange}
+							className="z-40 h-fit w-[50%] min-w-[50%] rounded bg-[#e3e2e2] px-2 py-1.5 text-xs outline-none transition-all focus:bg-white"
+						/>
+						<DropdownMenu>
+							<DropdownMenuTrigger className="ml-3 h-fit min-w-[60px] truncate rounded bg-[#f0f0f0] p-1.5 text-xs font-semibold hover:bg-[#e3e2e2]">
+								{unitExchange.name}
+							</DropdownMenuTrigger>
+
+							<DropdownMenuContent className="mr-2 w-[270px] rounded-tr-md border border-gray-200 p-0 shadow-lg">
+								<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
+									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+										<div className="col-span-4">Unit</div>
+										<div className="col-span-5">Value</div>
+										<div className="col-span-3 text-right">Default</div>
+									</div>
+									<div className="p-2">
+										{isFetchingUnit ? (
+											<div>Loading</div>
+										) : (
+											unit?.data.data.map((item, index) => (
+												<DropdownMenuItem
+													onClick={() => handleChangeUnit({ unit: item })}
+													key={index}
+													className="!hover:bg-gray-50 grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 focus:outline-none"
+													aria-label={`Select unit ${item.name}`}
+												>
+													<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
+													<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
+													<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
+												</DropdownMenuItem>
+											))
+										)}
+									</div>
+									<DropdownMenu>
+										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
+											<ChevronLeft size={15} />
+											<div className="text-[13px]">Select unit group</div>
+										</DropdownMenuTrigger>
+
+										<DropdownMenuContent side="left">
+											<DropdownMenuLabel className="text-[13px]">Select unit group</DropdownMenuLabel>
+											{unitGroup?.data.data.map((unit_group) => (
+												<DropdownMenuItem key={unit_group.id} onClick={() => setDefaultUnitGroup(unit_group.id)}>
+													<div className="col-span-4 font-medium text-gray-700">{unit_group.name}</div>
+												</DropdownMenuItem>
+											))}
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+
+					<div className="flex w-[20%] items-center justify-end space-x-2">
+						{isUpdate ? (
+							<button
+								onClick={() => handleUpdateProduct()}
+								className="mr-1 flex items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+								disabled={updateProductExchangeMutate.isPending}
+								aria-label="Update Exchange"
+							>
+								{updateProductExchangeMutate.isPending ? (
+									<ReloadIcon className="h-4 w-4 animate-spin text-green-600" />
+								) : (
+									<Check className="h-4 w-4 text-green-600" />
+								)}
+							</button>
+						) : (
+							<button
+								onClick={handleDeleteExchange}
+								className="mr-1 flex h-fit items-center justify-center rounded-sm p-1.5 transition duration-150 ease-in-out hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+								disabled={deleteHandle.isPending}
+								aria-label="Delete Exchange"
+							>
+								{deleteHandle.isPending ? (
+									<ReloadIcon className="h-4 w-4 animate-spin text-red-600" />
+								) : (
+									<Trash2 className="h-4 w-4 text-red-600" />
+								)}
+							</button>
+						)}
+					</div>
+					{isInput === false && (
+						<>
+							{(getItemConnectors as ItemConnector[]).map((item, index, length) => (
+								<div key={item.id} className="">
+									<div
+										className={`absolute h-[45px] w-[120px] max-w-[300px] overflow-visible border-[1px] border-r-0 border-t-0 border-gray-300`}
+										style={{
+											top: `${60 + index * 100}%`, // Dynamically calculate the `top` value
+											left: '-11.5px',
+											borderBottomLeftRadius: index === length.length - 1 ? 12 : 0,
+										}}
+									>
 										<Tooltip>
-											<TooltipTrigger id={item.id} asChild>
+											<TooltipTrigger onClick={() => handleViewNode(item.id)} id={item.id} asChild>
 												<div
 													className="absolute -bottom-2.5 -right-16 z-20 w-[150px] cursor-pointer overflow-hidden truncate whitespace-nowrap rounded-[6px] bg-gray-50 px-2 py-1 text-xs font-medium hover:bg-gray-100"
 													style={{
 														maxWidth: '280px', // Giới hạn chiều rộng của văn bản
+														color: item.bg,
 													}}
 												>
-													Process: {item.name} 123123123
+													Process: {item.name}
 												</div>
 											</TooltipTrigger>
-											<TooltipContent className="font-medium" id={item.id}>
-												Process: {item.name}
+											<TooltipContent className="flex flex-col font-medium" id={item.id}>
+												<div>Process: {item.name}</div>
+												<div className="text-[10px] font-normal">Click to view this node</div>
 											</TooltipContent>
 										</Tooltip>
-									</TooltipProvider>
+									</div>
 								</div>
-							</div>
-						))}
-					</>
-				)}
-			</div>
+							))}
+						</>
+					)}
+				</div>
+			</TooltipProvider>
 			{isInput === false && (getItemConnectors as ItemConnector[]).map((item) => <div key={item.id} className="h-[35px]"></div>)}
 		</div>
 	);
