@@ -96,10 +96,11 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				zIndex: 40,
 				backgroundColor: data.data.bgColor,
 				boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
+				outlineColor: data.data.bgColor,
 			}}
 			className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
 				'scale-105': data.dragging,
-				'outline-dashed outline-[3px] outline-offset-4 outline-[#cfcfcf]': data.selectable === false,
+				'outline-dashed outline-[3px] outline-offset-4': data.selectable === false,
 			})}
 		>
 			{/* Default Target */}

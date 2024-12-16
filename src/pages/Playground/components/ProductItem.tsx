@@ -5,6 +5,7 @@ import { ExchangeApis } from '@/apis/exchange.apis';
 import { UnitApis } from '@/apis/unit.apis';
 import ErrorSooner from '@/components/ErrorSooner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import useDeleteHandle from '@/hooks/useDeleteHandle';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { queryClient } from '@/queryClient';
@@ -19,12 +20,19 @@ import { toast } from 'sonner';
 
 type Props = {
 	data: Exchange;
+	isInput: boolean;
 };
 
-export default function ProductItem({ data }: Props) {
+type ItemConnector = {
+	id: string;
+	name: string;
+	bg: string;
+};
+
+export default function ProductItem({ isInput, data }: Props) {
 	const params = useParams<{ pid: string }>();
 	const deleteHandle = useDeleteHandle();
-	const { setNodes } = useReactFlow<Node<CabonerfNodeData>>();
+	const { setNodes, getEdges, getNode, getNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
 
 	const [unitExchange, setUnitExchange] = useState<Unit>(data.unit);
@@ -42,7 +50,6 @@ export default function ProductItem({ data }: Props) {
 
 	const projectData = queryClient.getQueryData(['projects', params.pid]);
 	console.log(projectData);
-	const prevNode = useMemo(() => {}, []);
 
 	const { data: unit, isFetching: isFetchingUnit } = useQuery({
 		queryKey: ['unit-group', defaultUnitGroup],
@@ -69,6 +76,50 @@ export default function ProductItem({ data }: Props) {
 			setValueExchange(sanitizedValue);
 		}
 	};
+
+	const getItemConnectors = useMemo((): ItemConnector | ItemConnector[] => {
+		const edges = getEdges();
+		const nodes = getNodes();
+
+		if (isInput) {
+			// Handle the case for input connectors
+			const getTarget = edges.find((item) => item.targetHandle === data.id);
+			if (getTarget) {
+				const sourceNode = getNode(getTarget.source);
+				return {
+					id: sourceNode?.id ?? '',
+					name: sourceNode?.data.name ?? 'defaultName',
+					bg: sourceNode?.data.color ?? '#cecece',
+				};
+			}
+		} else {
+			// Handle the case for output connectors
+			const getSource = edges.filter((item) => item.sourceHandle === data.id);
+			if (getSource.length > 0) {
+				const listNode: ItemConnector[] = nodes
+					.map((node) => {
+						const sourceEdge = getSource.find((edge) => edge.target === node.id);
+						if (sourceEdge) {
+							return {
+								id: node.id ?? '',
+								name: node.data.name ?? 'defaultName',
+								bg: node.data.color ?? '#cecece',
+							};
+						}
+						return null; // Exclude nodes without matching edges
+					})
+					.filter((item): item is ItemConnector => item !== null); // Remove null entries
+				return listNode;
+			}
+		}
+
+		// Default return value if no connectors are found
+		return {
+			id: 'z@@',
+			name: 'empty',
+			bg: '#cecece',
+		};
+	}, [data.id, getEdges, getNode, getNodes, isInput]);
 
 	const handleChangeUnit = ({ unit }: { unit: Unit }) => {
 		// Use initialValue as the base for recalculations
@@ -207,22 +258,41 @@ export default function ProductItem({ data }: Props) {
 	};
 
 	return (
-		<div className="relative flex flex-col space-y-2.5 rounded-md px-4">
+		<div className="relative flex flex-col rounded-md px-4">
 			{/* Name */}
 
-			<div className="relative">
-				<div className="absolute -left-4 top-1/2 z-50 size-2 -translate-y-1/2 rounded-full border-[1px] border-gray-400 bg-white" />
-				<div className="absolute -left-[12.5px] top-1/2 z-10 h-[40px] w-[15px] rounded-bl-md border border-r-0 border-t-0" />
-				<div className="w-fit rounded-[6px] bg-blue-50 px-2 py-1 text-xs text-blue-600">Process Name: &lt;empty&gt;</div>
-			</div>
-			<div className="z-30 flex justify-between space-x-1 overflow-hidden rounded-md bg-[#f0f0f0] p-[3px]">
-				<div className="flex w-[65%] max-w-[65%]">
+			{isInput && (
+				<div className="relative mb-2.5">
+					<div
+						style={{ backgroundColor: (getItemConnectors as ItemConnector).bg }}
+						className="absolute -left-4 top-1/2 z-50 size-2 -translate-y-1/2 rounded-full"
+					/>
+					<div
+						style={{
+							border: `1px solid ${(getItemConnectors as ItemConnector).bg}`,
+							borderTop: 'none',
+							borderRight: 'none',
+						}}
+						className="absolute -left-[12.5px] top-1/2 z-10 h-[40px] w-[20px] rounded-bl-xl"
+					/>
+					<div
+						style={{ color: (getItemConnectors as ItemConnector).bg }}
+						className="w-fit rounded-[6px] bg-gray-50 px-2 py-1 text-xs font-medium"
+					>
+						Process: {(getItemConnectors as ItemConnector).name === 'empty' ? <></> : (getItemConnectors as ItemConnector).name}
+					</div>
+				</div>
+			)}
+
+			<div className="relative z-30 flex justify-between space-x-1 rounded-md bg-[#f0f0f0] p-[3px]">
+				<div className="relative flex w-[65%] max-w-[65%]">
 					<input
 						className="w-full max-w-full break-all rounded-[6px] bg-[#f0f0f0] px-2 text-[12px] font-medium outline-none transition-all focus:bg-white"
 						value={nameProduct}
 						id={`name2${data.id}`}
 						onChange={handleChangeName}
 					/>
+					{isInput === false && <div className="absolute -left-[18px] top-1/2 z-10 size-2 -translate-y-1/2 rounded-full bg-black" />}
 				</div>
 				<div className="flex w-[30%] min-w-[30%] items-center space-x-0.5">
 					<input
@@ -311,7 +381,42 @@ export default function ProductItem({ data }: Props) {
 						</button>
 					)}
 				</div>
+				{isInput === false && (
+					<>
+						{(getItemConnectors as ItemConnector[]).map((item, index, length) => (
+							<div key={item.id} className="">
+								<div
+									className={`absolute h-[45px] w-[120px] max-w-[300px] overflow-visible border border-r-0 border-t-0`}
+									style={{
+										top: `${60 + index * 100}%`, // Dynamically calculate the `top` value
+										left: '-11.5px',
+										borderBottomLeftRadius: index === length.length - 1 ? 12 : 0,
+									}}
+								>
+									<TooltipProvider delayDuration={200}>
+										<Tooltip>
+											<TooltipTrigger id={item.id} asChild>
+												<div
+													className="absolute -bottom-2.5 -right-16 z-20 w-[150px] cursor-pointer overflow-hidden truncate whitespace-nowrap rounded-[6px] bg-gray-50 px-2 py-1 text-xs font-medium hover:bg-gray-100"
+													style={{
+														maxWidth: '280px', // Giới hạn chiều rộng của văn bản
+													}}
+												>
+													Process: {item.name} 123123123
+												</div>
+											</TooltipTrigger>
+											<TooltipContent className="font-medium" id={item.id}>
+												Process: {item.name}
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</div>
+							</div>
+						))}
+					</>
+				)}
 			</div>
+			{isInput === false && (getItemConnectors as ItemConnector[]).map((item) => <div key={item.id} className="h-[35px]"></div>)}
 		</div>
 	);
 }
