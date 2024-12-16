@@ -1,6 +1,7 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { ContextDispatch } from '@/@types/dispatch.type';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AppContext } from '@/contexts/app.context';
 import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess';
 import HandleProductItem from '@/pages/Playground/components/HandleProductItem';
@@ -89,192 +90,205 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	}, [data.data.exchanges]);
 
 	return (
-		<div
-			onContextMenu={handleTriggerContextMenu}
-			ref={triggerRef}
-			style={{
-				zIndex: 40,
-				backgroundColor: data.data.bgColor,
-				boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
-				outlineColor: data.data.bgColor,
-			}}
-			className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
-				'scale-105': data.dragging,
-				'outline-dashed outline-[3px] outline-offset-4': data.selectable === false,
-			})}
-		>
-			{/* Default Target */}
-			<Handle
-				position={Position.Left}
-				type="target"
-				id={undefined}
-				className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
-					invisible: !isTarget,
-					'visible opacity-0': isTarget,
+		<TooltipProvider delayDuration={200}>
+			<div
+				onContextMenu={handleTriggerContextMenu}
+				ref={triggerRef}
+				style={{
+					zIndex: 40,
+					backgroundColor: data.data.bgColor,
+					boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
+					outlineColor: data.data.bgColor,
+				}}
+				className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
+					'scale-105': data.dragging,
+					'outline-dashed outline-[3px] outline-offset-4': data.selectable === false,
 				})}
-			/>
+			>
+				{/* Default Target */}
+				<Handle
+					position={Position.Left}
+					type="target"
+					id={undefined}
+					className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
+						invisible: !isTarget,
+						'visible opacity-0': isTarget,
+					})}
+				/>
 
-			{/* Default Source */}
-			<Handle
-				position={Position.Left}
-				type="source"
-				id={undefined}
-				className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
-					invisible: !isTarget,
-					'visible opacity-0': isTarget,
-				})}
-			/>
+				{/* Default Source */}
+				<Handle
+					position={Position.Left}
+					type="source"
+					id={undefined}
+					className={clsx(`absolute left-1/2 top-0 h-full w-full -translate-x-1/2 rounded-none bg-none`, {
+						invisible: !isTarget,
+						'visible opacity-0': isTarget,
+					})}
+				/>
 
-			<div className="p-4">
-				<div className="flex items-center justify-between space-x-2">
-					{/* Logo */}
-					<div className="flex items-start space-x-1">
-						<div className="rounded-md p-1.5" style={{ backgroundColor: data.data.color }}>
-							<div
-								dangerouslySetInnerHTML={{
-									__html: DOMPurify.sanitize(
-										updateSVGAttributes({
-											svgString: data.data.lifeCycleStage.iconUrl,
-											properties: { color: 'white', fill: 'white', height: 20, width: 20 },
-										})
-									),
-								}}
-							/>
+				<div className="p-4">
+					<div className="flex items-center justify-between space-x-2">
+						{/* Logo */}
+						<div className="flex items-start space-x-1">
+							<div className="rounded-md p-1.5" style={{ backgroundColor: data.data.color }}>
+								<div
+									dangerouslySetInnerHTML={{
+										__html: DOMPurify.sanitize(
+											updateSVGAttributes({
+												svgString: data.data.lifeCycleStage.iconUrl,
+												properties: { color: 'white', fill: 'white', height: 20, width: 20 },
+											})
+										),
+									}}
+								/>
+							</div>
 						</div>
+						{/* CTA */}
 					</div>
-					{/* CTA */}
-				</div>
-				<div className="mt-3 flex justify-between break-words text-xl font-semibold text-white">{data.data.name}</div>
-				<div className="mt-4">
-					{playgroundState.impactCategory && data.data.impacts.length > 0 && (
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<button className="flex items-center space-x-2 rounded p-0.5 text-xs text-white transition-all hover:bg-gray-100 hover:bg-opacity-20">
-									<div
-										dangerouslySetInnerHTML={{
-											__html: DOMPurify.sanitize(
-												updateSVGAttributes({
-													svgString: playgroundState.impactCategory?.iconUrl ?? ('' as string),
-													properties: {
-														color: '#fff',
-														fill: 'none',
-														height: 20,
-														width: 20,
-													},
-												})
-											),
-										}}
-									/>
-									<div className="flex items-center space-x-1">
-										<span className="font-bold">{unitValue}</span>
-										<span>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</span>
-									</div>
-								</button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent className="max-h-[400px] w-[650px] overflow-y-scroll scroll-smooth p-0">
-								<div className="sticky left-0 right-0 top-0 grid grid-cols-12 border-b bg-white px-2 py-1.5">
-									<div className="col-span-8 mx-auto text-sm font-semibold">Impact Category</div>
-									<div className="col-span-2 text-sm font-semibold">Unit Level</div>
-									<div className="col-span-2 text-sm font-semibold">System Level</div>
-								</div>
-
-								{data.data.impacts.map((item, index) => (
-									<div key={index} className="grid grid-cols-12 space-y-1 px-2 py-0.5">
-										<div className="col-span-8 flex items-center space-x-3">
-											<div
-												dangerouslySetInnerHTML={{
-													__html: DOMPurify.sanitize(updateSVGAttributes({ svgString: item.impactCategory.iconUrl })),
-												}}
-											/>
-											<div className="flex flex-col">
-												<span className="text-sm font-medium">{item.impactCategory.name}</span>
-												<span className="text-xs text-gray-500">
-													{item.impactCategory.midpointImpactCategory.name} ({item.impactCategory.midpointImpactCategory.abbr})
-												</span>
-											</div>
+					<div className="mt-3 flex justify-between break-words text-xl font-semibold text-white">{data.data.name}</div>
+					<div className="mt-4">
+						{playgroundState.impactCategory && data.data.impacts.length > 0 && (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button className="flex items-center space-x-2 rounded p-0.5 text-xs text-white transition-all hover:bg-gray-100 hover:bg-opacity-20">
+										<div
+											dangerouslySetInnerHTML={{
+												__html: DOMPurify.sanitize(
+													updateSVGAttributes({
+														svgString: playgroundState.impactCategory?.iconUrl ?? ('' as string),
+														properties: {
+															color: '#fff',
+															fill: 'none',
+															height: 20,
+															width: 20,
+														},
+													})
+												),
+											}}
+										/>
+										<div className="flex items-center space-x-1">
+											<span className="font-bold">{unitValue}</span>
+											<span>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</span>
 										</div>
-										<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.unitLevel)}</div>
-										<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.systemLevel)}</div>
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent className="max-h-[400px] w-[650px] overflow-y-scroll scroll-smooth p-0">
+									<div className="sticky left-0 right-0 top-0 grid grid-cols-12 border-b bg-white px-2 py-1.5">
+										<div className="col-span-8 mx-auto text-sm font-semibold">Impact Category</div>
+										<div className="col-span-2 text-sm font-semibold">Unit Level</div>
+										<div className="col-span-2 text-sm font-semibold">System Level</div>
 									</div>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					)}
-				</div>
-				{/* <div className="flex min-h-[17px] justify-end">
+
+									{data.data.impacts.map((item, index) => (
+										<div key={index} className="grid grid-cols-12 space-y-1 px-2 py-0.5">
+											<div className="col-span-8 flex items-center space-x-3">
+												<div
+													dangerouslySetInnerHTML={{
+														__html: DOMPurify.sanitize(updateSVGAttributes({ svgString: item.impactCategory.iconUrl })),
+													}}
+												/>
+												<div className="flex flex-col">
+													<span className="text-sm font-medium">{item.impactCategory.name}</span>
+													<span className="text-xs text-gray-500">
+														{item.impactCategory.midpointImpactCategory.name} (
+														{item.impactCategory.midpointImpactCategory.abbr})
+													</span>
+												</div>
+											</div>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.unitLevel)}</div>
+												</TooltipTrigger>
+												<TooltipContent>{item.unitLevel}</TooltipContent>
+											</Tooltip>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.systemLevel)}</div>
+												</TooltipTrigger>
+												<TooltipContent>{item.systemLevel}</TooltipContent>
+											</Tooltip>
+										</div>
+									))}
+								</DropdownMenuContent>
+							</DropdownMenu>
+						)}
+					</div>
+					{/* <div className="flex min-h-[17px] justify-end">
 					<div className="rounded p-1 hover:bg-gray-100">
 						<LockKeyhole size={17} />
 					</div>
 				</div> */}
-			</div>
-			{/* Handle */}
+				</div>
+				{/* Handle */}
 
-			{/* Delete */}
-			{appContext.deleteProcessesIds.includes(data.id) && (
-				<>
-					<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] bg-gray-100 bg-gray-100/30"></div>
-					<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
-						<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
-					</div>
-				</>
-			)}
+				{/* Delete */}
+				{appContext.deleteProcessesIds.includes(data.id) && (
+					<>
+						<div className="absolute left-0 top-0 z-30 h-full w-full rounded-[26px] bg-gray-100 bg-gray-100/30"></div>
+						<div className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
+							<ReloadIcon className="mr-2 h-5 w-5 animate-spin text-zinc-500" />
+						</div>
+					</>
+				)}
 
-			<div className="flex items-start justify-between gap-1">
-				{productExchangeInput.length > 0 && (
-					<div className="mb-2 w-1/2 space-y-1">
-						{productExchangeInput.map((item) => (
+				<div className="flex items-start justify-between gap-1">
+					{productExchangeInput.length > 0 && (
+						<div className="mb-2 w-1/2 space-y-1">
+							{productExchangeInput.map((item) => (
+								<HandleProductItem
+									bgColor={data.data.bgColor}
+									library={data.data.library}
+									processId={data.id}
+									data={item}
+									key={item.id}
+								/>
+							))}
+						</div>
+					)}
+
+					{productExchangeOutput && (
+						<div className="mb-2 ml-auto w-1/2">
 							<HandleProductItem
 								bgColor={data.data.bgColor}
 								library={data.data.library}
 								processId={data.id}
-								data={item}
-								key={item.id}
+								isReverse
+								data={productExchangeOutput}
 							/>
-						))}
-					</div>
-				)}
+						</div>
+					)}
+				</div>
 
-				{productExchangeOutput && (
-					<div className="mb-2 ml-auto w-1/2">
-						<HandleProductItem
-							bgColor={data.data.bgColor}
-							library={data.data.library}
-							processId={data.id}
-							isReverse
-							data={productExchangeOutput}
-						/>
-					</div>
-				)}
-			</div>
-
-			<div className="mx-3 flex items-center justify-end space-x-1 pb-3">
-				{data.data.library && (
+				<div className="mx-3 flex items-center justify-end space-x-1 pb-3">
+					{data.data.library && (
+						<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100 hover:bg-opacity-20">
+							<div
+								style={{ backgroundColor: data.data.color }}
+								className="invisible absolute -top-5 left-1/2 -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+							>
+								Data Set
+							</div>
+							<DatabaseZap width={14} height={14} color="white" />
+						</div>
+					)}
 					<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100 hover:bg-opacity-20">
 						<div
 							style={{ backgroundColor: data.data.color }}
 							className="invisible absolute -top-5 left-1/2 -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
 						>
-							Data Set
+							Process Details
 						</div>
-						<DatabaseZap width={14} height={14} color="white" />
+						<Info width={14} height={14} color="white" />
 					</div>
-				)}
-				<div style={{ color: data.data.color }} className="group relative rounded p-0.5 hover:bg-gray-100 hover:bg-opacity-20">
-					<div
-						style={{ backgroundColor: data.data.color }}
-						className="invisible absolute -top-5 left-1/2 -translate-x-1/2 overflow-visible whitespace-nowrap rounded px-1 py-0.5 text-[10px] text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
-					>
-						Process Details
-					</div>
-					<Info width={14} height={14} color="white" />
 				</div>
-			</div>
 
-			{/* Context Menu */}
-			{app.contextMenuSelector?.process.id === data.id &&
-				app.isOpen &&
-				ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
-		</div>
+				{/* Context Menu */}
+				{app.contextMenuSelector?.process.id === data.id &&
+					app.isOpen &&
+					ReactDOM.createPortal(<ContextMenuProcess ref={contextMenuRef} />, document.body)}
+			</div>
+		</TooltipProvider>
 	);
 }
 
