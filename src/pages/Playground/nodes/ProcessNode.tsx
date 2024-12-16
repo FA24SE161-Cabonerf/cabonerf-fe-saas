@@ -200,13 +200,13 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 												<TooltipTrigger asChild>
 													<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.unitLevel)}</div>
 												</TooltipTrigger>
-												<TooltipContent>{item.unitLevel}</TooltipContent>
+												<TooltipContent className="bg-black">{item.unitLevel}</TooltipContent>
 											</Tooltip>
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<div className="col-span-2 text-sm font-medium">{formatWithExponential(item.systemLevel)}</div>
 												</TooltipTrigger>
-												<TooltipContent>{item.systemLevel}</TooltipContent>
+												<TooltipContent className="bg-black">{item.systemLevel}</TooltipContent>
 											</Tooltip>
 										</div>
 									))}

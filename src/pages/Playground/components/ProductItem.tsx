@@ -109,8 +109,8 @@ export default function ProductItem({ isInput, data }: Props) {
 
 		// Default return value if no connectors are found
 		return {
-			id: 'z@@',
-			name: 'empty',
+			id: 'DEFAULT_VALUE_FOR_NOTHING_ZZ!@#A',
+			name: '',
 			bg: '#cecece',
 		};
 	}, [data.id, getEdges, getNode, getNodes, isInput]);
@@ -228,7 +228,10 @@ export default function ProductItem({ isInput, data }: Props) {
 
 						<Tooltip>
 							<TooltipTrigger
-								onClick={() => handleViewNode((getItemConnectors as ItemConnector).id)}
+								onClick={() =>
+									(getItemConnectors as ItemConnector).id !== 'DEFAULT_VALUE_FOR_NOTHING_ZZ!@#A' &&
+									handleViewNode((getItemConnectors as ItemConnector).id)
+								}
 								id={(getItemConnectors as ItemConnector).id}
 								asChild
 							>
@@ -242,7 +245,11 @@ export default function ProductItem({ isInput, data }: Props) {
 							</TooltipTrigger>
 							<TooltipContent className="flex flex-col font-medium" id={(getItemConnectors as ItemConnector).id}>
 								<div>Process: {(getItemConnectors as ItemConnector).name}</div>
-								<div className="text-[10px] font-normal">Click to view this node</div>
+								<div className="text-[10px] font-normal">
+									{(getItemConnectors as ItemConnector).id === 'DEFAULT_VALUE_FOR_NOTHING_ZZ!@#A'
+										? `Drag to another process`
+										: `Click to view this node`}
+								</div>
 							</TooltipContent>
 						</Tooltip>
 					</div>
