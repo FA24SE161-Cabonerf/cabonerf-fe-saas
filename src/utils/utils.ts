@@ -78,15 +78,22 @@ export const updateSVGAttributes = ({ svgString, properties }: CustomSVG): strin
 	return updatedSVG;
 };
 
-export function formatWithExponential(value: number, decimalPlaces = 2) {
+export function formatWithExponential(value: number, decimalPlaces = 2): string | number {
 	const largeThreshold = 1e5;
-	const smallThreshold = 1e-3;
+	const smallThreshold = 1e-3; // Điều chỉnh ngưỡng nhỏ
 
-	if (Math.abs(value) >= largeThreshold || (Math.abs(value) < smallThreshold && Math.abs(value) !== 0)) {
+	// Trường hợp số 0
+	if (value === 0) {
+		return Number(value.toFixed(decimalPlaces));
+	}
+
+	// Các giá trị lớn hơn largeThreshold hoặc nhỏ hơn smallThreshold sẽ dùng ký hiệu khoa học
+	if (Math.abs(value) >= largeThreshold || Math.abs(value) < smallThreshold) {
 		return value.toExponential(decimalPlaces);
 	}
 
-	return parseFloat(value.toFixed(decimalPlaces));
+	// Các giá trị trong khoảng giữa sẽ được format số thập phân thông thường
+	return Number(value.toPrecision(decimalPlaces + 1));
 }
 
 export function formatPercentage(value: number) {

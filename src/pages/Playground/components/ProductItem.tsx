@@ -8,14 +8,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import useDeleteHandle from '@/hooks/useDeleteHandle';
 import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
-import { queryClient } from '@/queryClient';
 import { isUnprocessableEntity } from '@/utils/error';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Check, ChevronLeft, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type Props = {
@@ -30,7 +28,6 @@ type ItemConnector = {
 };
 
 export default function ProductItem({ isInput, data }: Props) {
-	const params = useParams<{ pid: string }>();
 	const deleteHandle = useDeleteHandle();
 	const { setNodes, fitView, getEdges, getNode, getNodes } = useReactFlow<Node<CabonerfNodeData>>();
 	const { sheetState, sheetDispatch } = useContext(SheetbarContext);
