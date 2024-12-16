@@ -23,7 +23,6 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
-	NodeMouseHandler,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -40,6 +39,7 @@ import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import Cursors from '@/components/Cursor';
 import WarningSooner from '@/components/WarningSooner';
+import { DevTools } from '@/components/devtools';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
 import useCursorStateSynced from '@/hooks/useCursorStateSynced';
@@ -57,7 +57,6 @@ import DOMPurify from 'dompurify';
 import { isNull, omitBy } from 'lodash';
 import { StickyNote, Type } from 'lucide-react';
 import { flushSync } from 'react-dom';
-import { DevTools } from '@/components/devtools';
 
 const customEdge: EdgeTypes = {
 	process: ProcessEdge,
@@ -230,15 +229,17 @@ export default function Playground() {
 	]);
 
 	useEffect(() => {
-		socket.on('gateway:create-process-success', (data: CabonerfNode) => {
+		socket.on('gateway:create-process-success', (data) => {
 			setNodes((nodes) => [...nodes, data]);
+			//Optional
+
 			setIsLoading(false);
 		});
 
 		socket.on('gateway:created-object-library', (data: CabonerfNode) => {
 			setNodes((nodes) => [...nodes, data]);
 		});
-	}, [setNodes]);
+	}, [params.pid, setNodes]);
 
 	useEffect(() => {
 		if (sheetState.process) {
@@ -316,6 +317,7 @@ export default function Playground() {
 	const handleNodeDragStop = useCallback(
 		(_event: MouseEvent, node: any) => {
 			const data = { id: node.id, x: node.position.x, y: node.position.y };
+
 			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
 		},
 		[params.pid]
@@ -347,16 +349,16 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
-	const onNodeDrag: NodeMouseHandler = useCallback(
-		(_, clicked) => {
-			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: false } : node)));
+	// const onNodeDrag: NodeMouseHandler = useCallback(
+	// 	(_, clicked) => {
+	// 		setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: false } : node)));
 
-			window.setTimeout(() => {
-				setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: true } : node)));
-			}, 300);
-		},
-		[setNodes]
-	);
+	// 		window.setTimeout(() => {
+	// 			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: true } : node)));
+	// 		}, 300);
+	// 	},
+	// 	[setNodes]
+	// );
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -381,7 +383,7 @@ export default function Playground() {
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
-								onNodeDrag={onNodeDrag}
+								// onNodeDrag={onNodeDrag}
 								onlyRenderVisibleElements
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}

@@ -375,7 +375,7 @@ function SheetbarSide() {
 									<AccordionContent>
 										<ScrollableList className="ml-1 h-full space-y-4 overflow-scroll p-2" data={productExchangeInput}>
 											{productExchangeInput.length > 0 ? (
-												productExchangeInput.map((item) => <ProductItem data={item} key={item.id} />)
+												productExchangeInput.map((item) => <ProductItem isInput data={item} key={item.id} />)
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">No product input</div>
 											)}
@@ -436,9 +436,9 @@ function SheetbarSide() {
 										Product Exchange
 									</AccordionTrigger>
 									<AccordionContent>
-										<div className="h-full w-full space-y-3 p-2">
+										<div className="h-full w-full p-2">
 											{productExchangeOutput ? (
-												<ProductItem data={productExchangeOutput} />
+												<ProductItem isInput={false} data={productExchangeOutput} />
 											) : (
 												<div className="flex h-full items-center justify-center text-sm">Not product</div>
 											)}

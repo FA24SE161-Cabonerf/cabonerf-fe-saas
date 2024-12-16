@@ -4,7 +4,6 @@ import { ThemeProvider } from '@/contexts/theme.context';
 import useRouteElements from '@/hooks/useRouteElements';
 import { queryClient } from '@/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { RouterProvider } from 'react-router-dom';
 
@@ -20,7 +19,7 @@ function App() {
 					<ToastShadcnUI duration={2000} />
 				</ThemeProvider>
 			</AppProvider>
-			<ReactQueryDevtools initialIsOpen={false} />
+			{/* <ReactQueryDevtools initialIsOpen={false} /> */}
 		</QueryClientProvider>
 	);
 }
