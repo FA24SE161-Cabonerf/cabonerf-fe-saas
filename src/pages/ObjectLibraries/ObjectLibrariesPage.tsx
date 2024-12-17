@@ -1,18 +1,21 @@
 import ObjectLibraryApis from '@/apis/objectLibrary.apis';
+import ErrorSooner from '@/components/ErrorSooner';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import TAB_TITLES from '@/constants/tab.titles';
 import { useDebounce } from '@/hooks/useDebounce';
 import ObjectLibrariesHeader from '@/pages/ObjectLibraries/components/ObjectLibrariesHeader';
+import { isBadRequestError } from '@/utils/error';
 import { formatWithExponential, timeAgo, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { Package, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function ObjectLibrariesPage() {
 	const [textSearch, setTextSearch] = useState<string>('');
@@ -20,7 +23,7 @@ export default function ObjectLibrariesPage() {
 	const textDebounced = useDebounce({ currentValue: textSearch, delayTime: 500 });
 	const params = useParams<{ organizationId: string }>();
 
-	const { data, isLoading, isFetching } = useQuery({
+	const { data, isLoading, isFetching, refetch } = useQuery({
 		queryKey: ['object-libraries', params.organizationId, textDebounced],
 		queryFn: ({ queryKey }) => {
 			return ObjectLibraryApis.prototype.getListObjectLibrary({
@@ -28,12 +31,16 @@ export default function ObjectLibrariesPage() {
 				keyword: queryKey[2] ?? '',
 				systemBoundaryId: queryKey[3] as string,
 				pageCurrent: 1,
-				pageSize: 20,
+				pageSize: 18,
 			});
 		},
 		refetchOnMount: true,
 		staleTime: 0,
 		placeholderData: (previousData) => previousData,
+	});
+
+	const deleteObjLibMutate = useMutation({
+		mutationFn: (payload: { objectIds: string[]; orgId: string }) => ObjectLibraryApis.prototype.deleteObjectLibrary(payload),
 	});
 
 	useEffect(() => {
@@ -55,7 +62,29 @@ export default function ObjectLibrariesPage() {
 		});
 	};
 
-	console.log(listSelect);
+	const handleDelete = () => {
+		deleteObjLibMutate.mutate(
+			{ objectIds: listSelect, orgId: params.organizationId as string },
+			{
+				onSuccess: () => {
+					refetch();
+					setListSelect([]);
+				},
+				onError: (error) => {
+					if (isBadRequestError<{ data: null; message: string; status: string }>(error)) {
+						toast(<ErrorSooner message={error.response?.data.message as string} />, {
+							className: 'rounded-2xl p-2 w-[350px]',
+							style: {
+								border: `1px solid #dedede`,
+								backgroundColor: `#fff`,
+							},
+						});
+					}
+				},
+			}
+		);
+	};
+
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -65,7 +94,7 @@ export default function ObjectLibrariesPage() {
 		>
 			<ObjectLibrariesHeader />
 			<Separator className="shadow-sm" />
-			<div className="mx-6 my-3">
+			<div className="mx-6 my-6">
 				{/* Search */}
 				<div className="flex justify-between">
 					<div className="flex w-[25%] items-center space-x-2 rounded-md border px-3 py-1">
@@ -79,18 +108,21 @@ export default function ObjectLibrariesPage() {
 					</div>
 
 					<button
+						disabled={deleteObjLibMutate.isPending}
+						onClick={handleDelete}
 						className={clsx('flex items-center space-x-1 rounded-sm px-2 text-xs text-white shadow transition-all', {
 							'cursor-not-allowed bg-gray-300': listSelect.length === 0,
 							'bg-red-500 hover:bg-red-600': listSelect.length !== 0,
 						})}
 					>
+						{deleteObjLibMutate.isPending && <ReloadIcon className="h-4 w-4 animate-spin" />}
 						<Trash2 size={14} color="white" />
 						<span>Delete</span>
 						{listSelect.length !== 0 && <span className="min-w-[13px]">{listSelect.length}</span>}
 					</button>
 				</div>
-				<div className="mt-5 grid grid-cols-12 gap-3">
-					{isLoading ? (
+				<div className="mt-10 grid grid-cols-12 gap-3">
+					{isFetching ? (
 						<>
 							<Skeleton className="h-[200px] rounded-[28px] sm:col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2" />
 							<Skeleton className="h-[200px] rounded-[28px] sm:col-span-6 md:col-span-4 lg:col-span-3 xl:col-span-2" />
@@ -122,7 +154,7 @@ export default function ObjectLibrariesPage() {
 												<Package size={20} />
 											</div>
 											<div className="mt-4 flex flex-col space-y-2">
-												<div className="text-lg font-bold">{item.name}</div>
+												<div className="line-clamp-2 text-lg font-bold">{item.name}</div>
 												<div className="flex space-x-2">
 													<div
 														dangerouslySetInnerHTML={{

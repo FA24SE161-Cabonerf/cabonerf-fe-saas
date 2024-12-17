@@ -19,7 +19,6 @@ function App() {
 					<ToastShadcnUI duration={2000} />
 				</ThemeProvider>
 			</AppProvider>
-			{/* <ReactQueryDevtools initialIsOpen={false} /> */}
 		</QueryClientProvider>
 	);
 }

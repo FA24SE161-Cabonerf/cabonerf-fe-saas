@@ -2,18 +2,20 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ImpactCategoryApis from '@/apis/impactCategories.apis';
+import ProjectApis from '@/apis/project.apis';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import WarningSooner from '@/components/WarningSooner';
 import { AppContext } from '@/contexts/app.context';
+import CompareProcess from '@/pages/Dashboard/components/CompareProcess/CompareProcess';
 import { queryClient } from '@/queryClient';
 import { calculatePercentageDifference, formatNumberExponential, updateSVGAttributes } from '@/utils/utils';
-import { useQuery } from '@tanstack/react-query';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { ArrowDown, ArrowUp, ChartSpline, Check, ChevronDown, GitCompare, X } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
@@ -66,7 +68,7 @@ function FloatingControl() {
 		pageSize: string;
 		totalPage: string;
 		projects: GetProjectListResponse[];
-	}>(['projects', organizationId]);
+	}>(['projects-organization', organizationId]);
 
 	const projectCompareOnChart = useMemo(() => {
 		return compareProjects.map((item) => ({
@@ -136,6 +138,10 @@ function FloatingControl() {
 		enabled: Boolean(methodId),
 	});
 
+	const compareProjectMutate = useMutation({
+		mutationFn: (payload: { firstProjectId: string; secondProjectId: string }) => ProjectApis.prototype.compareProjects(payload),
+	});
+
 	useEffect(() => {
 		if (impactCategoryByProjectMethodQuery.data?.data.data) {
 			setSelectImpactCategory(impactCategoryByProjectMethodQuery.data.data.data[0]);
@@ -199,9 +205,18 @@ function FloatingControl() {
 			});
 			return;
 		}
-		setMethodId(selectedProjects[0].method.id);
-		setCompareProjects(selectedProjects);
-		setIsOpenDialog(true);
+
+		compareProjectMutate.mutate(
+			{ firstProjectId: selectedProjects[0].id, secondProjectId: selectedProjects[1].id },
+			{
+				onSuccess: (data) => {
+					console.log(data.data.data);
+					setMethodId(selectedProjects[0].method.id);
+					setCompareProjects(selectedProjects);
+					setIsOpenDialog(true);
+				},
+			}
+		);
 	};
 
 	const handleSetImpactCategory = (item: Omit<ImpactCategory, 'indicator' | 'indicatorDescription' | 'unit' | 'emissionCompartment'>) => {
@@ -225,12 +240,22 @@ function FloatingControl() {
 					</div>
 					<div className="flex w-1/2 items-center justify-end space-x-5">
 						<div className="flex items-center">
-							<button onClick={onCompare} className="flex items-center space-x-1 rounded-sm px-3 py-2 hover:bg-gray-100">
-								<GitCompare size={17} color="#15803d" />
-								<span className="font-medium text-green-700">Compare</span>
+							<button
+								onClick={onCompare}
+								disabled={compareProjectMutate.isPending}
+								className={clsx(`flex items-center space-x-1 rounded-sm px-3 py-2 transition-all hover:bg-gray-100`, {
+									'cursor-not-allowed bg-gray-100 text-gray-500': compareProjectMutate.isPending,
+									'text-green-600': !compareProjectMutate.isPending,
+								})}
+							>
+								{compareProjectMutate.isPending ? (
+									<ReloadIcon className="mr-2 h-3 w-3 animate-spin" color="currentColor" />
+								) : (
+									<GitCompare size={17} color="currentColor" />
+								)}
+
+								<span className="min-w-[70px] font-medium">{compareProjectMutate.isPending ? 'Comparing...' : 'Compare'}</span>
 							</button>
-							<Separator orientation="vertical" className="mx-2 h-5" />
-							<button className="rounded-sm px-3 py-2 hover:bg-gray-100">Delete</button>
 						</div>
 						<button className="rounded-sm p-1 hover:bg-gray-100" onClick={() => dispatch({ type: eDispatchType.CLOSE_CHECKBOX })}>
 							<X size={17} strokeWidth={1.5} />
@@ -238,8 +263,8 @@ function FloatingControl() {
 					</div>
 				</div>
 			</div>
-			<Tabs defaultValue="bar-chart" className="w-full" asChild>
-				<DialogContent className="flex h-[90%] max-w-[80%] flex-col p-0 shadow-2xl">
+			<Tabs defaultValue="model-compare" className="w-full" asChild>
+				<DialogContent className="flex h-[95%] max-w-[75%] flex-col p-0 shadow-2xl">
 					<DialogHeader className="flex h-fit space-y-1">
 						<div>
 							<div className="flex items-center space-x-2 border-b px-4 pb-2 pt-4 text-sm font-normal">
@@ -254,9 +279,25 @@ function FloatingControl() {
 										changes cannot be reverted
 									</DialogDescription>
 								</div>
-								<TabsList className="mr-3 mt-2 w-fit focus:ring-0">
-									<TabsTrigger value="bar-chart">Bar Chart</TabsTrigger>
-									<TabsTrigger value="stacked-chart">Stacked Chart</TabsTrigger>
+								<TabsList className="mr-3 w-fit bg-white !shadow-none focus:ring-0">
+									<TabsTrigger
+										className="!rounded-none border-b !shadow-none transition-none data-[state=active]:border-b-[3px] data-[state=active]:border-green-600 data-[state=active]:text-green-800"
+										value="model-compare"
+									>
+										Model
+									</TabsTrigger>
+									<TabsTrigger
+										className="!rounded-none border-b !shadow-none transition-none data-[state=active]:border-b-[3px] data-[state=active]:border-green-600 data-[state=active]:text-green-800"
+										value="bar-chart"
+									>
+										Bar Chart
+									</TabsTrigger>
+									<TabsTrigger
+										className="!rounded-none border-b !shadow-none transition-none data-[state=active]:border-b-[3px] data-[state=active]:border-green-600 data-[state=active]:text-green-800"
+										value="stacked-chart"
+									>
+										Stacked Chart
+									</TabsTrigger>
 								</TabsList>
 							</div>
 						</div>
@@ -313,7 +354,7 @@ function FloatingControl() {
 					<TooltipProvider delayDuration={100}>
 						<>
 							<div className="h-[3.5%] w-full">
-								<div className="flex items-center justify-center">
+								<div className="flex -translate-y-2 items-center justify-center">
 									{compareProjects.map((item, index) => (
 										<div className="flex items-center justify-center" key={item.id}>
 											{index === 0 &&
@@ -549,6 +590,11 @@ function FloatingControl() {
 											</BarChart>
 										</ChartContainer>
 									</div>
+								</TabsContent>
+
+								{/* Model */}
+								<TabsContent value="model-compare" asChild>
+									<CompareProcess />
 								</TabsContent>
 							</div>
 						</>

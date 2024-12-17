@@ -59,7 +59,7 @@ export default function TableProject({ data, isPending }: Props) {
 		pageSize: string;
 		totalPage: string;
 		projects: GetProjectListResponse[];
-	}>(['projects', organizationId]);
+	}>(['projects-organization', organizationId]);
 
 	const checkboxAll = () => {
 		dispatch({

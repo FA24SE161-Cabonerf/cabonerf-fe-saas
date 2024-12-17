@@ -85,6 +85,27 @@
 		@apply before:bg-[var(--before-bg-color)];
 	}
 
+	.before-drag-here {
+		&::before {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			padding: 2px;
+			font-size: 1.125rem; /* equivalent to text-lg */
+			font-weight: 600; /* equivalent to font-semibold */
+			content: 'Drag here';
+			transform: translateY(-50%) translateX(-50%);
+		}
+	}
+
+	.handle-drag {
+		cursor: grab;
+	}
+
+	.handle-drag:active {
+		cursor: grabbing;
+	}
+
 	.grainy-effect {
 		position: relative;
 	}
@@ -125,5 +146,90 @@
 	}
 	.backface-hidden {
 		backface-visibility: hidden;
+	}
+
+	.container-swapy {
+		max-width: 800px;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		margin: 0 auto;
+	}
+
+	.slot.top {
+		height: 200px;
+	}
+
+	.middle {
+		height: 250px;
+		display: flex;
+		gap: 10px;
+	}
+
+	.slot.middle-left {
+		height: 100%;
+		flex: 1;
+	}
+
+	.slot.middle-right {
+		height: 100%;
+		flex: 2;
+	}
+
+	.slot.bottom {
+		height: 150px;
+	}
+
+	.slot {
+		border-radius: 10px;
+	}
+
+	.slot[data-swapy-highlighted] {
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.item {
+		border-radius: 10px;
+		width: 100%;
+		height: 100%;
+	}
+
+	.item-a {
+		background: #10b981;
+	}
+
+	.item-b {
+		background: #be123c;
+	}
+
+	.item-c {
+		background: #4338ca;
+	}
+
+	.item-d {
+		background: #7e22ce;
+	}
+
+	.item:has(.handles) {
+		position: relative;
+	}
+
+	.handles {
+		cursor: grab;
+		width: 24px;
+		height: 24px;
+		background-image: url(./handle.svg);
+		opacity: 0.5;
+		position: absolute;
+		top: 14px;
+		left: 10px;
 	}
 }
