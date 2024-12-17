@@ -1,3 +1,4 @@
+import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { eDispatchType } from '@/@types/dispatch.type';
 import { ImpactCategory } from '@/@types/impactCategory.type';
 import { GetProjectListResponse } from '@/@types/project.type';
@@ -209,8 +210,7 @@ function FloatingControl() {
 		compareProjectMutate.mutate(
 			{ firstProjectId: selectedProjects[0].id, secondProjectId: selectedProjects[1].id },
 			{
-				onSuccess: (data) => {
-					console.log(data.data.data);
+				onSuccess: () => {
 					setMethodId(selectedProjects[0].method.id);
 					setCompareProjects(selectedProjects);
 					setIsOpenDialog(true);
@@ -264,7 +264,7 @@ function FloatingControl() {
 				</div>
 			</div>
 			<Tabs defaultValue="model-compare" className="w-full" asChild>
-				<DialogContent className="flex h-[95%] max-w-[75%] flex-col p-0 shadow-2xl">
+				<DialogContent className="flex h-[90%] max-w-[85%] flex-col p-0 shadow-2xl">
 					<DialogHeader className="flex h-fit space-y-1">
 						<div>
 							<div className="flex items-center space-x-2 border-b px-4 pb-2 pt-4 text-sm font-normal">
@@ -454,10 +454,7 @@ function FloatingControl() {
 																				} as React.CSSProperties
 																			}
 																		/>
-																		{/* <div
-																		className="h-full w-2.5 rounded-[2px]"
-																		style={{ backgroundColor: `var(--color-${index === 0 ? 'first' : 'second'})` }}
-																	/> */}
+
 																		<div className="flex flex-col">
 																			<span className="font-normal text-gray-500">{data.impactCategory}</span>
 																			<span className="font-medium text-foreground">{data.name}</span>
@@ -471,7 +468,7 @@ function FloatingControl() {
 														<Bar
 															dataKey="value"
 															fill={`var(--color-${index === 0 ? 'first' : 'second'})`}
-															strokeWidth={1.5}
+															strokeWidth={1}
 															radius={8}
 															activeIndex={compareProjects[0].impacts.findIndex(
 																(item) => item.impactCategory.id === selectImpactCategory?.id
@@ -481,7 +478,7 @@ function FloatingControl() {
 																	<Rectangle
 																		{...props}
 																		fillOpacity={0.8}
-																		stroke="#1e293b"
+																		stroke="gray"
 																		strokeDasharray={4}
 																		strokeDashoffset={4}
 																	/>
@@ -594,7 +591,16 @@ function FloatingControl() {
 
 								{/* Model */}
 								<TabsContent value="model-compare" asChild>
-									<CompareProcess />
+									<CompareProcess
+										data={
+											compareProjectMutate.data?.data.data as {
+												firstProjectId: string;
+												firstProjectProcesses: CabonerfNodeData[];
+												secondProjectId: string;
+												secondProjectProcesses: CabonerfNodeData[];
+											}
+										}
+									/>
 								</TabsContent>
 							</div>
 						</>
