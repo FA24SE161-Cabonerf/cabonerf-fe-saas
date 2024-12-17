@@ -26,4 +26,12 @@ export default class ObjectLibraryApis {
 
 		return data.data.data;
 	}
+
+	public async deleteObjectLibrary(payload: { objectIds: string[]; orgId: string }) {
+		const data = await httpService.post<CommonResponse<string>>(`${OBJECT_LIBRARY.OBJECT_LIBRARY}/organizations/${payload.orgId}`, {
+			objectIds: payload.objectIds,
+		});
+
+		return data;
+	}
 }

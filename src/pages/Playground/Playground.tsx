@@ -39,7 +39,6 @@ import { Impact, LifeCycleStageBreakdown } from '@/@types/project.type';
 import LifeCycleStagesApis from '@/apis/lifeCycleStages.apis';
 import Cursors from '@/components/Cursor';
 import WarningSooner from '@/components/WarningSooner';
-import { DevTools } from '@/components/devtools';
 import { ContextMenu, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';
 import { Separator } from '@/components/ui/separator';
 import useCursorStateSynced from '@/hooks/useCursorStateSynced';
@@ -418,7 +417,7 @@ export default function Playground() {
 										</div>
 									)}
 								</Panel>
-								<DevTools />
+								{/* <DevTools /> */}
 							</ReactFlow>
 						</ContextMenuTrigger>
 						<ContextMenuContent className="w-auto rounded-[10px] border-none p-0">

@@ -64,7 +64,18 @@ class ProjectApis {
 	}
 
 	public exportToExcel(payload: { projectId: string }) {
-		return httpService.get<CommonResponse<any>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.EXPORT}`);
+		return httpService.get<CommonResponse<string>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.EXPORT}`);
+	}
+
+	public compareProjects(payload: { firstProjectId: string; secondProjectId: string }) {
+		return httpService.post<
+			CommonResponse<{
+				firstProjectId: string;
+				firstProjectProcesses: CabonerfNodeData[];
+				secondProjectId: string;
+				secondProjectProcesses: CabonerfNodeData[];
+			}>
+		>(`${PROJECT_ENDPOINT.PROJECT}/comparisons`, payload);
 	}
 }
 

@@ -1,6 +1,7 @@
 import RedirectToDefaultOrganization from '@/components/RedirectToDefaultOrganization';
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import CompareProcess from '@/pages/Dashboard/components/CompareProcess/CompareProcess';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import ObjectLibrariesPage from '@/pages/ObjectLibraries/ObjectLibrariesPage';
@@ -101,6 +102,10 @@ export default function useRouteElements() {
 		{
 			path: '/verify-email-token',
 			element: <VerifyEmailPage />,
+		},
+		{
+			path: '/compare-process',
+			element: <CompareProcess />,
 		},
 	]);
 
