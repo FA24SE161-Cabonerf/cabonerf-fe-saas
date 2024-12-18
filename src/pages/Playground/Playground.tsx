@@ -48,7 +48,7 @@ import ConnectionLine from '@/pages/Playground/components/ConnectionLine';
 import PlaygroundHeader from '@/pages/Playground/components/PlaygroundHeader';
 import PlaygroundControlContextProvider from '@/pages/Playground/contexts/playground-control.context';
 import ProcessEdge from '@/pages/Playground/edges/ProcessEdge';
-import { CreateCabonerfNodeReqBody } from '@/schemas/validation/nodeProcess.schema';
+import { CreateCabonerfNodeReqBody, CreateCabonerfNodeTextReqBody } from '@/schemas/validation/nodeProcess.schema';
 import { updateSVGAttributes } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -77,7 +77,7 @@ export default function Playground() {
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
 	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const { screenToFlowPosition } = useReactFlow<Node<CabonerfNodeData>>();
+	const { screenToFlowPosition, deleteElements } = useReactFlow<Node<CabonerfNodeData>>();
 
 	const [nodes, setNodes, onNodesChange] = useNodesStateSynced();
 	const [edges, setEdges, onEdgesChange] = useEdgesStateSynced();
@@ -112,7 +112,8 @@ export default function Playground() {
 	useEffect(() => {
 		if (project) {
 			setEdges(project.connectors);
-			setNodes(project.processes);
+			const merged = [...project.processes, ...(project.texts ?? [])];
+			setNodes(merged);
 
 			playgroundDispatch({
 				type: PlaygroundDispatch.SET_PROJECT_INFOR,
@@ -156,6 +157,18 @@ export default function Playground() {
 			// deleteElements({ nodes: [{ id: data }] });
 			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
 			setEdges((edges) => edges.filter((item) => item.id !== data));
+		});
+
+		socket.on(`gateway:cabonerf-text-update-fontsize-success`, (data: { data: string; fontSize: number; projectId: string }) => {
+			setNodes((nodes) => {
+				return nodes.map((node) => (node.id === data.data ? { ...node, data: { ...node.data, fontSize: data.fontSize } } : node));
+			});
+		});
+
+		socket.on(`gateway:delete-text-success`, (data) => {
+			deleteElements({
+				nodes: [{ id: data.data }],
+			});
 		});
 
 		socket.on('gateway:error-create-edge', (data) => {
@@ -225,10 +238,12 @@ export default function Playground() {
 		app.userProfile?.fullName,
 		app.userProfile?.profilePictureUrl,
 		setUsers,
+		deleteElements,
 	]);
 
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data) => {
+			console.log(data);
 			setNodes((nodes) => [...nodes, data]);
 			//Optional
 
@@ -348,16 +363,19 @@ export default function Playground() {
 		socket.emit('gateway:cabonerf-node-create', { data: newNode, projectId: params.pid });
 	};
 
-	// const onNodeDrag: NodeMouseHandler = useCallback(
-	// 	(_, clicked) => {
-	// 		setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: false } : node)));
+	const addNodeText = (event: MouseEvent) => {
+		const { clientX, clientY } = event;
+		socket.emit('gateway:create-node-text');
+		const position = screenToFlowPosition({ x: clientX, y: clientY });
+		const newNodeText: CreateCabonerfNodeTextReqBody = {
+			position: position,
+			projectId: params.pid as string,
+			type: 'text',
+			fontSize: 16,
+		};
+		socket.emit('gateway:create-node-text', { data: newNodeText, projectId: params.pid });
+	};
 
-	// 		window.setTimeout(() => {
-	// 			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, draggable: true } : node)));
-	// 		}, 300);
-	// 	},
-	// 	[setNodes]
-	// );
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -456,7 +474,10 @@ export default function Playground() {
 										<StickyNote size={18} strokeWidth={1.5} />
 										<span className="text-[12px] capitalize">Add Note</span>
 									</ContextMenuItem>
-									<ContextMenuItem className="flex cursor-pointer items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white">
+									<ContextMenuItem
+										onClick={(e) => addNodeText(e)}
+										className="flex cursor-pointer items-center justify-start space-x-2 rounded-[5px] px-[10px] focus:bg-[#22c55e] focus:text-white"
+									>
 										<Type size={18} strokeWidth={1.5} />
 										<span className="text-[12px] capitalize">Add Text</span>
 										{/* <Package size={18} color="#6b7280" /> */}

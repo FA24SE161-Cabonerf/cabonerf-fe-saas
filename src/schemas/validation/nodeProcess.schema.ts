@@ -4,5 +4,13 @@ interface CreateCabonerfNodeReqBody {
 	type: string;
 	[key: string]: unknown;
 }
-
-export type { CreateCabonerfNodeReqBody };
+interface CreateCabonerfNodeTextReqBody {
+	projectId: string;
+	position: {
+		x: number;
+		y: number;
+	};
+	type: string;
+	fontSize: number;
+}
+export type { CreateCabonerfNodeReqBody, CreateCabonerfNodeTextReqBody };

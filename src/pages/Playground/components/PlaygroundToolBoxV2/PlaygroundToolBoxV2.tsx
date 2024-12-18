@@ -4,10 +4,27 @@ import ToolboxMenu from '@/pages/Playground/components/PlaygroundToolBoxV2/compo
 import ToolboxTrigger from '@/pages/Playground/components/PlaygroundToolBoxV2/components/ToolboxTrigger';
 import Toolbox from '@/pages/Playground/components/PlaygroundToolBoxV2/context/toolbox.context';
 import SheetbarSearchObjectLibrary from '@/pages/Playground/components/SheetbarSearchObjectLibrary';
+import { CreateCabonerfNodeTextReqBody } from '@/schemas/validation/nodeProcess.schema';
+import socket from '@/socket.io';
 import { Blocks, DatabaseZap, StickyNote, Type } from 'lucide-react';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 function PlaygroundToolBoxV2() {
+	const params = useParams<{ pid: string }>();
+
+	const handleAddNewText = () => {
+		const newNodeText: CreateCabonerfNodeTextReqBody = {
+			position: {
+				x: 500,
+				y: 500,
+			},
+			projectId: params.pid as string,
+			type: 'text',
+			fontSize: 16,
+		};
+		socket.emit('gateway:create-node-text', { data: newNodeText, projectId: params.pid });
+	};
 	return (
 		<Dialog>
 			<Toolbox>
@@ -20,7 +37,10 @@ function PlaygroundToolBoxV2() {
 							</button>
 						</DialogTrigger>
 
-						<button className="flex items-center rounded-[9px] p-2 text-[#888888] hover:text-black focus:text-black">
+						<button
+							onClick={handleAddNewText}
+							className="flex items-center rounded-[9px] p-2 text-[#888888] hover:text-black focus:text-black"
+						>
 							<Type size={20} />
 						</button>
 

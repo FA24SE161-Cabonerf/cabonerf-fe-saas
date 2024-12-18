@@ -20,4 +20,10 @@ interface CabonerfNodeData {
 	[key: string]: unknown;
 }
 
-export type { CabonerfNodeData, CabonerfNode };
+interface CabonerfTextData {
+	id: string;
+	content: string;
+	[key: string]: unknown;
+}
+
+export type { CabonerfNodeData, CabonerfNode, CabonerfTextData };

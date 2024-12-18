@@ -114,6 +114,23 @@
 		}
 	}
 
+	.drag-handle__label {
+		display: flex;
+		align-items: center;
+	}
+
+	.drag-handle__custom {
+		position: absolute;
+		top: -0.65rem; /* -2 in Tailwind translates to -0.5rem */
+		left: 50%; /* left-1/2 */
+		transform: translateX(-50%); /* -translate-x-1/2 */
+		cursor: move;
+		border-radius: 0.25rem; /* rounded -> 4px */
+		border: 0.5px solid #d1d5db; /* border-[0.5px] -> 0.5px solid (default gray) */
+		background-color: #ffffff; /* bg-white */
+		padding-left: 0.35rem; /* px-1 -> 4px */
+		padding-right: 0.35rem; /* px-1 -> 4px */
+	}
 	.arround {
 		@apply border border-dashed border-gray-400;
 	}

@@ -35,6 +35,7 @@ interface Project<IData = Impact[], PData = CabonerfNodeData[], CData = Cabonerf
 	connectors: CData;
 	lifeCycleStageBreakdown?: LifeCycleStageBreakdown[];
 	favorite: boolean;
+	texts?: any[];
 }
 
 type TransformContributor = {
