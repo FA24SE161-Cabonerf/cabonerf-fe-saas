@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import WarningSooner from '@/components/WarningSooner';
 import { AppContext } from '@/contexts/app.context';
 import CompareProcess from '@/pages/Dashboard/components/CompareProcess/CompareProcess';
+import OwnSkeleton from '@/pages/Dashboard/components/CompareProcess/OwnSkeleton';
 import { queryClient } from '@/queryClient';
 import { calculatePercentageDifference, formatNumberExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -63,7 +64,6 @@ function FloatingControl() {
 	const { app, dispatch } = useContext(AppContext);
 
 	const length = app.selectCheckbox.length;
-
 	const project = queryClient.getQueryData<{
 		pageCurrent: string;
 		pageSize: string;
@@ -590,17 +590,23 @@ function FloatingControl() {
 								</TabsContent>
 
 								{/* Model */}
-								<TabsContent value="model-compare" asChild>
-									<CompareProcess
-										data={
-											compareProjectMutate.data?.data.data as {
-												firstProjectId: string;
-												firstProjectProcesses: CabonerfNodeData[];
-												secondProjectId: string;
-												secondProjectProcesses: CabonerfNodeData[];
+								<TabsContent value="model-compare">
+									{selectImpactCategory ? (
+										<CompareProcess
+											baseIndex={baseIndex}
+											impactCategory={selectImpactCategory}
+											data={
+												compareProjectMutate.data?.data.data as {
+													firstProjectId: string;
+													firstProjectProcesses: CabonerfNodeData[];
+													secondProjectId: string;
+													secondProjectProcesses: CabonerfNodeData[];
+												}
 											}
-										}
-									/>
+										/>
+									) : (
+										<OwnSkeleton />
+									)}
 								</TabsContent>
 							</div>
 						</>
