@@ -5,6 +5,7 @@ import { UnitApis } from '@/apis/unit.apis';
 import ErrorSooner from '@/components/ErrorSooner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { isUnprocessableEntity } from '@/utils/error';
+import { formatWithExponential } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Handle, Node, Position, useConnection, useReactFlow } from '@xyflow/react';
@@ -282,6 +283,7 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 						onChange={handleChangeName}
 						className="w-full rounded-[2px] bg-transparent px-1 text-[11px] font-medium text-white outline-none transition-all focus:bg-white focus:text-black disabled:bg-transparent"
 					/>
+
 					<div className="flex w-full items-center space-x-1">
 						<input
 							type="text"
@@ -323,7 +325,7 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 												>
 													<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
 													<div className="col-span-5 text-gray-600">
-														= {item.conversionFactor / unitExchange.conversionFactor}
+														= {formatWithExponential(item.conversionFactor / unitExchange.conversionFactor)}
 													</div>
 													<div className="col-span-3 text-right text-gray-500">{defaultUnit}</div>
 												</DropdownMenuItem>

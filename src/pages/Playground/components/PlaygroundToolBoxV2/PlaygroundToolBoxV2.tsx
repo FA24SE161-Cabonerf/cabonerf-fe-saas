@@ -6,7 +6,7 @@ import Toolbox from '@/pages/Playground/components/PlaygroundToolBoxV2/context/t
 import SheetbarSearchObjectLibrary from '@/pages/Playground/components/SheetbarSearchObjectLibrary';
 import { CreateCabonerfNodeTextReqBody } from '@/schemas/validation/nodeProcess.schema';
 import socket from '@/socket.io';
-import { Blocks, DatabaseZap, StickyNote, Type } from 'lucide-react';
+import { Blocks, DatabaseZap, Type } from 'lucide-react';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -43,8 +43,6 @@ function PlaygroundToolBoxV2() {
 						>
 							<Type size={20} />
 						</button>
-
-						<ToolboxTrigger id="6" iconRenderProps={<StickyNote size={20} />} />
 					</div>
 					<ToolboxMenu id="2">
 						<ToolboxLifeCycleStages />
