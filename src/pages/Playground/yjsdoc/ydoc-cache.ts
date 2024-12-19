@@ -20,9 +20,7 @@ export function getOrCreateYDoc(projectID: string): Y.Doc {
 
 	const provider = new SocketIOProvider(baseURL, roomName, ydoc, {});
 
-	provider.on('status', ({ status }: { status: string }) => {
-		console.log(`[${roomName}] Status:`, status);
-	});
+	provider.on('status', ({ status }: { status: string }) => {});
 
 	ydocsCache.set(projectID, ydoc);
 

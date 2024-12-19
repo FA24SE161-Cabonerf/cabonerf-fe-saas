@@ -62,7 +62,6 @@ function PlaygroundControls({ projectId, impacts, lifeCycleStageBreakdown }: Pro
 			{ projectId },
 			{
 				onSuccess: (data) => {
-					console.log(data.data.data);
 					if (data.data.data) {
 						playgroundControlDispatch({
 							type: PlaygroundControlDispatch.ADD_CALCULATED_DATA,

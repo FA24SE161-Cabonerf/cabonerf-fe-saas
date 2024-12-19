@@ -220,8 +220,6 @@ export default function Playground() {
 		});
 
 		return () => {
-			// Leave room
-			console.log({ userId: app.userProfile?.id, projectId: params.pid });
 			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
 
 			socket.disconnect();
@@ -241,7 +239,6 @@ export default function Playground() {
 
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data) => {
-			console.log(data);
 			setNodes((nodes) => [...nodes, data]);
 			//Optional
 

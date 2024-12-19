@@ -25,7 +25,7 @@ import { PlaygroundContext } from '@/pages/Playground/contexts/playground.contex
 import { isBadRequestError } from '@/utils/error';
 import { areObjectsDifferent } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { getViewportForBounds, useReactFlow } from '@xyflow/react';
 import clsx from 'clsx';
 import { toPng } from 'html-to-image';
@@ -82,6 +82,12 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 		mutationFn: (projectId: string) => ObjectLibraryApis.prototype.createObjectLibrary({ projectId }),
 	});
 
+	const getExcelQuery = useQuery({
+		queryKey: ['project-to-excel', id],
+		queryFn: ({ queryKey }) => ProjectApis.prototype.exportToExcel({ projectId: queryKey[1] }),
+		enabled: false,
+	});
+
 	useEffect(() => {
 		form.setValue('name', playgroundState.projectInformation?.name ?? '');
 		form.setValue('description', playgroundState.projectInformation?.description ?? '');
@@ -102,6 +108,12 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 			document.removeEventListener('click', handleCloseEditProjectInformation);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (getExcelQuery.data?.data.data) {
+			console.log(getExcelQuery.data.data.data);
+		}
+	}, [getExcelQuery.data]);
 
 	useEffect(() => {
 		const currentInformation = playgroundState.projectInformation;
@@ -216,10 +228,6 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 		navigate('/');
 	};
 
-	const onSubmit: SubmitHandler<ProjectInformation> = (data) => {
-		console.log(data);
-	};
-
 	const handleSaveToObjectLibrary = () => {
 		hotToast.promise(
 			new Promise((resolve, reject) => {
@@ -268,7 +276,10 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 			}
 		);
 	};
-	console.log(imageDataBase64);
+
+	const handleExportToExcel = () => {
+		getExcelQuery.refetch();
+	};
 
 	const handleClose = (isOpen: boolean) => {
 		if (isOpen === false) {
@@ -325,7 +336,7 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 										<div className="absolute -top-[7px] left-1/2 -translate-x-1/2">
 											<div className="h-0 w-0 border-b-[8px] border-l-[8px] border-r-[8px] border-b-white border-l-transparent border-r-transparent"></div>
 										</div>
-										<form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-12 items-center gap-3">
+										<form className="grid grid-cols-12 items-center gap-3">
 											<div className="col-span-4 font-medium text-gray-500">Name</div>
 											<div className="col-span-8">
 												<input
@@ -413,7 +424,9 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 									<DropdownMenuContent className="mr-2">
 										<DropdownMenuLabel className="cursor-pointer text-xs">Publish options</DropdownMenuLabel>
 										<DropdownMenuSeparator />
-										<DropdownMenuItem className="cursor-pointer text-xs">Export to Excel</DropdownMenuItem>
+										<DropdownMenuItem onSelect={handleExportToExcel} className="cursor-pointer text-xs">
+											Export to Excel
+										</DropdownMenuItem>
 										<DropdownMenuItem onSelect={onExportToPng} className="cursor-pointer text-xs">
 											Export to PNG
 										</DropdownMenuItem>
