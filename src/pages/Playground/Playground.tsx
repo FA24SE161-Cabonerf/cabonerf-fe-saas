@@ -23,6 +23,7 @@ import {
 	EdgeTypes,
 	MiniMap,
 	Node,
+	NodeMouseHandler,
 	NodeTypes,
 	Panel,
 	ReactFlow,
@@ -31,7 +32,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -72,6 +73,7 @@ const onDragOver = (event: DragEvent) => {
 };
 
 export default function Playground() {
+	const draggingRef = useRef<string | null>(null);
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
 	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -143,33 +145,33 @@ export default function Playground() {
 			socket.emit('gateway:join-room', infor_user);
 		}
 
-		socket.on('gateway:user-connect-to-project', (data) => {
+		const joinProcess = (data: React.SetStateAction<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>) => {
 			setUsers(data);
-		});
+		};
 
-		socket.on('gateway:user-leave-room-success', (data) => {
+		const outRoom = (data: React.SetStateAction<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>) => {
 			setUsers(data);
-		});
+		};
 
-		socket.on('gateway:delete-process-success', (data) => {
+		const deleteProcess = (data: string) => {
 			// deleteElements({ nodes: [{ id: data }] });
 			appDispatch({ type: eDispatchType.CLEAR_DELETE_PROCESSES_IDS, payload: data });
 			setEdges((edges) => edges.filter((item) => item.id !== data));
-		});
+		};
 
-		socket.on(`gateway:cabonerf-text-update-fontsize-success`, (data: { data: string; fontSize: number; projectId: string }) => {
+		const updateFontSize = (data: { data: string; fontSize: number; projectId: string }) => {
 			setNodes((nodes) => {
 				return nodes.map((node) => (node.id === data.data ? { ...node, data: { ...node.data, fontSize: data.fontSize } } : node));
 			});
-		});
+		};
 
-		socket.on(`gateway:delete-text-success`, (data) => {
+		const deleteText = (data: { data: string }) => {
 			deleteElements({
 				nodes: [{ id: data.data }],
 			});
-		});
+		};
 
-		socket.on('gateway:error-create-edge', (data) => {
+		const createEdge = (data: { message: string }) => {
 			toast(<WarningSooner message={data.message ?? ''} />, {
 				className: 'rounded-2xl p-2 w-[350px]',
 				style: {
@@ -177,9 +179,9 @@ export default function Playground() {
 					backgroundColor: `#fff`,
 				},
 			});
-		});
+		};
 
-		socket.on('gateway:connector-created', (data: CreateConnectorRes) => {
+		const handleConnectorCreated = (data: CreateConnectorRes) => {
 			const sanitizedData = omitBy<CreateConnectorRes>(data, isNull);
 
 			if (sanitizedData.updatedProcess) {
@@ -213,7 +215,22 @@ export default function Playground() {
 			setTimeout(() => {
 				setEdges((edges) => addEdge(sanitizedData.connector as Edge, edges));
 			}, 0);
-		});
+		};
+
+		socket.on('gateway:user-connect-to-project', joinProcess);
+
+		socket.on('gateway:user-leave-room-success', outRoom);
+
+		socket.on('gateway:delete-process-success', deleteProcess);
+
+		socket.on(`gateway:cabonerf-text-update-fontsize-success`, updateFontSize);
+
+		socket.on(`gateway:delete-text-success`, deleteText);
+
+		socket.on('gateway:error-create-edge', createEdge);
+
+		// Đăng ký sự kiện socket
+		socket.on('gateway:connector-created', handleConnectorCreated);
 
 		socket.on('connect_error', (error) => {
 			console.error('Connection failed:', error.message);
@@ -221,7 +238,13 @@ export default function Playground() {
 
 		return () => {
 			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
-
+			socket.off('gateway:user-connect-to-project', joinProcess);
+			socket.off('gateway:user-leave-room-success', outRoom);
+			socket.off('gateway:delete-process-success', deleteProcess);
+			socket.off(`gateway:cabonerf-text-update-fontsize-success`, updateFontSize);
+			socket.off(`gateway:delete-text-success`, deleteText);
+			socket.off('gateway:error-create-edge', createEdge);
+			socket.off('gateway:connector-created', handleConnectorCreated);
 			socket.disconnect();
 		};
 	}, [
@@ -236,6 +259,10 @@ export default function Playground() {
 		setUsers,
 		deleteElements,
 	]);
+
+	useEffect(() => {
+		return () => {};
+	}, []);
 
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data) => {
@@ -286,15 +313,6 @@ export default function Playground() {
 		[params.pid]
 	);
 
-	const handleNodeDragStop = useCallback(
-		(_event: MouseEvent, node: any) => {
-			const data = { id: node.id, x: node.position.x, y: node.position.y };
-
-			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
-		},
-		[params.pid]
-	);
-
 	const handlePanelClick = useCallback(() => {
 		if (sheetState.process) {
 			sheetDispatch({ type: SheetBarDispatch.REMOVE_NODE });
@@ -331,6 +349,31 @@ export default function Playground() {
 		socket.emit('gateway:create-node-text', { data: newNodeText, projectId: params.pid });
 	};
 
+	const onNodeDragStart: NodeMouseHandler = useCallback(
+		(_, clicked) => {
+			// Set the node as currently being dragged
+			draggingRef.current = clicked.id;
+
+			// Disable dragging for the currently dragged node
+			setNodes((prev) => prev.map((node) => (node.id === clicked.id ? { ...node, selectable: false, draggable: false } : node)));
+		},
+		[setNodes]
+	);
+
+	const handleNodeDragStop: NodeMouseHandler = useCallback(
+		(_event: MouseEvent, node) => {
+			const data = { id: node.id, x: node.position.x, y: node.position.y };
+
+			if (draggingRef.current === node.id) {
+				setNodes((prev) => prev.map((node) => (node.id === node.id ? { ...node, selectable: true, draggable: true } : node)));
+				draggingRef.current = null; // Reset dragging state
+			}
+
+			socket.emit('gateway:node-update-position', { data, projectId: params.pid });
+		},
+		[params.pid, setNodes]
+	);
+
 	if (isFetching) return <LoadingProject />;
 
 	return (
@@ -363,6 +406,7 @@ export default function Playground() {
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}
 								onPointerMove={onMouseMove}
+								onNodeDragStart={onNodeDragStart}
 								onDrop={onDrop}
 								onDragOver={onDragOver}
 							>

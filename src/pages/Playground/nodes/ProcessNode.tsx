@@ -104,7 +104,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				}}
 				className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
 					'scale-105': data.dragging,
-					'outline-dashed outline-[3px] outline-offset-4': sheetState.process?.id === data.id,
+					'outline-dashed outline-[3px] outline-offset-4': sheetState.process?.id === data.id || data.dragging === true,
 				})}
 			>
 				{/* Default Target */}
