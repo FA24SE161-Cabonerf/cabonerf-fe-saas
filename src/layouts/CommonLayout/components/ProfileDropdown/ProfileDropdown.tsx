@@ -7,12 +7,8 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuPortal,
 	DropdownMenuSeparator,
 	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
@@ -21,8 +17,10 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useContext } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileDropdown() {
+	const navigate = useNavigate();
 	const {
 		app: { userProfile },
 		dispatch,
@@ -79,7 +77,7 @@ export default function ProfileDropdown() {
 				</div>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem>
+					<DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/setting')}>
 						Setting Profile
 						<DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
 					</DropdownMenuItem>
