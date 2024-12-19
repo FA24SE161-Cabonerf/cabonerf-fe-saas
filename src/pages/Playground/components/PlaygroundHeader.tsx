@@ -31,7 +31,7 @@ import clsx from 'clsx';
 import { toPng } from 'html-to-image';
 import { ChevronDown, Download } from 'lucide-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { toast as hotToast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';

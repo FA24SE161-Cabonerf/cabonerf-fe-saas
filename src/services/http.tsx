@@ -16,11 +16,9 @@ const TEN_SECONDS = 1000 * 20;
 class HttpService {
 	axiosInstance: AxiosInstance;
 	private accessToken: string;
-	private refreshToken: string;
 
 	public constructor() {
 		this.accessToken = getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN) ?? '';
-		this.refreshToken = getTokenFromLocalStorage(TOKEN_KEY_NAME.REFRESH_TOKEN) ?? '';
 
 		this.axiosInstance = axios.create({
 			baseURL: BASE_URL,
@@ -56,14 +54,12 @@ class HttpService {
 					case AUTH_ENDPOINT.REGISTER:
 					case AUTH_ENDPOINT.VERIFY_EMAIL:
 						this.accessToken = access_token;
-						this.refreshToken = refresh_token;
 						insertTokenToLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN, access_token);
 						insertTokenToLocalStorage(TOKEN_KEY_NAME.REFRESH_TOKEN, refresh_token);
 						insertUserToLocalStorage(user);
 						break;
 					case AUTH_ENDPOINT.LOGOUT:
 						this.accessToken = '';
-						this.refreshToken = '';
 						clearResouceInLocalStorage();
 						break;
 					default:

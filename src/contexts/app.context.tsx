@@ -43,6 +43,7 @@ type RegisterAction = {
 	payload: {
 		isAuthenticated: boolean;
 		userProfile: User | null;
+		currentOrganization: { orgId: string; orgName: string };
 	};
 };
 

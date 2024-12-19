@@ -53,6 +53,8 @@ export default function useDeleteHandle() {
 								name: _newProcess.data.name,
 								overallProductFlowRequired: _newProcess.data.overallProductFlowRequired,
 								projectId: _newProcess.data.projectId,
+								bgColor: _newProcess.data.bgColor,
+								library: _newProcess.data.library,
 							},
 						});
 						return _newProcess;

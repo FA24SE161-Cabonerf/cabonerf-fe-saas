@@ -1,3 +1,3 @@
-import AuthenticationFooter from '@/components/AuthenticationFooter/AuthenticationFooter';
+import AuthenticationFooter from '@/layouts/AuthenticationLayout/components/AuthenticationFooter/AuthenticationFooter';
 
 export default AuthenticationFooter;

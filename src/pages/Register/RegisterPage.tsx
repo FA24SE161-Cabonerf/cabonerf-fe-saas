@@ -69,12 +69,15 @@ export default function RegisterPage() {
 							console.error('No default organization found');
 						}
 
-						// Dispatch login state
 						dispatch({
 							type: eDispatchType.LOGIN,
 							payload: {
 								isAuthenticated: true,
 								userProfile: user,
+								currentOrganization: {
+									orgId: defaultOrg?.id as string,
+									orgName: defaultOrg?.name as string,
+								},
 							},
 						});
 

@@ -23,7 +23,7 @@ export default function ObjectLibrariesPage() {
 	const textDebounced = useDebounce({ currentValue: textSearch, delayTime: 500 });
 	const params = useParams<{ organizationId: string }>();
 
-	const { data, isLoading, isFetching, refetch } = useQuery({
+	const { data, isFetching, refetch } = useQuery({
 		queryKey: ['object-libraries', params.organizationId, textDebounced],
 		queryFn: ({ queryKey }) => {
 			return ObjectLibraryApis.prototype.getListObjectLibrary({

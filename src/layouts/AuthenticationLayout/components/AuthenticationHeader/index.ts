@@ -1,3 +1,3 @@
-import AuthenticationHeader from '@/components/AuthenticationHeader/AuthenticationHeader';
+import AuthenticationHeader from '@/layouts/AuthenticationLayout/components/AuthenticationHeader/AuthenticationHeader';
 
 export default AuthenticationHeader;

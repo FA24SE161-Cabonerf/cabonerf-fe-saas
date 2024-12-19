@@ -1,7 +1,6 @@
 import RedirectToDefaultOrganization from '@/components/RedirectToDefaultOrganization';
 import AuthenticationLayout from '@/layouts/AuthenticationLayout';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import CompareProcess from '@/pages/Dashboard/components/CompareProcess/CompareProcess';
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import LoginPage from '@/pages/Login';
 import ObjectLibrariesPage from '@/pages/ObjectLibraries/ObjectLibrariesPage';
@@ -12,7 +11,6 @@ import { PlaygroundProvider } from '@/pages/Playground/contexts/playground.conte
 import Sheetbar from '@/pages/Playground/contexts/sheetbar.context';
 import ProfilePage from '@/pages/Profile';
 import RegisterPage from '@/pages/Register';
-import VerifyEmailPage from '@/pages/VerifyEmail';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import RejectedRoute from '@/routes/RejectedRoute';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -98,14 +96,6 @@ export default function useRouteElements() {
 					],
 				},
 			],
-		},
-		{
-			path: '/verify-email-token',
-			element: <VerifyEmailPage />,
-		},
-		{
-			path: '/compare-process',
-			element: <CompareProcess />,
 		},
 	]);
 
