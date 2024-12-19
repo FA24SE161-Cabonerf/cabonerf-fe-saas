@@ -6,6 +6,7 @@ import { IMPACT_METHOD_ENDPOINT, PROJECT_ENDPOINT } from '@/constants/api.endpoi
 import { CreateProjectSchema } from '@/schemas/validation/project.schema';
 import httpService from '@/services/http.tsx';
 import { Edge, Node } from '@xyflow/react';
+import { Stream } from 'stream';
 
 class ProjectApis {
 	public async getAllProjects(payload: { organizationId: string }) {
@@ -64,7 +65,7 @@ class ProjectApis {
 	}
 
 	public exportToExcel(payload: { projectId: string }) {
-		return httpService.get<CommonResponse<string>>(`${PROJECT_ENDPOINT.PROJECT}/${payload.projectId}${PROJECT_ENDPOINT.EXPORT}`);
+		return httpService.post<any>(`${PROJECT_ENDPOINT.PROJECT}${PROJECT_ENDPOINT.EXPORT}`, payload);
 	}
 
 	public compareProjects(payload: { firstProjectId: string; secondProjectId: string }) {

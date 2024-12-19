@@ -23,10 +23,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { isBadRequestError } from '@/utils/error';
+import { getTokenFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
 import { areObjectsDifferent } from '@/utils/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { useMutation } from '@tanstack/react-query';
 import { getViewportForBounds, useReactFlow } from '@xyflow/react';
+import axios from 'axios';
 import clsx from 'clsx';
 import { toPng } from 'html-to-image';
 import { ChevronDown, Download } from 'lucide-react';
@@ -60,6 +63,7 @@ function downloadImage(dataUrl: string, projectName: string) {
 }
 
 function PlaygroundHeader({ id, users, projectName }: Props) {
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const { getNodes, getNodesBounds } = useReactFlow();
 	const { playgroundState, playgroundDispatch } = useContext(PlaygroundContext);
 	const [isOpenEditProject, setIsOpenEditProject] = useState<boolean>(false);
@@ -82,12 +86,6 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 		mutationFn: (projectId: string) => ObjectLibraryApis.prototype.createObjectLibrary({ projectId }),
 	});
 
-	const getExcelQuery = useQuery({
-		queryKey: ['project-to-excel', id],
-		queryFn: ({ queryKey }) => ProjectApis.prototype.exportToExcel({ projectId: queryKey[1] }),
-		enabled: false,
-	});
-
 	useEffect(() => {
 		form.setValue('name', playgroundState.projectInformation?.name ?? '');
 		form.setValue('description', playgroundState.projectInformation?.description ?? '');
@@ -108,12 +106,6 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 			document.removeEventListener('click', handleCloseEditProjectInformation);
 		};
 	}, []);
-
-	useEffect(() => {
-		if (getExcelQuery.data?.data.data) {
-			console.log(getExcelQuery.data.data.data);
-		}
-	}, [getExcelQuery.data]);
 
 	useEffect(() => {
 		const currentInformation = playgroundState.projectInformation;
@@ -169,6 +161,8 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 	}, [isOpenEditProject, form, playgroundState, updateProjectInformationMutate.mutate, id]);
 
 	const onExportToPng = async () => {
+		setIsLoading(true);
+
 		hotToast.promise(
 			new Promise<string>((resolve, reject) => {
 				const nodes = getNodes();
@@ -193,6 +187,8 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 					},
 				})
 					.then((value) => {
+						setIsLoading(false);
+
 						resolve(value);
 					})
 					.catch((error) => {
@@ -200,7 +196,7 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 					});
 			}),
 			{
-				loading: <p className="text-sm">Updating your project...</p>,
+				loading: <p className="text-sm">Preparing your image...</p>,
 				success: (data: string) => {
 					setIsOpenDownloadImage(true);
 					setImageDataBase64(data);
@@ -229,6 +225,7 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 	};
 
 	const handleSaveToObjectLibrary = () => {
+		setIsLoading(true);
 		hotToast.promise(
 			new Promise((resolve, reject) => {
 				saveToObjectLibraryMutate.mutate(id, {
@@ -240,6 +237,8 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 								backgroundColor: `#fff`,
 							},
 						});
+						setIsLoading(false);
+
 						resolve(true);
 					},
 					onError: (error) => {
@@ -277,8 +276,66 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 		);
 	};
 
-	const handleExportToExcel = () => {
-		getExcelQuery.refetch();
+	const handleExportToExcel = async () => {
+		setIsLoading(true);
+		hotToast.promise(
+			new Promise((resolve, reject) => {
+				axios({
+					method: 'post',
+					url: 'http://cabonerf.com/api/v1/projects/export',
+					responseType: 'blob', // Set response type to blob
+					headers: {
+						Authorization: `Bearer ${getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN) as string}`,
+					},
+					data: {
+						projectId: id,
+					},
+				})
+					.then((response) => {
+						setIsLoading(false);
+
+						resolve(true);
+						// Create a blob from the response data
+						const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+						// Create a link element
+						const url = window.URL.createObjectURL(blob);
+						const link = document.createElement('a');
+						link.href = url;
+						link.setAttribute('download', `[CABONERF]-${projectName}.xlsx`); // Set the desired file name
+
+						// Automatically trigger the download
+						link.style.display = 'none';
+						document.body.appendChild(link);
+						link.click();
+
+						// Clean up
+						document.body.removeChild(link);
+						window.URL.revokeObjectURL(url);
+					})
+					.catch((err) => {
+						reject(err);
+					});
+			}),
+			{
+				loading: <p className="text-sm">Preparing your Excel file...</p>,
+				success: null,
+				error: null,
+			},
+			{
+				position: 'top-center',
+				error: {
+					style: {
+						visibility: 'hidden',
+					},
+				},
+				success: {
+					style: {
+						visibility: 'hidden',
+					},
+				},
+			}
+		);
 	};
 
 	const handleClose = (isOpen: boolean) => {
@@ -393,32 +450,44 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 									Invite
 								</button>
 								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<button className="flex items-center space-x-2 rounded-sm bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-md shadow-green-200 hover:bg-opacity-90">
+									<DropdownMenuTrigger disabled={isLoading} asChild>
+										<button
+											className={clsx(
+												`flex min-w-[90px] items-center space-x-2 rounded-sm px-2.5 py-1.5 text-xs font-medium text-white shadow-md shadow-green-200 transition-all hover:bg-opacity-90`,
+												{
+													'bg-gray-300': isLoading === true,
+													'bg-green-600': isLoading === false,
+												}
+											)}
+										>
 											<span>Publish</span>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 24 24"
-												width={16}
-												height={16}
-												color={'#fff'}
-												fill={'none'}
-											>
-												<path
-													d="M12 14.5L12 4.5M12 14.5C11.2998 14.5 9.99153 12.5057 9.5 12M12 14.5C12.7002 14.5 14.0085 12.5057 14.5 12"
-													stroke="currentColor"
-													strokeWidth="1.5"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-												<path
-													d="M20 16.5C20 18.982 19.482 19.5 17 19.5H7C4.518 19.5 4 18.982 4 16.5"
-													stroke="currentColor"
-													strokeWidth="1.5"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
+											{isLoading ? (
+												<ReloadIcon className="h-3 w-3 animate-spin" />
+											) : (
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 24 24"
+													width={16}
+													height={16}
+													color={'#fff'}
+													fill={'none'}
+												>
+													<path
+														d="M12 14.5L12 4.5M12 14.5C11.2998 14.5 9.99153 12.5057 9.5 12M12 14.5C12.7002 14.5 14.0085 12.5057 14.5 12"
+														stroke="currentColor"
+														strokeWidth="1.5"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+													<path
+														d="M20 16.5C20 18.982 19.482 19.5 17 19.5H7C4.518 19.5 4 18.982 4 16.5"
+														stroke="currentColor"
+														strokeWidth="1.5"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+												</svg>
+											)}
 										</button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent className="mr-2">
