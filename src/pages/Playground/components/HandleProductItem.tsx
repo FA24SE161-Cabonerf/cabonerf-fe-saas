@@ -103,7 +103,7 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 
 	const handleChangeUnit = ({ unit }: { unit: Unit }) => {
 		// Use initialValue as the base for recalculations
-		const calculatedValue = data.value * (unit.conversionFactor / data.unit.conversionFactor);
+		const calculatedValue = data.value * (data.unit.conversionFactor / unit.conversionFactor);
 
 		setValueExchange(String(calculatedValue));
 		setUnitExchange(unit);
@@ -232,6 +232,9 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 		}
 	};
 
+	const defaultUnit = useMemo(() => {
+		return unit?.data.data.find((item) => item.isDefault)?.name;
+	}, [unit?.data.data]);
 	return (
 		<div
 			className={clsx(`relative bg-gray-100 bg-opacity-20 py-[2px] pl-3 pr-2`, {
@@ -298,28 +301,37 @@ function HandleProductItem({ processId, data, library, isReverse = false, bgColo
 							</DropdownMenuTrigger>
 
 							<DropdownMenuContent className="w-[290px] rounded-md border border-gray-200 p-0 shadow-lg">
-								<div className="relative scroll-smooth bg-white">
-									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+								<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
+									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
 										<div className="col-span-4">Unit</div>
 										<div className="col-span-5">Value</div>
 										<div className="col-span-3 text-right">Default</div>
 									</div>
-									<div className="h-[300px] overflow-y-auto p-2">
-										{unit?.data.data.map((item, index) => (
-											<DropdownMenuItem
-												key={index}
-												onClick={() => handleChangeUnit({ unit: item })}
-												className="grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-[12px] text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none"
-												aria-label={`Select unit ${item.name}`}
-											>
-												<div className="col-span-5 font-medium text-gray-700">{item.name}</div>
-												<div className="col-span-4 text-gray-600">= {item.conversionFactor}</div>
-												<div className="col-span-3 text-right text-gray-500">kg</div>
-											</DropdownMenuItem>
-										))}
+									<div className="p-2">
+										{unit?.data.data.map((item, index) => {
+											return (
+												<DropdownMenuItem
+													onClick={() => handleChangeUnit({ unit: item })}
+													key={index}
+													className={clsx(
+														`grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-xs text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none`,
+														{
+															'rounded-sm bg-gray-100': data.unit.id === item.id,
+														}
+													)}
+													aria-label={`Select unit ${item.name}`}
+												>
+													<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
+													<div className="col-span-5 text-gray-600">
+														= {item.conversionFactor / unitExchange.conversionFactor}
+													</div>
+													<div className="col-span-3 text-right text-gray-500">{defaultUnit}</div>
+												</DropdownMenuItem>
+											);
+										})}
 									</div>
 									<DropdownMenu>
-										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 text-black hover:bg-[#f0f0f0]">
+										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
 											<ChevronLeft size={15} />
 											<div className="text-[13px]">Select unit group</div>
 										</DropdownMenuTrigger>
