@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import config from '@/config';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
 import { isBadRequestError } from '@/utils/error';
 import { getTokenFromLocalStorage, TOKEN_KEY_NAME } from '@/utils/local_storage';
@@ -282,7 +283,7 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 			new Promise((resolve, reject) => {
 				axios({
 					method: 'post',
-					url: 'http://cabonerf.com/api/v1/projects/export',
+					url: `${config.BASE_URL}/projects/export`,
 					responseType: 'blob', // Set response type to blob
 					headers: {
 						Authorization: `Bearer ${getTokenFromLocalStorage(TOKEN_KEY_NAME.ACCESS_TOKEN) as string}`,
