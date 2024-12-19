@@ -133,6 +133,7 @@ function SheetbarSearch() {
 								exchanges: newExchanges,
 								lifeCycleStage: sheetState.process.lifeCycleStage,
 								library: sheetState.process.library,
+								bgColor: sheetState.process.bgColor,
 							},
 						});
 

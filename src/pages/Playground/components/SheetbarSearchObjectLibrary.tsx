@@ -15,7 +15,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { AppContext } from '@/contexts/app.context';
 import { useDebounce } from '@/hooks/useDebounce';
-import { reducer } from '@/pages/Playground/reducer/searchObjectQueryParam.reducer';
+import { eQueryObjectLibraryParam, reducer } from '@/pages/Playground/reducer/searchObjectQueryParam.reducer';
 import socket from '@/socket.io';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -53,7 +53,7 @@ function SheetbarSearchObjectLibrary() {
 		app: { currentOrganization, userProfile },
 	} = useContext(AppContext);
 
-	const [queryParams] = useReducer(reducer, {
+	const [queryParams, dispatch] = useReducer(reducer, {
 		organizationId: currentOrganization?.orgId as string,
 	});
 
@@ -161,7 +161,16 @@ function SheetbarSearchObjectLibrary() {
 									<DropdownMenuSubTrigger>By system boundary</DropdownMenuSubTrigger>
 									<DropdownMenuSubContent>
 										{systemBoundaryQuery.data?.data.data.map((item) => (
-											<DropdownMenuItem className="text-xs" key={item.id}>
+											<DropdownMenuItem
+												onClick={() =>
+													dispatch({
+														type: eQueryObjectLibraryParam.MODIFY_QUERY_PARAMS,
+														payload: { systemBoundaryId: item.id },
+													})
+												}
+												className="text-xs"
+												key={item.id}
+											>
 												{item.boundaryFrom} to {item.boundaryTo}
 											</DropdownMenuItem>
 										))}

@@ -59,7 +59,6 @@ function useNodesStateSynced(): [Node[], React.Dispatch<React.SetStateAction<Nod
 							edgesMap.delete(edge.id);
 						}
 					}
-					console.log(`Node with id ${change.id} was removed successfully.`);
 				} else if (change.type !== 'remove') {
 					const nodeToSet = nextNodes.find((n) => n.id === change.id);
 					if (nodeToSet) {

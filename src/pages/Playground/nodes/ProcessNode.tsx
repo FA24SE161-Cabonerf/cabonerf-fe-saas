@@ -7,6 +7,7 @@ import ContextMenuProcess from '@/pages/Playground/components/ContextMenuProcess
 import HandleProductItem from '@/pages/Playground/components/HandleProductItem';
 import { contextMenu } from '@/pages/Playground/contexts/contextmenu.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
+import { SheetbarContext } from '@/pages/Playground/contexts/sheetbar.context';
 import { formatWithExponential, updateSVGAttributes } from '@/utils/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Handle, NodeProps, Node as NodeReactFlow, Position, useConnection } from '@xyflow/react';
@@ -24,6 +25,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 	const { playgroundState } = useContext(PlaygroundContext);
 	const { app: appContext } = useContext(AppContext);
 	const { app, dispatch } = useContext(contextMenu);
+	const { sheetState } = useContext(SheetbarContext);
 
 	const triggerRef = useRef<HTMLDivElement>(null);
 	const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -95,14 +97,14 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				onContextMenu={handleTriggerContextMenu}
 				ref={triggerRef}
 				style={{
-					zIndex: 40,
+					zIndex: 50,
 					backgroundColor: data.data.bgColor,
 					boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
 					outlineColor: data.data.bgColor,
 				}}
 				className={clsx(`relative h-fit w-[380px] rounded-[28px] transition-transform`, {
 					'scale-105': data.dragging,
-					'outline-dashed outline-[3px] outline-offset-4': data.selectable === false,
+					'outline-dashed outline-[3px] outline-offset-4': sheetState.process?.id === data.id,
 				})}
 			>
 				{/* Default Target */}
@@ -168,7 +170,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 											}}
 										/>
 										<div className="flex items-center space-x-1">
-											<span className="font-bold">{unitValue}</span>
+											<span className="font-bold">{formatWithExponential(unitValue ?? 0)}</span>
 											<span>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</span>
 										</div>
 									</button>

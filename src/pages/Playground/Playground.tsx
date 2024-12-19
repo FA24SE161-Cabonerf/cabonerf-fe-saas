@@ -31,7 +31,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { DragEvent, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -72,8 +72,6 @@ const onDragOver = (event: DragEvent) => {
 };
 
 export default function Playground() {
-	const nodeEditingId = useRef<string>('');
-
 	const [users, setUsers] = useState<{ userId: string; userName: string; userAvatar: string; projectId: string }[]>([]);
 	const { sheetDispatch, sheetState } = useContext(SheetbarContext);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -222,8 +220,6 @@ export default function Playground() {
 		});
 
 		return () => {
-			// Leave room
-			console.log({ userId: app.userProfile?.id, projectId: params.pid });
 			socket.emit('gateway:user-leave-room', { userId: app.userProfile?.id, projectId: params.pid });
 
 			socket.disconnect();
@@ -243,7 +239,6 @@ export default function Playground() {
 
 	useEffect(() => {
 		socket.on('gateway:create-process-success', (data) => {
-			console.log(data);
 			setNodes((nodes) => [...nodes, data]);
 			//Optional
 
@@ -254,43 +249,6 @@ export default function Playground() {
 			setNodes((nodes) => [...nodes, data]);
 		});
 	}, [params.pid, setNodes]);
-
-	useEffect(() => {
-		if (sheetState.process) {
-			// Reset node cũ trước khi xử lý node mới
-			if (nodeEditingId.current) {
-				setNodes((prev) =>
-					prev.map((node) =>
-						node.id === nodeEditingId.current
-							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
-							: node
-					)
-				);
-			}
-
-			// Cập nhật node mới
-			nodeEditingId.current = sheetState.process.id;
-			setNodes((prev) =>
-				prev.map((node) =>
-					node.id === nodeEditingId.current
-						? { ...node, selectable: false, deletable: false, focusable: false, draggable: false, className: 'blink' }
-						: node
-				)
-			);
-		} else {
-			// Reset node cuối cùng khi process không còn tồn tại
-			if (nodeEditingId.current) {
-				setNodes((prev) =>
-					prev.map((node) =>
-						node.id === nodeEditingId.current
-							? { ...node, selectable: true, deletable: true, focusable: true, draggable: true, className: '' }
-							: node
-					)
-				);
-				nodeEditingId.current = '';
-			}
-		}
-	}, [setNodes, sheetState.process]);
 
 	const onDrop = (event: DragEvent) => {
 		event.preventDefault();
@@ -343,19 +301,16 @@ export default function Playground() {
 		}
 	}, [sheetDispatch, sheetState]);
 
-	const addNewNode = (payload: { lifeCycleStageId: string }) => () => {
+	const addNewNode = (payload: { lifeCycleStageId: string }) => (event: MouseEvent) => {
 		// Get properties of screen
-		const screenWidth = window.innerWidth;
-		const screenHeight = window.innerHeight;
 
+		const { clientX, clientY } = event;
+		const position = screenToFlowPosition({ x: clientX, y: clientY });
 		// Create new node
 		const newNode: CreateCabonerfNodeReqBody = {
 			projectId: project?.id as string,
 			lifeCycleStageId: payload.lifeCycleStageId,
-			position: {
-				x: Math.floor(screenWidth / 2 - 400 + Math.random() * 300),
-				y: Math.floor(screenHeight / 2 - 400 + Math.random() * 300),
-			},
+			position: position,
 			type: 'process',
 		};
 		setIsLoading(true);
@@ -382,7 +337,11 @@ export default function Playground() {
 		<React.Fragment>
 			<PlaygroundControlContextProvider>
 				<div className="relative h-[calc(100vh-59px)] text-[#333333]">
-					<PlaygroundHeader users={users} id={project?.id as string} />
+					<PlaygroundHeader
+						projectName={playgroundState.projectInformation?.name ?? 'Reactflow'}
+						users={users}
+						id={project?.id as string}
+					/>
 					<ContextMenu>
 						<ContextMenuTrigger>
 							<ReactFlow
@@ -400,7 +359,6 @@ export default function Playground() {
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
-								// onNodeDrag={onNodeDrag}
 								onlyRenderVisibleElements
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}

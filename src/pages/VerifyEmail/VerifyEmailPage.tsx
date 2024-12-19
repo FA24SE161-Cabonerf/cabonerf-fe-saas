@@ -33,7 +33,7 @@ export default function VerifyEmailPage() {
 		return () => {
 			controller.abort();
 		};
-	}, [token]);
+	}, [token, verifyEmailMutation]);
 
 	return <div></div>;
 }

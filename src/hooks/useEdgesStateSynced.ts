@@ -48,7 +48,6 @@ function useEdgesStateSynced(): [Edge[], React.Dispatch<React.SetStateAction<Edg
 					}
 				} else if (change.type === 'remove' && edgesMap.has(change.id)) {
 					edgesMap.delete(change.id);
-					console.log(`Edge with id ${change.id} was removed successfully.`);
 				} else if (change.type !== 'remove') {
 					const edgeToSet = nextEdges.find((n) => n.id === change.id);
 					if (edgeToSet) {

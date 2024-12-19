@@ -104,7 +104,9 @@ export function formatPercentage(value: number) {
 	return Math.round(value * 10) / 10;
 }
 
-export function areObjectsDifferent(obj1, obj2) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function areObjectsDifferent(obj1: Record<string, any> | null, obj2: Record<string, any> | null): boolean {
+	// Check if either value is not an object or is null
 	if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
 		return obj1 !== obj2;
 	}
@@ -112,10 +114,12 @@ export function areObjectsDifferent(obj1, obj2) {
 	const keys1 = Object.keys(obj1);
 	const keys2 = Object.keys(obj2);
 
+	// Check if the number of keys is different
 	if (keys1.length !== keys2.length) {
 		return true;
 	}
 
+	// Check for differences in values recursively
 	for (const key of keys1) {
 		if (!keys2.includes(key) || areObjectsDifferent(obj1[key], obj2[key])) {
 			return true;

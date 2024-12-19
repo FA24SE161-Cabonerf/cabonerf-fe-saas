@@ -160,7 +160,7 @@ export const columns: ColumnDef<GetProjectListResponse>[] = [
 					{ id },
 					{
 						onSuccess: () => {
-							dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
+							// dispatch({ type: eDispatchType.ADD_DELETE_IDS, payload: id });
 							toast(`Project has been deleted: ${id}`, {
 								description: 'Sunday, December 03, 2023 at 9:00 AM',
 								action: {

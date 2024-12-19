@@ -176,7 +176,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 							path={path}
 							style={{
 								stroke: `url(#edgeGradient-${data.id})`, // Reference unique gradient id
-								strokeWidth: (edgeValue?.percentage as number) / 2 || 3, // Avoid zero width
+								strokeWidth: (edgeValue?.percentage as number) || 2, // Avoid zero width
 							}}
 						/>
 					</>
@@ -189,7 +189,7 @@ function ProcessEdge(data: EdgeProps<CustomEdge>) {
 						<div
 							style={{
 								position: 'absolute',
-								zIndex: 50,
+								zIndex: 40,
 								transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
 								backgroundColor: gradient.start,
 							}}

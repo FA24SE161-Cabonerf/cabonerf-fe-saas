@@ -1,7 +1,14 @@
 import { CabonerfNodeData } from '@/@types/cabonerfNode.type';
 import { Node, useConnection } from '@xyflow/react';
 
-export default function ConnectionLine({ fromX, fromY, toX, toY }) {
+interface ConnectionLineProps {
+	fromX: number;
+	fromY: number;
+	toX: number;
+	toY: number;
+}
+
+export default function ConnectionLine({ fromX, fromY, toX, toY }: ConnectionLineProps) {
 	const connection = useConnection<Node<CabonerfNodeData>>();
 
 	return (

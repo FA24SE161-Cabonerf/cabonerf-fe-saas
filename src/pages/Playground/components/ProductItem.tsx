@@ -12,6 +12,7 @@ import { isUnprocessableEntity } from '@/utils/error';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Node, useReactFlow } from '@xyflow/react';
+import clsx from 'clsx';
 import { Check, ChevronLeft, Trash2 } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -45,7 +46,7 @@ export default function ProductItem({ isInput, data }: Props) {
 		staleTime: 1_000 * 60 * 60,
 	});
 
-	const { data: unit, isFetching: isFetchingUnit } = useQuery({
+	const { data: unit } = useQuery({
 		queryKey: ['unit-group', defaultUnitGroup],
 		queryFn: ({ queryKey }) => ExchangeApis.prototype.getUnitsByUnitGroupId({ id: queryKey[1] }),
 	});
@@ -117,7 +118,7 @@ export default function ProductItem({ isInput, data }: Props) {
 
 	const handleChangeUnit = ({ unit }: { unit: Unit }) => {
 		// Use initialValue as the base for recalculations
-		const calculatedValue = data.value * (unit.conversionFactor / data.unit.conversionFactor);
+		const calculatedValue = data.value * (data.unit.conversionFactor / unit.conversionFactor);
 
 		setValueExchange(String(calculatedValue));
 		setUnitExchange(unit);
@@ -217,6 +218,10 @@ export default function ProductItem({ isInput, data }: Props) {
 		});
 	};
 
+	const defaultUnit = useMemo(() => {
+		return unit?.data.data.find((item) => item.isDefault)?.name;
+	}, [unit?.data.data]);
+
 	return (
 		<div className="relative flex flex-col rounded-md px-4">
 			{/* Name */}
@@ -275,35 +280,41 @@ export default function ProductItem({ isInput, data }: Props) {
 							onChange={handleChangeValueExchange}
 							className="z-40 h-fit w-[50%] min-w-[50%] rounded bg-[#e3e2e2] px-2 py-1.5 text-xs outline-none transition-all focus:bg-white"
 						/>
+
 						<DropdownMenu>
-							<DropdownMenuTrigger className="ml-3 h-fit min-w-[60px] truncate rounded bg-[#f0f0f0] p-1.5 text-xs font-semibold hover:bg-[#e3e2e2]">
+							<DropdownMenuTrigger className="ml-3 min-w-[60px] rounded-[8px] bg-[#f0f0f0] p-1 text-xs font-semibold">
 								{unitExchange.name}
 							</DropdownMenuTrigger>
 
-							<DropdownMenuContent className="mr-2 w-[270px] rounded-tr-md border border-gray-200 p-0 shadow-lg">
+							<DropdownMenuContent className="mr-4 w-[270px] rounded-[8px] border p-0 shadow-lg">
 								<div className="relative h-[300px] overflow-y-auto scroll-smooth bg-white">
-									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+									<div className="sticky top-0 z-20 grid grid-cols-12 rounded-t-md border-b border-gray-200 bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
 										<div className="col-span-4">Unit</div>
 										<div className="col-span-5">Value</div>
 										<div className="col-span-3 text-right">Default</div>
 									</div>
 									<div className="p-2">
-										{isFetchingUnit ? (
-											<div>Loading</div>
-										) : (
-											unit?.data.data.map((item, index) => (
+										{unit?.data.data.map((item, index) => {
+											return (
 												<DropdownMenuItem
 													onClick={() => handleChangeUnit({ unit: item })}
 													key={index}
-													className="!hover:bg-gray-50 grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-sm text-gray-600 transition-all duration-150 focus:outline-none"
+													className={clsx(
+														`grid cursor-pointer grid-cols-12 items-center rounded-sm px-2 py-1 text-xs text-gray-600 transition-all duration-150 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none`,
+														{
+															'rounded-sm bg-gray-100': data.unit.id === item.id,
+														}
+													)}
 													aria-label={`Select unit ${item.name}`}
 												>
 													<div className="col-span-4 font-medium text-gray-700">{item.name}</div>
-													<div className="col-span-5 text-gray-600">= {item.conversionFactor}</div>
-													<div className="col-span-3 text-right text-gray-500">{unitExchange.name}</div>
+													<div className="col-span-5 text-gray-600">
+														= {item.conversionFactor / unitExchange.conversionFactor}
+													</div>
+													<div className="col-span-3 text-right text-gray-500">{defaultUnit}</div>
 												</DropdownMenuItem>
-											))
-										)}
+											);
+										})}
 									</div>
 									<DropdownMenu>
 										<DropdownMenuTrigger className="mx-auto mb-1 flex items-center justify-between rounded px-3 py-1 hover:bg-[#f0f0f0]">
