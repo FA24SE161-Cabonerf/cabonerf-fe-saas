@@ -99,6 +99,7 @@ function ExchangeItem({ data, isInput }: Props) {
 									description: sheetState.process.description,
 									projectId: sheetState.process.projectId,
 									color: sheetState.process.color,
+									bgColor: sheetState.process.bgColor, // Add this line
 									overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
 									impacts: newProcess.data.impacts,
 									exchanges: newProcess.data.exchanges,
@@ -157,6 +158,7 @@ function ExchangeItem({ data, isInput }: Props) {
 										description: sheetState.process.description,
 										projectId: sheetState.process.projectId,
 										color: sheetState.process.color,
+										bgColor: sheetState.process.bgColor, // Add this line
 										overallProductFlowRequired: sheetState.process.overallProductFlowRequired,
 										impacts: newProcess.data.impacts,
 										exchanges: newProcess.data.exchanges,

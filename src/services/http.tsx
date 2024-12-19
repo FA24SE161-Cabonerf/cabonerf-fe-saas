@@ -11,7 +11,7 @@ import {
 import axios, { AxiosInstance } from 'axios';
 
 const BASE_URL = config.BASE_URL;
-const TEN_SECONDS = 1000 * 10;
+const TEN_SECONDS = 1000 * 20;
 
 class HttpService {
 	axiosInstance: AxiosInstance;

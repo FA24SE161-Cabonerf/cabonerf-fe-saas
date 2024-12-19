@@ -400,7 +400,6 @@ export default function Playground() {
 								onNodesChange={onNodesChange}
 								connectionLineComponent={ConnectionLine}
 								onEdgesChange={onEdgesChange}
-								// onNodeDrag={onNodeDrag}
 								onlyRenderVisibleElements
 								onPaneClick={handlePanelClick}
 								onNodeDragStop={handleNodeDragStop}

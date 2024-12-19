@@ -1,9 +1,10 @@
 import { PlaygroundControlDispatch } from '@/@types/dispatch.type';
 import ContributeResult from '@/common/icons/ContributeResult';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlaygroundControlContext } from '@/pages/Playground/contexts/playground-control.context';
 import { PlaygroundContext } from '@/pages/Playground/contexts/playground.context';
-import { formatPercentage } from '@/utils/utils';
+import { formatNumberExponential, formatPercentage } from '@/utils/utils';
 import clsx from 'clsx';
 import { Info, Triangle } from 'lucide-react';
 import React, { useContext, useMemo, useState } from 'react';
@@ -23,7 +24,13 @@ type Props = {
 // Component to display value and percentage contribution
 const ValueContribute = ({ value, percentage }: { value: number; percentage: number }) => (
 	<div className="flex w-1/2 justify-end text-base">
-		<div className="mr-12 text-[13px] font-bold">{value}</div>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<div className="mr-12 cursor-pointer text-[13px] font-bold">{formatNumberExponential(value)}</div>
+			</TooltipTrigger>
+			<TooltipContent>{value}</TooltipContent>
+		</Tooltip>
+
 		<div className="flex items-center space-x-1 text-[13px]">
 			<div className="relative h-[25px] w-[200px] overflow-hidden rounded-sm bg-gray-200 shadow-sm">
 				<div
@@ -96,63 +103,65 @@ const TreeView = ({ data, depth }: Props) => {
 		return calculateNodeContribution(data, rootTotal);
 	}, [data, impactCategory, impacts, processes]);
 
-	console.log('FROM CONTRIBUTIOn', calculateRecursiveTotal);
-
 	if (!calculateRecursiveTotal) return null;
 
 	return (
-		<div>
-			{data.subProcesses.length > 0 ? (
-				<Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full space-y-2">
-					<div className="flex w-full items-center space-x-4">
-						<div className="flex w-full justify-between">
-							<div className="flex w-1/2 items-center space-x-0.5">
-								<CollapsibleTrigger asChild>
-									<button
-										className={clsx(`mx-2 h-fit w-fit`, {
-											'rotate-180': isOpen,
-											'rotate-90': !isOpen,
-										})}
-									>
-										<Triangle size={16} fill="#333333" />
-									</button>
-								</CollapsibleTrigger>
-								<div className="max-w-[400px] text-sm font-semibold">{calculateRecursiveTotal.name}</div>
+		<TooltipProvider delayDuration={100}>
+			<div>
+				{data.subProcesses.length > 0 ? (
+					<Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full space-y-2">
+						<div className="flex w-full items-center space-x-4">
+							<div className="flex w-full justify-between">
+								<div className="flex w-1/2 items-center space-x-0.5">
+									<CollapsibleTrigger asChild>
+										<button
+											className={clsx(`mx-2 h-fit w-fit`, {
+												'rotate-180': isOpen,
+												'rotate-90': !isOpen,
+											})}
+										>
+											<Triangle size={16} fill="#333333" />
+										</button>
+									</CollapsibleTrigger>
+									<div className="max-w-[400px] text-sm font-semibold">{calculateRecursiveTotal.name}</div>
+								</div>
+								<ValueContribute value={calculateRecursiveTotal.value} percentage={calculateRecursiveTotal.percentage} />
 							</div>
-							<ValueContribute value={calculateRecursiveTotal.value} percentage={calculateRecursiveTotal.percentage} />
 						</div>
+						<CollapsibleContent className="space-y-2" style={{ paddingLeft: depth * 10 }}>
+							{data.subProcesses.map((item, index) => (
+								<TreeView key={index} depth={depth + 1} data={item} />
+							))}
+						</CollapsibleContent>
+					</Collapsible>
+				) : (
+					<div className="flex justify-between text-sm font-light" style={{ paddingLeft: depth * 4 }}>
+						<div className="flex max-w-[400px] items-center space-x-1">
+							<div>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20} color={'#000000'} fill={'none'}>
+									<path
+										d="M4 3V5.07692C4 7.07786 4 8.07833 4.14533 8.91545C4.94529 13.5235 8.90656 17.1376 13.9574 17.8674C14.8749 18 16.8068 18 19 18"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+									<path
+										d="M17 21C17.6068 20.4102 20 18.8403 20 18C20 17.1597 17.6068 15.5898 17 15"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
+							<span>{calculateRecursiveTotal.name}</span>
+						</div>
+						<ValueContribute value={calculateRecursiveTotal.value} percentage={calculateRecursiveTotal.percentage} />
 					</div>
-					<CollapsibleContent className="space-y-2" style={{ paddingLeft: depth * 10 }}>
-						{data.subProcesses.map((item, index) => (
-							<TreeView key={index} depth={depth + 1} data={item} />
-						))}
-					</CollapsibleContent>
-				</Collapsible>
-			) : (
-				<div className="flex justify-between text-sm font-light" style={{ paddingLeft: depth * 4 }}>
-					<div className="flex max-w-[400px] items-center space-x-1">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20} color={'#000000'} fill={'none'}>
-							<path
-								d="M4 3V5.07692C4 7.07786 4 8.07833 4.14533 8.91545C4.94529 13.5235 8.90656 17.1376 13.9574 17.8674C14.8749 18 16.8068 18 19 18"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-							<path
-								d="M17 21C17.6068 20.4102 20 18.8403 20 18C20 17.1597 17.6068 15.5898 17 15"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-						<span>{calculateRecursiveTotal.name}</span>
-					</div>
-					<ValueContribute value={calculateRecursiveTotal.value} percentage={calculateRecursiveTotal.percentage} />
-				</div>
-			)}
-		</div>
+				)}
+			</div>
+		</TooltipProvider>
 	);
 };
 

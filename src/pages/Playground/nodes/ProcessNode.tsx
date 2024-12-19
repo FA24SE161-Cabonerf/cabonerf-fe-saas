@@ -95,7 +95,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 				onContextMenu={handleTriggerContextMenu}
 				ref={triggerRef}
 				style={{
-					zIndex: 40,
+					zIndex: 50,
 					backgroundColor: data.data.bgColor,
 					boxShadow: `0 5px 15px -2px ${data.data.bgColor}`,
 					outlineColor: data.data.bgColor,
@@ -168,7 +168,7 @@ function ProcessNode(data: NodeProps<CabonerfNodeProps>) {
 											}}
 										/>
 										<div className="flex items-center space-x-1">
-											<span className="font-bold">{unitValue}</span>
+											<span className="font-bold">{formatWithExponential(unitValue ?? 0)}</span>
 											<span>{playgroundState.impactCategory?.midpointImpactCategory.unit.name}</span>
 										</div>
 									</button>
