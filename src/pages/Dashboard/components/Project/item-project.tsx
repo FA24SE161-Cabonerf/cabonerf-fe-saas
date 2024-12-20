@@ -2,7 +2,6 @@ import { eDispatchType } from '@/@types/dispatch.type';
 import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import DashboardIcon from '@/common/icons/DashboardIcon';
-import DocumentIcon from '@/common/icons/DocumentIcon';
 import FavoriteIcon from '@/common/icons/FavoriteIcon';
 import ErrorSooner from '@/components/ErrorSooner';
 import MyAvatar from '@/components/MyAvatar';
@@ -12,11 +11,7 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuPortal,
 	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AppContext } from '@/contexts/app.context';
@@ -24,7 +19,7 @@ import { queryClient } from '@/queryClient';
 import { isBadRequestError } from '@/utils/error';
 import { formatDate } from '@/utils/utils';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { ArrowUpRight, MoreHorizontal, Trash2 } from 'lucide-react';
 import React, { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -163,27 +158,6 @@ function ItemProject({ item }: Props) {
 								<DashboardIcon />
 								<span>Dashboard</span>
 							</DropdownMenuItem>
-
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>
-									<div className="flex items-center justify-start space-x-3 text-sm">
-										<DocumentIcon />
-										<span>Reports</span>
-									</div>
-								</DropdownMenuSubTrigger>
-
-								<DropdownMenuPortal>
-									<DropdownMenuSubContent>
-										<div className="px-2 text-sm font-medium">Reports</div>
-										<DropdownMenuSeparator />
-
-										<DropdownMenuItem className="flex items-center space-x-3">
-											<Plus size={18} />
-											<span>Create</span>
-										</DropdownMenuItem>
-									</DropdownMenuSubContent>
-								</DropdownMenuPortal>
-							</DropdownMenuSub>
 
 							<DropdownMenuItem onClick={onUpdateFavProject} className="flex items-center justify-start space-x-3 text-sm">
 								<FavoriteIcon fill={item.favorite ? '#ef4444' : 'none'} color={item.favorite ? '#ef4444' : 'none'} />

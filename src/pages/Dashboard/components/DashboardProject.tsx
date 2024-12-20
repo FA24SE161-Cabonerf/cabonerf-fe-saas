@@ -98,10 +98,7 @@ function DashboardProject() {
 									<div className="col-span-3 font-normal text-gray-600">Functional Unit:</div>
 									<div className="col-span-9 font-medium">{previewProject?.functionalUnit}</div>
 								</div>
-								<div className="grid grid-cols-12 border-b border-gray-200 py-4">
-									<div className="col-span-3 font-normal text-gray-600">Project Life Cycle:</div>
-									<div className="col-span-9 font-medium"></div>
-								</div>
+
 								<div className="grid grid-cols-12 border-b border-gray-200 py-4">
 									<div className="col-span-3 font-normal text-gray-600">Created On:</div>
 									<div className="col-span-9 font-medium">{formatDate(previewProject?.modifiedAt as string)}</div>
@@ -129,7 +126,9 @@ function DashboardProject() {
 					</TabsContent>
 					<TabsContent value="intensity" className="mt-7">
 						<div className="p-4">
-							<h2 className="mb-8 mt-6 text-center text-xl font-medium">Life cycle assessment overview</h2>
+							<h2 className="mb-8 mt-6 text-center text-xl font-medium">
+								What Does {previewProject?.functionalUnit} of Carbon Mean?
+							</h2>
 
 							<TooltipProvider>
 								<div className="mx-auto grid h-fit w-auto grid-cols-12">

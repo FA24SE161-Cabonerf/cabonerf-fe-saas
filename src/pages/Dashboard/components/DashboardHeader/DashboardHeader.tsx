@@ -121,10 +121,6 @@ export default function DashboardHeader({ projects, isPending }: Props) {
 				</div>
 
 				<div className="flex items-center space-x-2">
-					<Button variant={'outline'} className="space-x-1 rounded-sm font-normal">
-						<span>Explore templates</span>
-						<Telescope size={17} strokeWidth={2} />
-					</Button>
 					{/* Dialog Create Project */}
 					<DropdownMenu>
 						<DropdownMenuTrigger className="flex items-center space-x-1 rounded-sm bg-primary px-3 py-1.5 text-sm text-white outline-none">

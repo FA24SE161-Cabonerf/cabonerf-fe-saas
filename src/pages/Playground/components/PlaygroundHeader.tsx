@@ -364,20 +364,6 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 										Go to Dashboard
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
-									<DropdownMenuSub>
-										<DropdownMenuSubTrigger className="text-xs">
-											<span>File</span>
-										</DropdownMenuSubTrigger>
-										<DropdownMenuPortal>
-											<DropdownMenuSubContent className="ml-2 border-none bg-white">
-												<DropdownMenuItem className="text-xs">
-													<span>New</span>
-												</DropdownMenuItem>
-											</DropdownMenuSubContent>
-										</DropdownMenuPortal>
-									</DropdownMenuSub>
-									<DropdownMenuItem className="text-xs">Team</DropdownMenuItem>
-									<DropdownMenuItem className="text-xs">Subscription</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
@@ -447,9 +433,7 @@ function PlaygroundHeader({ id, users, projectName }: Props) {
 										</Tooltip>
 									))}
 								</div>
-								<button className="rounded-sm bg-[#f3f3f3] px-2.5 py-1.5 text-xs font-medium text-[#333333] hover:bg-gray-200">
-									Invite
-								</button>
+
 								<DropdownMenu>
 									<DropdownMenuTrigger disabled={isLoading} asChild>
 										<button
