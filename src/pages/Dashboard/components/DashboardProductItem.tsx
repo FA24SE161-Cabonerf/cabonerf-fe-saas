@@ -3,24 +3,15 @@ import { GetProjectListResponse } from '@/@types/project.type';
 import ProjectApis from '@/apis/project.apis';
 import logo from '@/assets/logos/trans-logo.png';
 import DashboardIcon from '@/common/icons/DashboardIcon';
-import DocumentIcon from '@/common/icons/DocumentIcon';
 import FavoriteIcon from '@/common/icons/FavoriteIcon';
 import MyAvatar from '@/components/MyAvatar';
-import {
-	ContextMenu,
-	ContextMenuContent,
-	ContextMenuItem,
-	ContextMenuSeparator,
-	ContextMenuSub,
-	ContextMenuSubContent,
-	ContextMenuSubTrigger,
-} from '@/components/ui/context-menu';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu';
 import { AppContext } from '@/contexts/app.context';
 import { queryClient } from '@/queryClient';
 import { formatDate } from '@/utils/utils';
 import { ContextMenuTrigger } from '@radix-ui/react-context-menu';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowUpRight, Dot, Plus, Trash2 } from 'lucide-react';
+import { ArrowUpRight, Dot, Trash2 } from 'lucide-react';
 import { useContext } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -154,27 +145,9 @@ export default function DashboardProductItem({ item }: Props) {
 						<span>Dashboard</span>
 					</ContextMenuItem>
 
-					<ContextMenuSub>
-						<ContextMenuSubTrigger>
-							<div className="flex items-center justify-start space-x-3 text-sm">
-								<DocumentIcon />
-								<span>Reports</span>
-							</div>
-						</ContextMenuSubTrigger>
-						<ContextMenuSubContent>
-							<div className="px-2 text-sm font-medium">Reports</div>
-							<ContextMenuSeparator />
-
-							<ContextMenuItem className="flex items-center space-x-3">
-								<Plus size={18} />
-								<span>Create</span>
-							</ContextMenuItem>
-						</ContextMenuSubContent>
-					</ContextMenuSub>
-
 					<ContextMenuItem onSelect={onUpdateFavProject} className="flex items-center justify-start space-x-3 text-sm">
 						<FavoriteIcon fill={item.favorite ? '#ef4444' : 'none'} color={item.favorite ? '#ef4444' : 'none'} />
-						<span>{item.favorite ? 'Unfavorite' : 'Favorite'}</span>
+						<span>{item.favorite ? 'Favorite' : 'Favorite'}</span>
 					</ContextMenuItem>
 				</div>
 
